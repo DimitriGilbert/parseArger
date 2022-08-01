@@ -136,7 +136,7 @@ assign_positional_args 1 "${_positionals[@]}"
 
 # vvv  PLACE YOUR CODE HERE  vvv
 
-outStr="_arg_${_arg_arg_name}=";
+outStr="_arg_${_arg_arg_name//-/_}=";
 
 if [ "$_arg_on" == "on" ]; then
   outStr+="\"on\"";

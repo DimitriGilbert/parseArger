@@ -6,8 +6,10 @@
 # ARG_POSITIONAL_SINGLE([description],[positional argument description])
 # ARG_OPTIONAL_SINGLE([repeat-min],[],[minimum repeatition, forces --repeat],[1])
 # ARG_OPTIONAL_SINGLE([repeat-max],[],[maximum repeatition, forces --repeat])
+# ARG_OPTIONAL_REPEATED([one-of],[],[list of accepted values])
 # ARG_OPTIONAL_BOOLEAN([repeat],[r],[repeatable])
 # ARG_OPTIONAL_BOOLEAN([optional],[],[optional])
+# ARG_OPTIONAL_BOOLEAN([subcommand],[],[this is a subcommand])
 # ARG_DEFAULTS_POS([])
 # ARG_HELP([generate the parseArg declaration string for positional argument])
 # ARGBASH_GO()
@@ -41,21 +43,25 @@ _arg_description=
 _arg_default_value=
 _arg_repeat_min="1"
 _arg_repeat_max=
+_arg_one_of=()
 _arg_repeat="off"
 _arg_optional="off"
+_arg_subcommand="off"
 
 
 print_help()
 {
 	printf '%s\n' "generate the parseArg declaration string for positional argument"
-	printf 'Usage: %s [-d|--default-value <arg>] [--repeat-min <arg>] [--repeat-max <arg>] [-r|--(no-)repeat] [--(no-)optional] [-h|--help] <arg-name> <description>\n' "$0"
+	printf 'Usage: %s [-d|--default-value <arg>] [--repeat-min <arg>] [--repeat-max <arg>] [--one-of <arg>] [-r|--(no-)repeat] [--(no-)optional] [--(no-)subcommand] [-h|--help] <arg-name> <description>\n' "$0"
 	printf '\t%s\n' "<arg-name>: positional argument name"
 	printf '\t%s\n' "<description>: positional argument description"
 	printf '\t%s\n' "-d, --default-value: default value (no default)"
 	printf '\t%s\n' "--repeat-min: minimum repeatition, forces --repeat (default: '1')"
 	printf '\t%s\n' "--repeat-max: maximum repeatition, forces --repeat (no default)"
+	printf '\t%s\n' "--one-of: list of accepted values (empty by default)"
 	printf '\t%s\n' "-r, --repeat, --no-repeat: repeatable (off by default)"
 	printf '\t%s\n' "--optional, --no-optional: optional (off by default)"
+	printf '\t%s\n' "--subcommand, --no-subcommand: this is a subcommand (off by default)"
 	printf '\t%s\n' "-h, --help: Prints help"
 }
 
@@ -94,6 +100,14 @@ parse_commandline()
 			--repeat-max=*)
 				_arg_repeat_max="${_key##--repeat-max=}"
 				;;
+			--one-of)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_one_of+=("$2")
+				shift
+				;;
+			--one-of=*)
+				_arg_one_of+=("${_key##--one-of=}")
+				;;
 			-r|--no-repeat|--repeat)
 				_arg_repeat="on"
 				test "${1:0:5}" = "--no-" && _arg_repeat="off"
@@ -109,6 +123,10 @@ parse_commandline()
 			--no-optional|--optional)
 				_arg_optional="on"
 				test "${1:0:5}" = "--no-" && _arg_optional="off"
+				;;
+			--no-subcommand|--subcommand)
+				_arg_subcommand="on"
+				test "${1:0:5}" = "--no-" && _arg_subcommand="off"
 				;;
 			-h|--help)
 				print_help
@@ -185,6 +203,16 @@ fi
 
 if [ "$_arg_optional" != "off" ]; then
 	outStr+=" --optional";
+fi
+
+if [ "$_arg_subcommand" != "off" ]; then
+	outStr+=" --subcommand";
+fi
+
+if [ "${#_arg_one_of[@]}" -gt 0 ]; then
+	for _oof in "${_arg_one_of[@]}"; do
+		outStr+=" --one-of \"$_oof\"";
+	done
 fi
 
 echo -e "$outStr";

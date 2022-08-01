@@ -158,6 +158,7 @@ assign_positional_args 1 "${_positionals[@]}"
 
 # vvv  PLACE YOUR CODE HERE  vvv
 
+_arg_arg_name="${_arg_arg_name//-/_}"
 outStr="_arg_${_arg_arg_name}=";
 
 if [ "$_arg_repeat" != "off" ]; then

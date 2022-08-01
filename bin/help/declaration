@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# @parseArger-begin
+# @parseArger-help "create common help stuff"
+# @parseArger-declarations
+# @parseArger pos message "your main help message"
+# @parseArger opt option "help trigger option" --default-value "help"
+# @parseArger opt short-option "help trigger short option" --default-value "h"
+# @parseArger-declarations-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	echo "$1" >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_arg_message="";
+# OPTIONALS ARGUMENTS
+_arg_option="help"
+_arg_short_option="h"
+# FLAGS
+
+
+print_help()
+{
+	echo -e "create common help stuff:"
+	echo -e "	message: your main help message"
+	echo -e "	--option <option>: help trigger option [default: ' help ']"
+	echo -e "	--short-option <short-option>: help trigger short option [default: ' h ']"
+	echo -e "Usage :
+	$0 <> [--option <value>] [--short-option <value>]"
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			--option)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_option="$2"
+				shift
+				;;
+			--option=*)
+				_arg_option="${_key##--option=}"
+				;;
+			
+			--short-option)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_short_option="$2"
+				shift
+				;;
+			--short-option=*)
+				_arg_short_option="${_key##--short-option=}"
+				;;
+			
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	test "${_positionals_count}" -le 1 || _PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
+	test "${_positionals_count}" -ge 1 || _PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}." 1
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_message ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\t: ${_arg_message}";
+	echo -e "\tshort-option: ${_arg_option | sed 's/-/_/g'}";
+	echo -e "\t: ${_arg_short-option | sed 's/-/_/g'}";
+
+}
+
+parse_commandline "$@"
+handle_passed_args_count
+assign_positional_args 1 "${_positionals[@]}"
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+outStr="# @parseArger-help \"$_arg_message\"";
+
+if [ "$_arg_option" != "" ]; then
+	outStr+=" --option \"$_arg_option\"";
+fi
+if [ "$_arg_short_option" != "" ]; then
+	outStr+=" --short-option \"$_arg_short_option\"";
+fi
+
+echo "$outStr";

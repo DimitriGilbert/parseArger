@@ -184,7 +184,7 @@ fi
 
 optParser="${optParser}\n\t";
 
-setOptStr="_arg_${_arg_arg_name}";
+setOptStr="_arg_${_arg_arg_name//-/_}";
 if [ "$_arg_repeat" == "on" ]; then
 	setOptStr="${setOptStr}+=(\"\$2\")";
 else
@@ -196,7 +196,7 @@ if [ "$_arg_empty" == "on" ] || [ "$_arg_empty_value" != "" ]; then
     _arg_empty_value="on"
   fi
   optParser="${optParser}if [ \$# -lt 2 ];then
-		_arg_${_arg_arg_name}=\"${_arg_empty_value}\";
+		_arg_${_arg_arg_name//-/_}=\"${_arg_empty_value}\";
 	else
 		${setOptStr};
 	fi
@@ -216,7 +216,7 @@ else
 	setvalstr="=\"\${_key##--${_arg_arg_name}=}\""
 fi
 optParser="${optParser}--${_arg_arg_name}=*)
-	_arg_${_arg_arg_name}${setvalstr}
+	_arg_${_arg_arg_name//-/_}${setvalstr}
 	;;
 ";
 
@@ -227,7 +227,7 @@ if [ "$_arg_short" != "" ]; then
 		setvalsstr="=\"\${_key##-${_arg_short}}\""
 	fi
   optParser="${optParser}-${_arg_short}*)
-	_arg_${_arg_arg_name}${setvalsstr}
+	_arg_${_arg_arg_name//-/_}${setvalsstr}
 	;;
 ";
 fi

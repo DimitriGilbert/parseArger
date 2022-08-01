@@ -6,8 +6,10 @@
 # ARG_OPTIONAL_REPEATED([flag],[],[flags declarations])
 # ARG_OPTIONAL_REPEATED([set],[],[variable declarations])
 # ARG_OPTIONAL_SINGLE([help-message],[],[general help message for the script],[I send an SOS to the world])
+# ARG_OPTIONAL_SINGLE([help-option],[],[option to trigger for the script])
+# ARG_OPTIONAL_SINGLE([help-short-option],[],[option to trigger for the script])
 # ARG_OPTIONAL_SINGLE([leftovers-name],[],[extra arguments variable name],[leftovers])
-# ARG_OPTIONAL_SINGLE([use-bang],[],[shebang executable],["/bin/bash"])
+# ARG_OPTIONAL_SINGLE([use-bang],[],[shebang executable],[/bin/bash])
 # ARG_OPTIONAL_BOOLEAN([leftovers],[],[accept extra arguments])
 # ARG_OPTIONAL_BOOLEAN([bang],[],[include shebang],[on])
 # ARG_HELP([generate the parsing code])
@@ -40,6 +42,8 @@ _arg_opt=()
 _arg_flag=()
 _arg_set=()
 _arg_help_message="I send an SOS to the world"
+_arg_help_option=
+_arg_help_short_option=
 _arg_leftovers_name="leftovers"
 _arg_use_bang="/bin/bash"
 _arg_leftovers="off"
@@ -49,14 +53,16 @@ _arg_bang="on"
 print_help()
 {
 	printf '%s\n' "generate the parsing code"
-	printf 'Usage: %s [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--help-message <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]\n' "$0"
+	printf 'Usage: %s [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--help-message <arg>] [--help-option <arg>] [--help-short-option <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]\n' "$0"
 	printf '\t%s\n' "--pos: positional arguments declarations (empty by default)"
 	printf '\t%s\n' "--opt: optionnal arguments declarations (empty by default)"
 	printf '\t%s\n' "--flag: flags declarations (empty by default)"
 	printf '\t%s\n' "--set: variable declarations (empty by default)"
 	printf '\t%s\n' "--help-message: general help message for the script (default: 'I send an SOS to the world')"
+	printf '\t%s\n' "--help-option: option to trigger for the script (no default)"
+	printf '\t%s\n' "--help-short-option: option to trigger for the script (no default)"
 	printf '\t%s\n' "--leftovers-name: extra arguments variable name (default: 'leftovers')"
-	printf '\t%s\n' "--use-bang: shebang executable (default: '"/bin/bash"')"
+	printf '\t%s\n' "--use-bang: shebang executable (default: '/bin/bash')"
 	printf '\t%s\n' "--leftovers, --no-leftovers: accept extra arguments (off by default)"
 	printf '\t%s\n' "--bang, --no-bang: include shebang (on by default)"
 	printf '\t%s\n' "-h, --help: Prints help"
@@ -108,6 +114,22 @@ parse_commandline()
 				;;
 			--help-message=*)
 				_arg_help_message="${_key##--help-message=}"
+				;;
+			--help-option)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_help_option="$2"
+				shift
+				;;
+			--help-option=*)
+				_arg_help_option="${_key##--help-option=}"
+				;;
+			--help-short-option)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_help_short_option="$2"
+				shift
+				;;
+			--help-short-option=*)
+				_arg_help_short_option="${_key##--help-short-option=}"
 				;;
 			--leftovers-name)
 				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
@@ -167,13 +189,17 @@ minPos="${#_arg_pos[@]}";
 maxPos="${#_arg_pos[@]}";
 reqPos=();
 posNames=();
+posArgNames=();
 optNames=();
+optArgNames=();
 flagNames=();
+flagArgNames=();
 
 posI=0;
 for pos in "${_arg_pos[@]}"; do
 	posI=$((posI+1));
 	posNames+=("$(echo "$pos" | head -n1 | cut -d " " -f1)");
+	posArgNames+=("$(echo "$pos" | head -n1 | cut -d " " -f1 | sed 's/-/_/')");
 	if [[ $pos =~ "--optional" ]]; then
 		minPos=$((minPos-1));
 	else
@@ -192,9 +218,11 @@ for pos in "${_arg_pos[@]}"; do
 done
 for opt in "${_arg_opt[@]}"; do
 	optNames+=("$(echo "$opt" | head -n1 | cut -d " " -f1)");
+	optArgNames+=("$(echo "$opt" | head -n1 | cut -d " " -f1) | sed 's/-/_/g'");
 done
 for flag in "${_arg_flag[@]}"; do
 	flagNames+=("$(echo "$flag" | head -n1 | cut -d " " -f1)");
+	flagArgNames+=("$(echo "$flag" | head -n1 | cut -d " " -f1) | sed 's/-/_/g'");
 done
 
 if [ "$_arg_bang" != "off" ]; then
@@ -202,8 +230,16 @@ if [ "$_arg_bang" != "off" ]; then
 fi
 
 echo -e "
-# @parseArger-begin
-# @parseArger-help \"$_arg_help_message\"";
+# @parseArger-begin";
+
+helpDecArg=("$_arg_help_message");
+if [ "$_arg_help_option" != "" ]; then
+	helpDecArg+=("--option" "$_arg_help_option");
+fi
+if [ "$_arg_help_short_option" != "" ]; then
+	helpDecArg+=("--short-option" "$_arg_help_short_option");
+fi
+"$SCRIPT_ROOT_DIR/help/declaration" "${helpDecArg[@]}";
 
 if [ "${#_arg_set[@]}" -gt 0 ]; then
 	for _set in "${_arg_set[@]}"; do
@@ -279,7 +315,7 @@ for pos in "${_arg_pos[@]}"; do
 		opCh="[";
 		clCh="]";
 	fi
-	posexample+=" ${opCh}${posNames[$posI]}${clCh}";
+	posexample+=" ${opCh}${posArgNames[$posI]}${clCh}";
 	eval "$SCRIPT_ROOT_DIR/pos/help $pos";
 done
 optexample="";
@@ -311,6 +347,8 @@ for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/parser $flag" | sed -e 's/^/\t\t\t/';
 done
 
+"$SCRIPT_ROOT_DIR/help/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
+
 echo -e "\t\t\t*)
 				_last_positional=\"\$1\"
 				_positionals+=(\"\$_last_positional\")
@@ -337,7 +375,7 @@ fi
 assign_positional_args()
 {
 	local _positional_name _shift_for=\$1;
-	_positional_names=\"$(for pos in "${posNames[@]}"; do printf "_arg_%s " "$pos";done;)\";";
+	_positional_names=\"$(for pos in "${posArgNames[@]}"; do printf "_arg_%s " "$pos";done;)\";";
 
 if [ "$_arg_leftovers" != "off" ]; then
 	echo -e "	_leftovers_count=\$((\${#_positionals[@]} - ${#_arg_pos[@]}))
@@ -361,14 +399,20 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo \"DEBUG: \$0 \$@\";
 	";
-for pos in "${posNames[@]}"; do
-	echo "	echo -e \"\t${pos}: \${_arg_${pos}}\";";
+posI=0;
+for pos in "${posArgNames[@]}"; do
+	posI=$((posI+1));
+	echo "	echo -e \"\t${posNames[$posI]}: \${_arg_${pos}}\";";
 done
-for opt in "${optNames[@]}"; do
-	echo "	echo -e \"\t${opt}: \${_arg_${opt}}\";";
+posI=0;
+for opt in "${optArgNames[@]}"; do
+	posI=$((posI+1));
+	echo "	echo -e \"\t${optNames[$posI]}: \${_arg_${opt}}\";";
 done
-for flag in "${flagNames[@]}"; do
-	echo "	echo -e \"\t${flag}: \${_arg_${flag}}\";";
+posI=0;
+for flag in "${flagArgNames[@]}"; do
+	posI=$((posI+1));
+	echo "	echo -e \"\t${flagNames[$posI]}: \${_arg_${flag}}\";";
 done
 if [ "$_arg_leftovers" != "off" ]; then
 	echo "	echo -e \"\t${_arg_leftovers_name}: \${_arg_${_arg_leftovers_name}[*]}\";";

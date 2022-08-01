@@ -143,8 +143,8 @@ if [ "$_arg_short" != "" ]; then
 fi
 
 optParser="${optParser}
-	_arg_${_arg_arg_name}=\"on\"
-	test \"\${1:0:5}\" = \"--no-\" && _arg_${_arg_arg_name}=\"off\"";
+	_arg_${_arg_arg_name//-/_}=\"on\"
+	test \"\${1:0:5}\" = \"--no-\" && _arg_${_arg_arg_name//-/_}=\"off\"";
 
 echo -e "${optParser}
 	;;";
