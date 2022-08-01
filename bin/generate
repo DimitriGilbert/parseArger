@@ -197,7 +197,6 @@ flagArgNames=();
 
 posI=0;
 for pos in "${_arg_pos[@]}"; do
-	posI=$((posI+1));
 	posNames+=("$(echo "$pos" | head -n1 | cut -d " " -f1)");
 	posArgNames+=("$(echo "$pos" | head -n1 | cut -d " " -f1 | sed 's/-/_/')");
 	if [[ $pos =~ "--optional" ]]; then
@@ -215,6 +214,7 @@ for pos in "${_arg_pos[@]}"; do
 	if [[ $pos =~ "--max-repeat" ]]; then
 		maxPos=$((maxPos+1));
 	fi
+	posI=$((posI+1));
 done
 for opt in "${_arg_opt[@]}"; do
 	optNames+=("$(echo "$opt" | head -n1 | cut -d " " -f1)");

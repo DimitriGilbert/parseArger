@@ -216,7 +216,7 @@ if [ "$_arg_empty_value" != "" ]; then
 	optHelp+=" [empty value: '${_arg_empty_value}']";
 fi
 
-if [ "${#_arg_one_of[@]}" != "" ]; then
+if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	optHelp+=" [one of";
 	for _oof in "${_arg_one_of[@]}"; do
 		optHelp+=" '$_oof'";

@@ -197,7 +197,7 @@ if [ "$_arg_default_value" != "" ]; then
 	optHelp+=" [default: '${_arg_default_value}']";
 fi
 
-if [ "${#_arg_one_of[@]}" != "" ]; then
+if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	optHelp+=" [one of";
 	for _oof in "${_arg_one_of[@]}"; do
 		optHelp+=" '$_oof'";

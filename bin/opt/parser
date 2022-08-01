@@ -203,7 +203,7 @@ else
 fi
 
 if [ "${#_arg_one_of[@]}" -gt 0 ]; then
-	setOptStr+="\n\tif [[ \"\${#_one_of_arg_${_arg_arg_name//-/_}[@]}\" -gt 0 ]];then [[ \"\${_one_of_arg_${_arg_arg_name//-/_}[*]}\" =~ \"_arg_${_arg_arg_name//-/_}\" ]] || die \"$_arg_arg_name must be one of: ${_arg_one_of[*]}\";fi";
+	setOptStr+="\n\tif [[ \"\${#_one_of_arg_${_arg_arg_name//-/_}[@]}\" -gt 0 ]];then [[ \"\${_one_of_arg_${_arg_arg_name//-/_}[*]}\" =~ (^|[[:space:]])\"\$_arg_${_arg_arg_name//-/_}\"(\$|[[:space:]]) ]] || die \"$_arg_arg_name must be one of: ${_arg_one_of[*]}\";fi";
 fi
 
 if [ "$_arg_empty" == "on" ] || [ "$_arg_empty_value" != "" ]; then
@@ -235,7 +235,7 @@ optParser="${optParser}--${_arg_arg_name}=*)
 
 if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	optParser+="
-	if [[ \"\${#_one_of_arg_${_arg_arg_name//-/_}[@]}\" -gt 0 ]];then [[ \"\${_one_of_arg_${_arg_arg_name//-/_}[*]}\" =~ \"_arg_${_arg_arg_name//-/_}\" ]] || die \"$_arg_arg_name must be one of: ${_arg_one_of[*]}\";fi";
+	if [[ \"\${#_one_of_arg_${_arg_arg_name//-/_}[@]}\" -gt 0 ]];then [[ \"\${_one_of_arg_${_arg_arg_name//-/_}[*]}\" =~ (^|[[:space:]])\"\$_arg_${_arg_arg_name//-/_}\"(\$|[[:space:]]) ]] || die \"$_arg_arg_name must be one of: ${_arg_one_of[*]}\";fi";
 fi
 
 optParser+="
@@ -252,7 +252,7 @@ if [ "$_arg_short" != "" ]; then
 	_arg_${_arg_arg_name//-/_}${setvalsstr}";
 if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	optParser+="
-	if [[ \"\${#_one_of_arg_${_arg_arg_name//-/_}[@]}\" -gt 0 ]];then [[ \"\${_one_of_arg_${_arg_arg_name//-/_}[*]}\" =~ \"_arg_${_arg_arg_name//-/_}\" ]] || die \"$_arg_arg_name must be one of: ${_arg_one_of[*]}\";fi";
+	if [[ \"\${#_one_of_arg_${_arg_arg_name//-/_}[@]}\" -gt 0 ]];then [[ \"\${_one_of_arg_${_arg_arg_name//-/_}[*]}\" =~ (^|[[:space:]])\"\$_arg_${_arg_arg_name//-/_}\"(\$|[[:space:]]) ]] || die \"$_arg_arg_name must be one of: ${_arg_one_of[*]}\";fi";
 fi
 
 optParser+="
