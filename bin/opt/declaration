@@ -4,6 +4,7 @@
 # ARG_OPTIONAL_SINGLE([short],[s],[short option])
 # ARG_OPTIONAL_SINGLE([template])
 # ARG_OPTIONAL_REPEATED([default-value],[d],[default value])
+# ARG_OPTIONAL_REPEATED([one-of],[],[list of accepted values])
 # ARG_OPTIONAL_BOOLEAN([repeat],[r],[repeatable])
 # ARG_POSITIONAL_SINGLE([arg-name],[positional argument name])
 # ARG_POSITIONAL_SINGLE([description],[positional argument description])
@@ -40,17 +41,19 @@ _arg_description=
 _arg_short=
 _arg_template=
 _arg_default_value=()
+_arg_one_of=()
 _arg_repeat="off"
 
 
 print_help()
 {
 	printf '%s\n' "<generate the parseArg parseable string for positional argument>"
-	printf 'Usage: %s [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [-r|--(no-)repeat] [-h|--help] <arg-name> <description>\n' "$0"
+	printf 'Usage: %s [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--one-of <arg>] [-r|--(no-)repeat] [-h|--help] <arg-name> <description>\n' "$0"
 	printf '\t%s\n' "<arg-name>: positional argument name"
 	printf '\t%s\n' "<description>: positional argument description"
 	printf '\t%s\n' "-s, --short: short option (no default)"
 	printf '\t%s\n' "-d, --default-value: default value (empty by default)"
+	printf '\t%s\n' "--one-of: list of accepted values (empty by default)"
 	printf '\t%s\n' "-r, --repeat, --no-repeat: repeatable (off by default)"
 	printf '\t%s\n' "-h, --help: Prints help"
 }
@@ -92,6 +95,14 @@ parse_commandline()
 				;;
 			-d*)
 				_arg_default_value+=("${_key##-d}")
+				;;
+			--one-of)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_one_of+=("$2")
+				shift
+				;;
+			--one-of=*)
+				_arg_one_of+=("${_key##--one-of=}")
 				;;
 			-r|--no-repeat|--repeat)
 				_arg_repeat="on"
@@ -176,6 +187,12 @@ fi
 
 if [ "$_arg_repeat" != "off" ]; then
   outStr+=" --repeat"
+fi
+
+if [ "${#_arg_one_of[@]}" -gt 0 ]; then
+	for _oof in "${_arg_one_of[@]}"; do
+		outStr+=" --one-of \"$_oof\"";
+	done
 fi
 
 echo "$outStr";

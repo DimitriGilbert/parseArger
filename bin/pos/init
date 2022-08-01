@@ -183,6 +183,13 @@ assign_positional_args 1 "${_positionals[@]}"
 
 
 initStr="_arg_${_arg_arg_name//-/_}=\"$_arg_default_value\";";
+if [ "${#_arg_one_of[@]}" -gt 0 ]; then
+	initStr+="\n_one_of_arg_${_arg_arg_name//-/_}=(";
+	for i in "${_arg_one_of[@]}"; do
+		initStr+="\"$i\" ";
+	done
+	initStr+=");";
+fi
 
 echo -e "$initStr";
 

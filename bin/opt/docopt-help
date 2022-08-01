@@ -5,6 +5,7 @@
 # ARG_OPTIONAL_SINGLE([template])
 # ARG_OPTIONAL_SINGLE([default-value],[d],[default value])
 # ARG_OPTIONAL_BOOLEAN([repeat],[r],[repeatable])
+# ARG_OPTIONAL_REPEATED([one-of],[],[list of accepted values])
 # ARG_POSITIONAL_SINGLE([arg-name],[positional argument name])
 # ARG_POSITIONAL_SINGLE([description],[positional argument description])
 # ARG_OPTIONAL_BOOLEAN([empty],[],[value can be empty])
