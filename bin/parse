@@ -1,0 +1,167 @@
+#!/bin/bash
+
+# @parseArger-begin
+# @parseArger-help "parse an existing parseArger file"
+# @parseArger-declarations
+# @parseArger pos file "file to parse"
+# @parseArger flag inplace "replace parseArger generated content in place" --short i
+# @parseArger-end-declarations
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	echo "$1" >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_arg_file="";
+# OPTIONALS ARGUMENTS
+# FLAGS
+_arg_inplace="off"
+
+
+print_help()
+{
+	echo -e "parse an existing parseArger file:"
+	echo -e "	file: file to parse"
+	echo -e "	-i|--inplace|--no-inplace: replace parseArger generated content in place"
+	echo -e "Usage :
+	$0 <> [--[no-]inplace]"
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			-i|--no-inplace|--inplace)
+				_arg_inplace="on"
+				test "${1:0:5}" = "--no-" && _arg_inplace="off"
+				;;
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	test "${_positionals_count}" -le 1 || _PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
+	test "${_positionals_count}" -ge 1 || _PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}." 1
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_file ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\tfile: ${_arg_file}";
+	echo -e "\tinplace: ${_arg_inplace}";
+
+}
+
+parse_commandline "$@"
+handle_passed_args_count
+assign_positional_args 1 "${_positionals[@]}"
+
+# @parseArger-end-parsing
+# print_debug "$@"
+# @parseArger-end
+
+SCRIPT_ROOT_DIR=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd -P
+);
+
+_help="$(sed -ne 's/# @parseArger-help \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _set <<< "$(sed -ne 's/# @parseArger-set \(.*\).*/\1/p' "$_arg_file")"
+_leftovers="$(sed -ne 's/# @parseArger-leftovers \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _pos <<< "$(sed -ne 's/# @parseArger pos \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _opt <<< "$(sed -ne 's/# @parseArger opt \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _flag <<< "$(sed -ne 's/# @parseArger flag \(.*\).*/\1/p' "$_arg_file")"
+
+# echo "_help: $_help";
+# echo "_set: ${_set[@]}";
+# echo "_leftovers: $_leftovers";
+# echo "_pos: ${_pos[@]}";
+# echo "_opt: ${_opt[@]}";
+# echo "_flag: ${_flag[@]}";
+
+cmdGen=();
+
+if [ "$_arg_inplace" == "on" ]; then
+  cmdGen+=("--no-bang");
+fi
+
+if [ "$_help" != "" ]; then
+  cmdGen+=("--help-message" "$_help");
+fi
+if [ "${#_set[@]}" -gt "0" ]; then
+  for __set in "${_set[@]}"; do
+    cmdGen+=("--set" "$__set");
+  done
+fi
+if [ "$_leftovers" != "" ]; then
+  cmdGen+=("--leftovers" "--leftovers-name" "$_leftovers");
+fi
+if [ "${#_pos[@]}" -gt "0" ]; then
+  for __pos in "${_pos[@]}"; do
+    cmdGen+=("--pos" "$__pos");
+  done
+fi
+if [ "${#_opt[@]}" -gt "0" ]; then
+  for __opt in "${_opt[@]}"; do
+    cmdGen+=("--opt" "$__opt");
+  done
+fi
+if [ "${#_flag[@]}" -gt "0" ]; then
+  for __flag in "${_flag[@]}"; do
+    cmdGen+=("--flag" "$__flag");
+  done
+fi
+tmpGen="$(mktemp)";
+"$SCRIPT_ROOT_DIR/generate" "${cmdGen[@]}" > "$tmpGen";
+
+parsedGen=$(sed -e '/# @parseArger-begin/,/# @parseArger-end/r '"$tmpGen"'/' "$_arg_file";)
+
+rm "$tmpGen";
+
+if [ "$_arg_inplace" == "on" ]; then
+  echo "$parsedGen" > "$_arg_file";
+else 
+  echo "$parsedGen";
+fi
