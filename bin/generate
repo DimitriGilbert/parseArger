@@ -324,16 +324,14 @@ print_help()
 {
 	echo -e \"$_arg_help_message:\"";
 posexample="";
-posI=0;
 for pos in "${_arg_pos[@]}"; do
-	posI=$((posI+1));
 	opCh="<";
 	clCh=">";
 	if [[ $pos =~ "--optional" ]]; then
 		opCh="[";
 		clCh="]";
 	fi
-	posexample+=" ${opCh}${posArgNames[$posI]}${clCh}";
+	posexample+=" ${opCh}$(echo "$pos" | head -n1 | cut -d " " -f1)${clCh}";
 	eval "$SCRIPT_ROOT_DIR/pos/help $pos";
 done
 optexample="";
@@ -405,9 +403,15 @@ fi
 
 	echo -e "	shift \"\$_shift_for\"
 	for _positional_name in \${_positional_names};do
-		test \$# -gt 0 || break;
-		eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1
-		eval \"\$_positional_name=\\\${1}\" || die \"Error during argument parsing, possibly an Argbash bug.\" 1;
+		test \$# -gt 0 || break;";
+	if [ "$_arg_leftovers" == "off" ]; then
+		echo "		eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1";
+	else
+		echo "		if ! [[ \"\$_positional_name\" =~ \"_arg_$_arg_leftovers_name\" ]];then
+			eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1
+		fi";
+	fi
+	echo -e "eval \"\$_positional_name=\\\${1}\" || die \"Error during argument parsing, possibly an Argbash bug.\" 1;
 		shift;
 	done
 }

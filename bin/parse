@@ -107,6 +107,10 @@ SCRIPT_ROOT_DIR=$(
   pwd -P
 );
 
+parseHelpMessage() {
+	echo "$1";
+}
+
 _help="$(sed -ne 's/# @parseArger-help \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _set <<< "$(sed -ne 's/# @parseArger-set \(.*\).*/\1/p' "$_arg_file")"
 _leftovers="$(sed -ne 's/# @parseArger-leftovers \(.*\).*/\1/p' "$_arg_file")"
@@ -122,23 +126,19 @@ readarray -t _flag <<< "$(sed -ne 's/# @parseArger flag \(.*\).*/\1/p' "$_arg_fi
 # echo "_opt: ${_opt[@]}";
 # echo "_flag: ${_flag[@]}";
 
-cmdGen=();
-
-if [ "$_arg_inplace" == "on" ]; then
-  cmdGen+=("--no-bang");
-fi
+cmdGen=("--no-bang");
 
 if [ "$_help" != "" ]; then
-  cmdGen+=("--help-message" "$_help");
+  cmdGen+=("--help-message" "$(eval "parseHelpMessage $_help")");
 fi
 
-if [ "${#_set[@]}" -gt "0" ]; then
+if [ "${_set[*]}" != "" ] && [ "${#_set[@]}" -gt "0" ]; then
   for __set in "${_set[@]}"; do
     cmdGen+=("--set" "$__set");
   done
 fi
 
-if [ "${#_source[@]}" -gt "0" ]; then
+if [ "${_source[*]}" != "" ] && [ "${#_source[@]}" -gt "0" ]; then
   for __source in "${_source[@]}"; do
     cmdGen+=("--source" "$__source");
   done
@@ -148,19 +148,19 @@ if [ "$_leftovers" != "" ]; then
   cmdGen+=("--leftovers" "--leftovers-name" "$_leftovers");
 fi
 
-if [ "${#_pos[@]}" -gt "0" ]; then
+if [ "${_pos[*]}" != "" ] && [ "${#_pos[@]}" -gt "0" ]; then
   for __pos in "${_pos[@]}"; do
     cmdGen+=("--pos" "$__pos");
   done
 fi
 
-if [ "${#_opt[@]}" -gt "0" ]; then
+if [ "${_opt[*]}" != "" ] && [ "${#_opt[@]}" -gt "0" ]; then
   for __opt in "${_opt[@]}"; do
     cmdGen+=("--opt" "$__opt");
   done
 fi
 
-if [ "${#_flag[@]}" -gt "0" ]; then
+if [ "${_flag[*]}" != "" ] && [ "${#_flag[@]}" -gt "0" ]; then
   for __flag in "${_flag[@]}"; do
     cmdGen+=("--flag" "$__flag");
   done
@@ -168,8 +168,7 @@ fi
 
 tmpGen="$(mktemp)";
 "$SCRIPT_ROOT_DIR/generate" "${cmdGen[@]}" > "$tmpGen";
-
-parsedGen=$(sed -e '/# @parseArger-begin/,/# @parseArger-end/r '"$tmpGen"'/' "$_arg_file";)
+parsedGen=$(sed -e "/# @parseArger-end/a ___tmpMark___" -e "/# @parseArger-begin/,/# @parseArger-end/d" "$_arg_file" | sed -e "/___tmpMark___/r ${tmpGen}" -e '/___tmpMark___/d');
 
 rm "$tmpGen";
 
