@@ -110,6 +110,7 @@ SCRIPT_ROOT_DIR=$(
 _help="$(sed -ne 's/# @parseArger-help \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _set <<< "$(sed -ne 's/# @parseArger-set \(.*\).*/\1/p' "$_arg_file")"
 _leftovers="$(sed -ne 's/# @parseArger-leftovers \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _source <<< "$(sed -ne 's/# @parseArger-source \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _pos <<< "$(sed -ne 's/# @parseArger pos \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _opt <<< "$(sed -ne 's/# @parseArger opt \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _flag <<< "$(sed -ne 's/# @parseArger flag \(.*\).*/\1/p' "$_arg_file")"
@@ -130,29 +131,41 @@ fi
 if [ "$_help" != "" ]; then
   cmdGen+=("--help-message" "$_help");
 fi
+
 if [ "${#_set[@]}" -gt "0" ]; then
   for __set in "${_set[@]}"; do
     cmdGen+=("--set" "$__set");
   done
 fi
+
+if [ "${#_source[@]}" -gt "0" ]; then
+  for __source in "${_source[@]}"; do
+    cmdGen+=("--source" "$__source");
+  done
+fi
+
 if [ "$_leftovers" != "" ]; then
   cmdGen+=("--leftovers" "--leftovers-name" "$_leftovers");
 fi
+
 if [ "${#_pos[@]}" -gt "0" ]; then
   for __pos in "${_pos[@]}"; do
     cmdGen+=("--pos" "$__pos");
   done
 fi
+
 if [ "${#_opt[@]}" -gt "0" ]; then
   for __opt in "${_opt[@]}"; do
     cmdGen+=("--opt" "$__opt");
   done
 fi
+
 if [ "${#_flag[@]}" -gt "0" ]; then
   for __flag in "${_flag[@]}"; do
     cmdGen+=("--flag" "$__flag");
   done
 fi
+
 tmpGen="$(mktemp)";
 "$SCRIPT_ROOT_DIR/generate" "${cmdGen[@]}" > "$tmpGen";
 

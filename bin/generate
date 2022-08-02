@@ -5,6 +5,7 @@
 # ARG_OPTIONAL_REPEATED([opt],[],[optionnal arguments declarations])
 # ARG_OPTIONAL_REPEATED([flag],[],[flags declarations])
 # ARG_OPTIONAL_REPEATED([set],[],[variable declarations])
+# ARG_OPTIONAL_REPEATED([source],[],[file to source])
 # ARG_OPTIONAL_SINGLE([help-message],[],[general help message for the script],[I send an SOS to the world])
 # ARG_OPTIONAL_SINGLE([help-option],[],[option to trigger for the script])
 # ARG_OPTIONAL_SINGLE([help-short-option],[],[option to trigger for the script])
@@ -41,6 +42,7 @@ _arg_pos=()
 _arg_opt=()
 _arg_flag=()
 _arg_set=()
+_arg_source=()
 _arg_help_message="I send an SOS to the world"
 _arg_help_option=
 _arg_help_short_option=
@@ -53,11 +55,12 @@ _arg_bang="on"
 print_help()
 {
 	printf '%s\n' "generate the parsing code"
-	printf 'Usage: %s [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--help-message <arg>] [--help-option <arg>] [--help-short-option <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]\n' "$0"
+	printf 'Usage: %s [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--source <arg>] [--help-message <arg>] [--help-option <arg>] [--help-short-option <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]\n' "$0"
 	printf '\t%s\n' "--pos: positional arguments declarations (empty by default)"
 	printf '\t%s\n' "--opt: optionnal arguments declarations (empty by default)"
 	printf '\t%s\n' "--flag: flags declarations (empty by default)"
 	printf '\t%s\n' "--set: variable declarations (empty by default)"
+	printf '\t%s\n' "--source: file to source (empty by default)"
 	printf '\t%s\n' "--help-message: general help message for the script (default: 'I send an SOS to the world')"
 	printf '\t%s\n' "--help-option: option to trigger for the script (no default)"
 	printf '\t%s\n' "--help-short-option: option to trigger for the script (no default)"
@@ -106,6 +109,14 @@ parse_commandline()
 				;;
 			--set=*)
 				_arg_set+=("${_key##--set=}")
+				;;
+			--source)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_source+=("$2")
+				shift
+				;;
+			--source=*)
+				_arg_source+=("${_key##--source=}")
 				;;
 			--help-message)
 				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
@@ -245,6 +256,13 @@ if [ "${#_arg_set[@]}" -gt 0 ]; then
 	for _set in "${_arg_set[@]}"; do
 		echo "# @parseArger-set $_set";
 		echo -e "$_set";
+	done
+fi
+
+if [ "${#_arg_source[@]}" -gt 0 ]; then
+	for _source in "${_arg_source[@]}"; do
+		echo "# @parseArger-source $_source";
+		echo -e "source \"$_source\";";
 	done
 fi
 
