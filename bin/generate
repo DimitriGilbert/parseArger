@@ -196,6 +196,7 @@ SCRIPT_ROOT_DIR=$(
   pwd -P
 );
 
+# var definitions
 minPos="${#_arg_pos[@]}";
 maxPos="${#_arg_pos[@]}";
 reqPos=();
@@ -236,13 +237,15 @@ for flag in "${_arg_flag[@]}"; do
 	flagArgNames+=("$(echo "$flag" | head -n1 | cut -d " " -f1) | sed 's/-/_/g'");
 done
 
+# generate shebang
 if [ "$_arg_bang" != "off" ]; then
 	echo "#!${_arg_use_bang}";
 fi
 
-echo -e "
-# @parseArger-begin";
+# parsing
+echo -e "# @parseArger-begin";
 
+# help
 helpDecArg=("$_arg_help_message");
 if [ "$_arg_help_option" != "" ]; then
 	helpDecArg+=("--option" "$_arg_help_option");
@@ -252,6 +255,7 @@ if [ "$_arg_help_short_option" != "" ]; then
 fi
 "$SCRIPT_ROOT_DIR/help/declaration" "${helpDecArg[@]}";
 
+# setting user variables
 if [ "${#_arg_set[@]}" -gt 0 ]; then
 	for _set in "${_arg_set[@]}"; do
 		echo "# @parseArger-set $_set";
@@ -259,6 +263,7 @@ if [ "${#_arg_set[@]}" -gt 0 ]; then
 	done
 fi
 
+# sourcing user files
 if [ "${#_arg_source[@]}" -gt 0 ]; then
 	for _source in "${_arg_source[@]}"; do
 		echo "# @parseArger-source $_source";
@@ -266,12 +271,13 @@ if [ "${#_arg_source[@]}" -gt 0 ]; then
 	done
 fi
 
+# leftovers
 if [ "$_arg_leftovers" == "on" ]; then
 	echo -e "# @parseArger-leftovers $_arg_leftovers_name";
 fi
 
-echo -e "# @parseArger-declarations"
-
+# argument declarations
+echo -e "# @parseArger-declarations";
 for pos in "${_arg_pos[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/pos/declaration $pos";
 done
@@ -281,6 +287,7 @@ done
 for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/declaration $flag";
 done
+# generating parsing function
 echo "# @parseArger-declarations-end
 
 # @parseArger-parsing
@@ -303,6 +310,7 @@ begins_with_short_option()
 # POSITIONALS ARGUMENTS
 _positionals=();"
 
+# variable initialisation
 for pos in "${_arg_pos[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/pos/init $pos";
 done
@@ -318,11 +326,14 @@ if [ "$_arg_leftovers" != "off" ]; then
 	echo -e "# LEFTOVERS
 _arg_$_arg_leftovers_name=()";
 fi
+
+# help
 echo -e "
 
 print_help()
 {
 	echo -e \"$_arg_help_message:\"";
+# help examples
 posexample="";
 for pos in "${_arg_pos[@]}"; do
 	opCh="<";
@@ -344,6 +355,8 @@ for flag in "${_arg_flag[@]}"; do
 	flagexample+=" [--[no-]$(echo "$flag" | head -n1 | cut -d " " -f1)]";
 	eval "$SCRIPT_ROOT_DIR/flag/help $flag";
 done
+
+# actual parsing
 echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}\"
 }
 
@@ -354,7 +367,6 @@ parse_commandline()
 	do
 		_key=\"\$1\"
 		case \"\$_key\" in";
-
 for opt in "${_arg_opt[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/opt/parser $opt" | sed -e 's/^/\t\t\t/';
 done
@@ -424,18 +436,18 @@ print_debug()
 	";
 posI=0;
 for pos in "${posArgNames[@]}"; do
-	posI=$((posI+1));
 	echo "	echo -e \"\t${posNames[$posI]}: \${_arg_${pos}}\";";
+	posI=$((posI+1));
 done
 posI=0;
 for opt in "${optArgNames[@]}"; do
-	posI=$((posI+1));
 	echo "	echo -e \"\t${optNames[$posI]}: \${_arg_${opt}}\";";
+	posI=$((posI+1));
 done
 posI=0;
 for flag in "${flagArgNames[@]}"; do
-	posI=$((posI+1));
 	echo "	echo -e \"\t${flagNames[$posI]}: \${_arg_${flag}}\";";
+	posI=$((posI+1));
 done
 if [ "$_arg_leftovers" != "off" ]; then
 	echo "	echo -e \"\t${_arg_leftovers_name}: \${_arg_${_arg_leftovers_name}[*]}\";";
@@ -449,8 +461,7 @@ assign_positional_args 1 \"\${_positionals[@]}\"
 
 # @parseArger-parsing-end
 # print_debug \"\$@\"
-# @parseArger-end
-";
+# @parseArger-end";
 
 # ^^^  TERMINATE YOUR CODE BEFORE THE BOTTOM ARGBASH MARKER  ^^^
 

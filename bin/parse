@@ -168,6 +168,8 @@ fi
 
 tmpGen="$(mktemp)";
 "$SCRIPT_ROOT_DIR/generate" "${cmdGen[@]}" > "$tmpGen";
+
+# https://unix.stackexchange.com/a/485670 <3
 parsedGen=$(sed -e "/# @parseArger-end/a ___tmpMark___" -e "/# @parseArger-begin/,/# @parseArger-end/d" "$_arg_file" | sed -e "/___tmpMark___/r ${tmpGen}" -e '/___tmpMark___/d');
 
 rm "$tmpGen";
