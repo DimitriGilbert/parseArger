@@ -191,6 +191,10 @@ if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	initStr+=");";
 fi
 
+if [ "$_arg_subcommand" == "on" ]; then
+	initStr+="\n_arg_subcommand_arg=\"_arg_${_arg_arg_name//-/_}\";";
+fi
+
 echo -e "$initStr";
 
 # ^^^  TERMINATE YOUR CODE BEFORE THE BOTTOM ARGBASH MARKER  ^^^
