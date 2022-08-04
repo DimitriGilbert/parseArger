@@ -5,7 +5,7 @@
 # @parseArger-declarations
 # @parseArger pos file "file to parse"
 # @parseArger flag inplace "replace parseArger generated content in place" --short i
-# @parseArger-end-declarations
+# @parseArger-declarations-end
 
 # @parseArger-parsing
 die()
@@ -98,7 +98,7 @@ parse_commandline "$@"
 handle_passed_args_count
 assign_positional_args 1 "${_positionals[@]}"
 
-# @parseArger-end-parsing
+# @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
 
@@ -111,13 +111,15 @@ parseHelpMessage() {
 	echo "$1";
 }
 
-_help="$(sed -ne 's/# @parseArger-help \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _set <<< "$(sed -ne 's/# @parseArger-set \(.*\).*/\1/p' "$_arg_file")"
-_leftovers="$(sed -ne 's/# @parseArger-leftovers \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _source <<< "$(sed -ne 's/# @parseArger-source \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _pos <<< "$(sed -ne 's/# @parseArger pos \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _opt <<< "$(sed -ne 's/# @parseArger opt \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _flag <<< "$(sed -ne 's/# @parseArger flag \(.*\).*/\1/p' "$_arg_file")"
+paStart="# @parseArger"
+
+_help="$(sed -ne 's/'"${paStart}"'-help \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _set <<< "$(sed -ne 's/'"${paStart}"'-set \(.*\).*/\1/p' "$_arg_file")"
+_leftovers="$(sed -ne 's/'"${paStart}"'-leftovers \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _source <<< "$(sed -ne 's/'"${paStart}"'-source \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _pos <<< "$(sed -ne 's/'"${paStart}"' pos \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _opt <<< "$(sed -ne 's/'"${paStart}"' opt \(.*\).*/\1/p' "$_arg_file")"
+readarray -t _flag <<< "$(sed -ne 's/'"${paStart}"' flag \(.*\).*/\1/p' "$_arg_file")"
 
 # echo "_help: $_help";
 # echo "_set: ${_set[@]}";
@@ -169,8 +171,10 @@ fi
 tmpGen="$(mktemp)";
 "$SCRIPT_ROOT_DIR/generate" "${cmdGen[@]}" > "$tmpGen";
 
+tmpMrk="tmpMrk"
+tmpMrk="___${tmpMrk}___parsearger"
 # https://unix.stackexchange.com/a/485670 <3
-parsedGen=$(sed -e "/# @parseArger-end/a ___tmpMark___" -e "/# @parseArger-begin/,/# @parseArger-end/d" "$_arg_file" | sed -e "/___tmpMark___/r ${tmpGen}" -e '/___tmpMark___/d');
+parsedGen="$(sed -e "/${paStart}-end/a ${tmpMrk}" -e "/${paStart}-begin/,/${paStart}-end/d" "$_arg_file" | sed -e "/${tmpMrk}/r ${tmpGen}" -e "/${tmpMrk}/d")";
 
 rm "$tmpGen";
 
