@@ -6,7 +6,7 @@
 # ARG_POSITIONAL_SINGLE([description],[positional argument description])
 # ARG_OPTIONAL_SINGLE([repeat-min],[],[minimum repeatition, forces --repeat],[1])
 # ARG_OPTIONAL_SINGLE([repeat-max],[],[maximum repeatition, forces --repeat])
-# ARG_OPTIONAL_REPEATED([one-of],[],[list of accepted values])
+# ARG_OPTIONAL_REPEATED([one-of],[],[accepted values])
 # ARG_OPTIONAL_BOOLEAN([repeat],[r],[repeatable])
 # ARG_OPTIONAL_BOOLEAN([optional],[],[optional])
 # ARG_OPTIONAL_BOOLEAN([subcommand],[],[this is a subcommand])
