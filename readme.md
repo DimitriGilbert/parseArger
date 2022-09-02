@@ -10,9 +10,9 @@ This code is heavilly inspired by [Argbash](https://github.com/matejak/argbash) 
 # install
 git clone https://github.com/DimitriGilbert/parseArger
 # add execution rigths
-chmod +x parseArger/bin -R
+chmod +x parseArger/parseArger parseArger/bin -R
 # echo parsing script for one argument and one option in a file
-parseArger/bin/generate --pos 'first-argument "my first argument description"' --opt 'my-option "my option description"' > my-script
+parseArger/parseArger generate --pos 'first-argument "my first argument description"' --opt 'my-option "my option description"' > my-script
 # add execution rigths
 chmod +x my-script
 # get help
@@ -48,7 +48,7 @@ generate the bash argument parsing code.
 
 ```bash
 # one argument, one option, one flag
-bin/generate \
+parseArger generate \
   --pos 'my-argument "my argument description"' \
   --opt 'my-option "my option description"' \
   --flag 'my-flag "my flag description"'
@@ -57,7 +57,7 @@ bin/generate \
 generic usage:
 
 ```bash
-bin/generate [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--source <arg>] [--help-message <arg>] [--help-option <arg>] [--help-short-option <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]
+parseArger generate [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--source <arg>] [--help-message <arg>] [--help-option <arg>] [--help-short-option <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]
 ```
 
 * --pos: positional arguments declarations, repeated (empty by default)
@@ -109,9 +109,9 @@ bin/pos/* [-d|--default-value <arg>] [--repeat-min <arg>] [--repeat-max <arg>] [
 
 ```bash
 # one argument
-bin/generate --pos 'my-argument "my argument description"'
+parseArger generate --pos 'my-argument "my argument description"'
 # two arguments
-bin/generate --pos 'my-argument "my argument description"' --pos 'my-other-argument "another argument description"'
+parseArger generate --pos 'my-argument "my argument description"' --pos 'my-other-argument "another argument description"'
 # ...
 ```
 
@@ -135,13 +135,13 @@ bin/opt/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--on
 
 ```bash
 # one option
-bin/generate --opt 'my-option "my option description"'
+parseArger generate --opt 'my-option "my option description"'
 # short option
-bin/generate --opt 'my-option "my option description" --short m'
+parseArger generate --opt 'my-option "my option description" --short m'
 # repeated option
-bin/generate --opt 'my-option "my option description" --repeat'
+parseArger generate --opt 'my-option "my option description" --repeat'
 # two options
-bin/generate --opt 'my-option "my option description"' --opt 'my-other-option "another option description"'
+parseArger generate --opt 'my-option "my option description"' --opt 'my-other-option "another option description"'
 # ...
 ```
 
@@ -163,12 +163,23 @@ bin/flag/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--o
 
 ```bash
 # one flag
-bin/generate --flag 'my-flag "my flag description"'
+parseArger generate --flag 'my-flag "my flag description"'
 # short flag
-bin/generate --flag 'my-flag "my flag description" --short m'
+parseArger generate --flag 'my-flag "my flag description" --short m'
 # flag on by default
-bin/generate --flag 'my-flag "my flag description" --on'
+parseArger generate --flag 'my-flag "my flag description" --on'
 # two flags
-bin/generate --flag 'my-flag "my flag description"' --flag 'my-other-flag "another flag description"'
+parseArger generate --flag 'my-flag "my flag description"' --flag 'my-other-flag "another flag description"'
 # ...
+```
+
+### parse
+
+parse an existing parseArger script
+
+```bash
+
+parseArger parse \
+  <file to parse> \
+  [--inplace|-i]
 ```

@@ -52,6 +52,14 @@ parse_commandline()
 				_arg_inplace="on"
 				test "${1:0:5}" = "--no-" && _arg_inplace="off"
 				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
