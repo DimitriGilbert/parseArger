@@ -1,11 +1,13 @@
 #!/bin/bash
 # @parseArger-begin
-# @parseArger-help "I send an SOS to the world" --option "_help" --short-option "h"
+# @parseArger-help "I send an SOS to the world" --option "help" --short-option "h"
 # @parseArger-set export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
 # @parseArger pos target "what to do" --one-of "parse" --one-of "generate"
+# @parseArger opt output "create file with command output at value"
+# @parseArger flag prepend "add output on top of file"
 # @parseArger-declarations-end
 
 # @parseArger-parsing
@@ -30,7 +32,9 @@ _positionals=();
 _arg_target="";
 _one_of_arg_target=("parse" "generate" );
 # OPTIONALS ARGUMENTS
+_arg_output=
 # FLAGS
+_arg_prepend="off"
 # LEFTOVERS
 _arg_leftovers=()
 
@@ -39,8 +43,10 @@ print_help()
 {
 	echo -e "I send an SOS to the world:"
 	echo -e "	target: what to do [one of 'parse' 'generate']"
+	echo -e "	--output <output>: create file with command output at value"
+	echo -e "	--prepend|--no-prepend: add output on top of file"
 	echo -e "Usage :
-	$0 <target>"
+	$0 <target> [--output <value>] [--[no-]prepend]"
 }
 
 parse_commandline()
@@ -50,7 +56,20 @@ parse_commandline()
 	do
 		_key="$1"
 		case "$_key" in
-			-h|--_help)
+			--output)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_output="$2"
+				shift
+				;;
+			--output=*)
+				_arg_output="${_key##--output=}"
+				;;
+			
+			--no-prepend|--prepend)
+				_arg_prepend="on"
+				test "${1:0:5}" = "--no-" && _arg_prepend="off"
+				;;
+			-h|--help)
 				print_help;
 				exit 0;
 				;;
@@ -103,6 +122,8 @@ print_debug()
 	echo "DEBUG: $0 $@";
 	
 	echo -e "\ttarget: ${_arg_target}";
+	echo -e "\toutput: ${_arg_output | sed 's/-/_/g'}";
+	echo -e "\tprepend: ${_arg_prepend | sed 's/-/_/g'}";
 	echo -e "\tleftovers: ${_arg_leftovers[*]}";
 
 }
@@ -115,4 +136,16 @@ assign_positional_args 1 "${_positionals[@]}"
 # print_debug "$@"
 # @parseArger-end
 
-"$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}";
+if [ "$_arg_output" == "" ]; then
+	"$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}";
+else
+	output="$("$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}")";
+	
+	if [ "$_arg_prepend" == "on" ]; then
+		output+=$(cat "$_arg_output");
+	else
+		output=$(cat "$_arg_output")$output;
+	fi
+
+	echo -e "${output}" > "$_arg_output";
+fi

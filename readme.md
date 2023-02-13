@@ -12,15 +12,15 @@ git clone https://github.com/DimitriGilbert/parseArger
 # add execution rigths
 chmod +x parseArger/parseArger parseArger/bin -R
 # echo parsing script for one argument and one option in a file
-parseArger/parseArger generate --pos 'first-argument "my first argument description"' --opt 'my-option "my option description"' > my-script
+parseArger/parseArger generate --pos 'first-argument "my first argument description"' --opt 'my-option "my option description"' --output /path/to/my-script
 # add execution rigths
-chmod +x my-script
+chmod +x /path/to/my-script
 # get help
-./my-script --help
+/path/to/my-script --help
 # add code to your script
 echo -e '\necho "running my script with \"$_arg_first_argument\"";\ntest "$_arg_my_option" != "" && echo "my-option is \"$_arg_my_option\"" || echo "no option given"' >> my-script
 # run your script
-./my-script "parse away" --my-option "but not too far"
+/path/to/my-script "parse away" --my-option "but not too far"
 ```
 
 ## Installation
@@ -41,6 +41,11 @@ rm "$parseargerTmp";
 ```
 
 ## Usage
+
+### Common options
+
+* `--output <output>`: create file with command output at value
+* `--prepend`: add output on top of file
 
 ### generate
 
