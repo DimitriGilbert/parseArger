@@ -141,11 +141,14 @@ if [ "$_arg_output" == "" ]; then
 else
 	output="$("$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}")";
 	
-	if [ "$_arg_prepend" == "on" ]; then
-		output+=$(cat "$_arg_output");
-	else
-		output=$(cat "$_arg_output")$output;
+	if [[ -f "$_arg_output" ]]; then
+		if [ "$_arg_prepend" == "on" ]; then
+			output+=$(cat "$_arg_output");
+		else
+			output=$(cat "$_arg_output")$output;
+		fi	
 	fi
 
 	echo -e "${output}" > "$_arg_output";
+	chmod +x "$_arg_output";
 fi
