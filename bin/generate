@@ -455,9 +455,15 @@ fi
 echo -e "
 }
 
-parse_commandline \"\$@\"
-handle_passed_args_count
-assign_positional_args 1 \"\${_positionals[@]}\"
+on_interrupt() {
+	die "Process aborted!" 130;
+}
+
+parse_commandline \"\$@\";
+handle_passed_args_count;
+assign_positional_args 1 \"\${_positionals[@]}\";
+trap on_interrupt INT;
+
 
 # @parseArger-parsing-end
 # print_debug \"\$@\"
