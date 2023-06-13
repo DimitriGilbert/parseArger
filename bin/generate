@@ -355,9 +355,14 @@ if [ "$_arg_leftovers" == "on" ]; then
 	echo -e "# ${paCmtTrgr}leftovers $_arg_leftovers_name";
 fi
 
+hasSubCmd="1";
+
 # argument declarations
 echo -e "# ${paCmtTrgr}declarations";
 for pos in "${_arg_pos[@]}"; do
+	if [[ "$hasSubCmd" == "1" ]]; then
+		hasSubCmd=$("$SCRIPT_ROOT_DIR/pos/is-subcmd" $pos)
+	fi
 	eval "$SCRIPT_ROOT_DIR/pos/declaration $pos";
 done
 for opt in "${_arg_opt[@]}"; do
@@ -407,10 +412,20 @@ _arg_$_arg_leftovers_name=()";
 fi
 
 # help
+# TODO use hasSubCmd,
+# 	if so, call subCmd help (how ?)
 echo -e "
 
 print_help()
-{
+{";
+if [ "$hasSubCmd" == "0" ]; then
+	echo -e "
+	if [ \"\${#_positionals[@]}\" -ge 1 ]; then
+		echo \"it should be subCmd\"
+	else
+	";
+fi
+echo -e "
 	echo -e \"$_arg_help_message:\"";
 # help examples
 posexample="";
@@ -436,7 +451,13 @@ for flag in "${_arg_flag[@]}"; do
 done
 
 # actual parsing
-echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}\"
+echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}\";";
+if [ "$hasSubCmd" == "0" ]; then
+	echo -e "
+	fi
+	";
+fi
+echo -e "
 }
 
 parse_commandline()

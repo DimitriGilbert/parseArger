@@ -5,7 +5,7 @@
 export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
-# @parseArger pos target "what to do" --one-of "parse" --one-of "generate"
+# @parseArger pos target "what to do" --one-of "parse" --one-of "generate" --subcommand
 # @parseArger opt output "create file with command output at value"
 # @parseArger flag prepend "add output on top of file"
 # @parseArger-declarations-end

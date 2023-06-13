@@ -78,6 +78,7 @@ parseArger generate [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--
 * --leftovers, --no-leftovers: accept extra arguments (off by default)
 * --bang, --no-bang: include shebang (on by default)
 * -h, --help: Prints help
+* --output: path to file, prepend code if file exists
 
 Variables are created containing passed value so you can easily access it.
 
