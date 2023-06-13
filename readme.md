@@ -181,11 +181,16 @@ parseArger generate --flag 'my-flag "my flag description"' --flag 'my-other-flag
 
 ### parse
 
-parse an existing parseArger script
+parse an existing parseArger script and add arguments, options, flag, etc...
 
 ```bash
 
 parseArger parse \
   <file to parse> \
+  -p, --pos <pos>: add positional argument declaration, repeatable
+  -o, --opt <opt>: add optional arg declaration, repeatable
+  -f, --flag <flag>: add flag declaration, repeatable
+  -s, --set <set>: add declare var, repeatable
+  -l, --source <source>: add file to source, repeatable
   [--inplace|-i]
 ```

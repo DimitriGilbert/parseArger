@@ -438,7 +438,8 @@ print_help()
 if [ "$hasSubCmd" == "0" ]; then
 	echo -e "
 	if [ \"\${#_positionals[@]}\" -ge 1 ]; then
-		echo \"\$0 sub command help\"
+		echo \"\$0 sub command help
+	\"
 	else
 	";
 fi

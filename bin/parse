@@ -1,11 +1,19 @@
 #!/bin/bash
-
 # @parseArger-begin
-# @parseArger-help "parse an existing parseArger file"
+# @parseArger-help "parse an existing parseArger file" --option "help" --short-option "h"
 # @parseArger-declarations
 # @parseArger pos file "file to parse"
+# @parseArger opt pos "add positional argument declaration" --short p --repeat
+# @parseArger opt opt "add optional arg declaration" --short o --repeat
+# @parseArger opt flag "add flag declaration" --short f --repeat
+# @parseArger opt set "add declare var" --short s --repeat
+# @parseArger opt source "add file to source" --short l --repeat
 # @parseArger flag inplace "replace parseArger generated content in place" --short i
 # @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+# @parseArger-utils-end
 
 # @parseArger-parsing
 die()
@@ -28,17 +36,32 @@ begins_with_short_option()
 _positionals=();
 _arg_file="";
 # OPTIONALS ARGUMENTS
+_arg_pos=()
+_arg_opt=()
+_arg_flag=()
+_arg_set=()
+_arg_source=()
 # FLAGS
 _arg_inplace="off"
 
 
 print_help()
 {
-	echo -e "parse an existing parseArger file:"
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "parse an existing parseArger file:"
 	echo -e "	file: file to parse"
+	echo -e "	-p, --pos <pos>: add positional argument declaration, repeatable"
+	echo -e "	-o, --opt <opt>: add optional arg declaration, repeatable"
+	echo -e "	-f, --flag <flag>: add flag declaration, repeatable"
+	echo -e "	-s, --set <set>: add declare var, repeatable"
+	echo -e "	-l, --source <source>: add file to source, repeatable"
 	echo -e "	-i|--inplace|--no-inplace: replace parseArger generated content in place"
 	echo -e "Usage :
-	$0 <> [--[no-]inplace]"
+	$0 <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--[no-]inplace]";
+	fi
+
 }
 
 parse_commandline()
@@ -48,6 +71,66 @@ parse_commandline()
 	do
 		_key="$1"
 		case "$_key" in
+			-p|--pos)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_pos+=("$2")
+				shift
+				;;
+			--pos=*)
+				_arg_pos+=("${_key##--pos=}")
+				;;
+			-p*)
+				_arg_pos+=("${_key##-p}")
+				;;
+			
+			-o|--opt)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_opt+=("$2")
+				shift
+				;;
+			--opt=*)
+				_arg_opt+=("${_key##--opt=}")
+				;;
+			-o*)
+				_arg_opt+=("${_key##-o}")
+				;;
+			
+			-f|--flag)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_flag+=("$2")
+				shift
+				;;
+			--flag=*)
+				_arg_flag+=("${_key##--flag=}")
+				;;
+			-f*)
+				_arg_flag+=("${_key##-f}")
+				;;
+			
+			-s|--set)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_set+=("$2")
+				shift
+				;;
+			--set=*)
+				_arg_set+=("${_key##--set=}")
+				;;
+			-s*)
+				_arg_set+=("${_key##-s}")
+				;;
+			
+			-l|--source)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_source+=("$2")
+				shift
+				;;
+			--source=*)
+				_arg_source+=("${_key##--source=}")
+				;;
+			-l*)
+				_arg_source+=("${_key##-l}")
+				;;
+			
 			-i|--no-inplace|--inplace)
 				_arg_inplace="on"
 				test "${1:0:5}" = "--no-" && _arg_inplace="off"
@@ -73,9 +156,13 @@ parse_commandline()
 
 handle_passed_args_count()
 {
-	local _required_args_string=""
-	test "${_positionals_count}" -le 1 || _PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
-	test "${_positionals_count}" -ge 1 || _PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}." 1
+	local _required_args_string="file"
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
+	fi
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}." 1;
+	fi
 }
 
 
@@ -86,7 +173,8 @@ assign_positional_args()
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
-		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
+eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
 		shift;
 	done
 }
@@ -98,13 +186,24 @@ print_debug()
 	echo "DEBUG: $0 $@";
 	
 	echo -e "\tfile: ${_arg_file}";
-	echo -e "\tinplace: ${_arg_inplace}";
+	echo -e "\tpos: ${_arg_pos | sed 's/-/_/g'}";
+	echo -e "\topt: ${_arg_opt | sed 's/-/_/g'}";
+	echo -e "\tflag: ${_arg_flag | sed 's/-/_/g'}";
+	echo -e "\tset: ${_arg_set | sed 's/-/_/g'}";
+	echo -e "\tsource: ${_arg_source | sed 's/-/_/g'}";
+	echo -e "\tinplace: ${_arg_inplace | sed 's/-/_/g'}";
 
 }
 
-parse_commandline "$@"
-handle_passed_args_count
-assign_positional_args 1 "${_positionals[@]}"
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
 
 # @parseArger-parsing-end
 # print_debug "$@"
@@ -119,7 +218,8 @@ parseHelpMessage() {
 	echo "$1";
 }
 
-paStart="# @parseArger"
+paStart="# @parse"
+paStart+="Arger"
 
 _help="$(sed -ne 's/'"${paStart}"'-help \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _set <<< "$(sed -ne 's/'"${paStart}"'-set \(.*\).*/\1/p' "$_arg_file")"
@@ -147,11 +247,21 @@ if [ "${_set[*]}" != "" ] && [ "${#_set[@]}" -gt "0" ]; then
     cmdGen+=("--set" "$__set");
   done
 fi
+if [[ "${#_arg_set[@]}" -gt 0 ]]; then
+	for __n_set in "${_arg_set[@]}"; do
+		cmdGen+=("--set" "$__n_set")
+	done
+fi
 
 if [ "${_source[*]}" != "" ] && [ "${#_source[@]}" -gt "0" ]; then
   for __source in "${_source[@]}"; do
     cmdGen+=("--source" "$__source");
   done
+fi
+if [[ "${#_arg_source[@]}" -gt 0 ]]; then
+	for __n_source in "${_arg_source[@]}"; do
+		cmdGen+=("--source" "$__n_source")
+	done
 fi
 
 if [ "$_leftovers" != "" ]; then
@@ -163,17 +273,32 @@ if [ "${_pos[*]}" != "" ] && [ "${#_pos[@]}" -gt "0" ]; then
     cmdGen+=("--pos" "$__pos");
   done
 fi
+if [[ "${#_arg_pos[@]}" -gt 0 ]]; then
+	for __n_pos in "${_arg_pos[@]}"; do
+		cmdGen+=("--pos" "$__n_pos")
+	done
+fi
 
 if [ "${_opt[*]}" != "" ] && [ "${#_opt[@]}" -gt "0" ]; then
   for __opt in "${_opt[@]}"; do
     cmdGen+=("--opt" "$__opt");
   done
 fi
+if [[ "${#_arg_opt[@]}" -gt 0 ]]; then
+	for __n_opt in "${_arg_opt[@]}"; do
+		cmdGen+=("--opt" "$__n_opt")
+	done
+fi
 
 if [ "${_flag[*]}" != "" ] && [ "${#_flag[@]}" -gt "0" ]; then
   for __flag in "${_flag[@]}"; do
     cmdGen+=("--flag" "$__flag");
   done
+fi
+if [[ "${#_arg_flag[@]}" -gt 0 ]]; then
+	for __n_flag in "${_arg_flag[@]}"; do
+		cmdGen+=("--flag" "$__n_flag")
+	done
 fi
 
 tmpGen="$(mktemp)";
