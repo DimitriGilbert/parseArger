@@ -9,7 +9,10 @@
 # @parseArger opt one-of "accepted values" --repeat
 # @parseArger opt default-value "value" --short d --repeat
 # @parseArger opt short "short form" --short s
+# @parseArger opt alias "option alias" --repeat
+# @parseArger opt empty-value "value for empty option"
 # @parseArger flag repeat "repeatable" --short r
+# @parseArger flag empty "use option as flag"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -43,8 +46,11 @@ _arg_repeat_max=
 _arg_one_of=()
 _arg_default_value=()
 _arg_short=
+_arg_alias=()
+_arg_empty_value=
 # FLAGS
 _arg_repeat="off"
+_arg_empty="off"
 
 
 print_help()
@@ -55,14 +61,17 @@ print_help()
 		echo -e "I send an SOS to the world:"
 	echo -e "	arg-name: positional argument name"
 	echo -e "	description: positional argument description"
-	echo -e "	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']"
-	echo -e "	--repeat-max <repeat-max>: maximum repeatition forces repeat"
-	echo -e "	--one-of <one-of>: accepted values, repeatable"
-	echo -e "	-d, --default-value <default-value>: value, repeatable"
-	echo -e "	-s, --short <short>: short form"
+	echo -e "	--repeat-min <repeat-min>: minimum repeatition forces repeat, can be empty [default: ' 1 ']"
+	echo -e "	--repeat-max <repeat-max>: maximum repeatition forces repeat, can be empty"
+	echo -e "	--one-of <one-of>: accepted values, repeatable, can be empty"
+	echo -e "	-d, --default-value <default-value>: value, repeatable, can be empty"
+	echo -e "	-s, --short <short>: short form, can be empty"
+	echo -e "	--alias <alias>: option alias, repeatable, can be empty"
+	echo -e "	--empty-value <empty-value>: value for empty option, can be empty"
 	echo -e "	-r|--repeat|--no-repeat: repeatable"
+	echo -e "	--empty|--no-empty: use option as flag"
 	echo -e "Usage :
-	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--[no-]repeat]";
+	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]";
 	fi
 
 }
@@ -125,9 +134,31 @@ parse_commandline()
 				_arg_short="${_key##-s}"
 				;;
 			
+			--alias)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_alias+=("$2")
+				shift
+				;;
+			--alias=*)
+				_arg_alias+=("${_key##--alias=}")
+				;;
+			
+			--empty-value)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_empty_value="$2"
+				shift
+				;;
+			--empty-value=*)
+				_arg_empty_value="${_key##--empty-value=}"
+				;;
+			
 			-r|--no-repeat|--repeat)
 				_arg_repeat="on"
 				test "${1:0:5}" = "--no-" && _arg_repeat="off"
+				;;
+			--no-empty|--empty)
+				_arg_empty="on"
+				test "${1:0:5}" = "--no-" && _arg_empty="off"
 				;;
 			-h|--help)
 				print_help;
@@ -186,7 +217,10 @@ print_debug()
 	echo -e "\tone-of: ${_arg_one-of | sed 's/-/_/g'}";
 	echo -e "\tdefault-value: ${_arg_default-value | sed 's/-/_/g'}";
 	echo -e "\tshort: ${_arg_short | sed 's/-/_/g'}";
+	echo -e "\talias: ${_arg_alias | sed 's/-/_/g'}";
+	echo -e "\tempty-value: ${_arg_empty-value | sed 's/-/_/g'}";
 	echo -e "\trepeat: ${_arg_repeat | sed 's/-/_/g'}";
+	echo -e "\tempty: ${_arg_empty | sed 's/-/_/g'}";
 
 }
 
@@ -203,7 +237,15 @@ trap on_interrupt INT;
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
-optHelp="--${_arg_arg_name} <${_arg_arg_name}>: ${_arg_description}";
+optHelp="--${_arg_arg_name}";
+
+if [[ "${#_arg_alias[@]}" -gt 0 ]]; then
+	for ali in "${_arg_alias[@]}"; do
+		optHelp+="|--${ali}"
+	done
+fi
+
+optHelp+=" <${_arg_arg_name}>: ${_arg_description}";
 
 if [ "$_arg_short" != "" ]; then
   optHelp="-${_arg_short}, ${optHelp}";
@@ -217,12 +259,12 @@ if [ "$_arg_empty" != "off" ] || [ "$_arg_empty_value" != "" ]; then
 	optHelp+=", can be empty";
 fi
 
-if [ "$_arg_default_value" != "" ]; then
+if [ "${#_arg_default_value[@]}" -gt 0 ]; then
 	optHelp+=" [default: '";
 	if [ "$_arg_repeat" != "off" ]; then
 		optHelp+="(";
 	fi
-	optHelp+=" ${_arg_default_value} ";
+	optHelp+=" ${_arg_default_value[*]} ";
 	if [ "$_arg_repeat" != "off" ]; then
 		optHelp+=")";
 	fi
