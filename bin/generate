@@ -11,10 +11,14 @@
 # @parseArger opt help-option "help option trigger"
 # @parseArger opt help-short-option "short help option"
 # @parseArger opt leftovers-name "extra arguments variable name" --default-value "leftovers"
-# @parseArger opt use-shebang "shebang executable" --default-value "/ben/bash"
+# @parseArger opt use-shebang "shebang executable" --default-value "/bin/bash"
 # @parseArger flag leftovers "accept extra arguments"
 # @parseArger flag bang "include shebang" --on
 # @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+# @parseArger-utils-end
 
 # @parseArger-parsing
 die()
@@ -45,7 +49,7 @@ _arg_help_message="I send an SOS to the world"
 _arg_help_option=
 _arg_help_short_option=
 _arg_leftovers_name="leftovers"
-_arg_use_shebang="/ben/bash"
+_arg_use_shebang="/bin/bash"
 # FLAGS
 _arg_leftovers="off"
 _arg_bang="on"
@@ -53,7 +57,10 @@ _arg_bang="on"
 
 print_help()
 {
-	echo -e "I send an SOS to the world:"
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "I send an SOS to the world:"
 	echo -e "	-p, --pos <pos>: positional argument declaration, repeatable"
 	echo -e "	-o, --opt <opt>: optional arg declaration, repeatable"
 	echo -e "	-f, --flag <flag>: flag declaration, repeatable"
@@ -63,11 +70,13 @@ print_help()
 	echo -e "	--help-option <help-option>: help option trigger"
 	echo -e "	--help-short-option <help-short-option>: short help option"
 	echo -e "	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']"
-	echo -e "	--use-shebang <use-shebang>: shebang executable [default: ' /ben/bash ']"
+	echo -e "	--use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']"
 	echo -e "	--leftovers|--no-leftovers: accept extra arguments"
 	echo -e "	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)"
 	echo -e "Usage :
-	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--[no-]leftovers] [--[no-]bang]"
+	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--[no-]leftovers] [--[no-]bang]";
+	fi
+
 }
 
 parse_commandline()
@@ -215,8 +224,12 @@ parse_commandline()
 handle_passed_args_count()
 {
 	local _required_args_string=""
-	test "${_positionals_count}" -le 0 || _PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
-	test "${_positionals_count}" -ge 0 || _PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}." 1
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
+	fi
+	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}." 1;
+	fi
 }
 
 
@@ -318,7 +331,7 @@ done
 
 # generate shebang
 if [ "$_arg_bang" != "off" ]; then
-	echo "#!${_arg_use_bang}";
+	echo "#!${_arg_use_shebang}";
 fi
 
 # parsing
@@ -361,7 +374,7 @@ hasSubCmd="1";
 echo -e "# ${paCmtTrgr}declarations";
 for pos in "${_arg_pos[@]}"; do
 	if [[ "$hasSubCmd" == "1" ]]; then
-		hasSubCmd=$("$SCRIPT_ROOT_DIR/pos/is-subcmd" $pos)
+		hasSubCmd=$(eval "$SCRIPT_ROOT_DIR/pos/is-subcmd $pos")
 	fi
 	eval "$SCRIPT_ROOT_DIR/pos/declaration $pos";
 done
@@ -373,6 +386,10 @@ for flag in "${_arg_flag[@]}"; do
 done
 # generating parsing function
 echo "# ${paCmtTrgr}declarations-end
+
+# ${paCmtTrgr}utils
+_helpHasBeenPrinted=1;
+# ${paCmtTrgr}utils-end
 
 # ${paCmtTrgr}parsing
 die()
@@ -421,12 +438,14 @@ print_help()
 if [ "$hasSubCmd" == "0" ]; then
 	echo -e "
 	if [ \"\${#_positionals[@]}\" -ge 1 ]; then
-		echo \"it should be subCmd\"
+		echo \"\$0 sub command help\"
 	else
 	";
 fi
 echo -e "
-	echo -e \"$_arg_help_message:\"";
+	if [[ \"\$_helpHasBeenPrinted\" == \"1\" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e \"$_arg_help_message:\"";
 # help examples
 posexample="";
 for pos in "${_arg_pos[@]}"; do
@@ -451,7 +470,8 @@ for flag in "${_arg_flag[@]}"; do
 done
 
 # actual parsing
-echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}\";";
+echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}\";
+	fi";
 if [ "$hasSubCmd" == "0" ]; then
 	echo -e "
 	fi
@@ -475,6 +495,9 @@ for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/parser $flag" | sed -e 's/^/\t\t\t/';
 done
 
+if [[ "$hasSubCmd" == "0" ]]; then
+	helpDecArg+=("--has-subcommand")
+fi
 "$SCRIPT_ROOT_DIR/help/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
 
 echo -e "\t\t\t*)
@@ -493,10 +516,14 @@ handle_passed_args_count()
 	local _required_args_string=\"${reqPos[*]}\"";
 
 if [ "$_arg_leftovers" == "off" ]; then
-	echo -e "	test \"\${_positionals_count}\" -le ${maxPos} || _PRINT_HELP=yes die \"FATAL ERROR: There were spurious positional arguments --- we expect at most $maxPos (namely: \$_required_args_string), but got \${_positionals_count} (the last one was: '\${_last_positional}').\" 1";
+	echo -e "	if [ \"\${_positionals_count}\" -lt ${maxPos} ] && [ \"\$_helpHasBeenPrinted\" == \"1\" ];then
+		_PRINT_HELP=yes die \"FATAL ERROR: There were spurious positional arguments --- we expect at most $maxPos (namely: \$_required_args_string), but got \${_positionals_count} (the last one was: '\${_last_positional}').\" 1
+	fi";
 fi
 
-	echo -e "	test \"\${_positionals_count}\" -ge ${minPos} || _PRINT_HELP=yes die \"FATAL ERROR: Not enough positional arguments - we require at least $minPos (namely: \$_required_args_string), but got only \${_positionals_count}.\" 1
+	echo -e "	if [ \"\${_positionals_count}\" -gt ${minPos} ] && [ \"\$_helpHasBeenPrinted\" == \"1\" ];then
+		_PRINT_HELP=yes die \"FATAL ERROR: Not enough positional arguments - we require at least $minPos (namely: \$_required_args_string), but got only \${_positionals_count}.\" 1;
+	fi
 }
 
 
