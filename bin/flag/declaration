@@ -5,6 +5,8 @@
 # @parseArger pos arg-name "positional argument name"
 # @parseArger pos description "positional argument description"
 # @parseArger opt short "short form" --short s
+# @parseArger opt no-name "value for the negation"
+# @parseArger opt alias "flag alias" --repeat
 # @parseArger flag on "on by default"
 # @parseArger-declarations-end
 
@@ -35,6 +37,8 @@ _arg_arg_name="";
 _arg_description="";
 # OPTIONALS ARGUMENTS
 _arg_short=
+_arg_no_name=
+_arg_alias=()
 # FLAGS
 _arg_on="off"
 
@@ -48,9 +52,11 @@ print_help()
 	echo -e "	arg-name: positional argument name"
 	echo -e "	description: positional argument description"
 	echo -e "	-s, --short <short>: short form"
+	echo -e "	--no-name <no-name>: value for the negation"
+	echo -e "	--alias <alias>: flag alias, repeatable"
 	echo -e "	--on|--no-on: on by default"
 	echo -e "Usage :
-	$0 <arg-name> <description> [--short <value>] [--[no-]on]";
+	$0 <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--[no-]on]";
 	fi
 
 }
@@ -72,6 +78,24 @@ parse_commandline()
 				;;
 			-s*)
 				_arg_short="${_key##-s}"
+				;;
+			
+			--no-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_no_name="$2"
+				shift
+				;;
+			--no-name=*)
+				_arg_no_name="${_key##--no-name=}"
+				;;
+			
+			--alias)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_alias+=("$2")
+				shift
+				;;
+			--alias=*)
+				_arg_alias+=("${_key##--alias=}")
 				;;
 			
 			--no-on|--on)
@@ -133,6 +157,8 @@ print_debug()
 	echo -e "\targ-name: ${_arg_arg_name}";
 	echo -e "\tdescription: ${_arg_description}";
 	echo -e "\tshort: ${_arg_short | sed 's/-/_/g'}";
+	echo -e "\tno-name: ${_arg_no-name | sed 's/-/_/g'}";
+	echo -e "\talias: ${_arg_alias | sed 's/-/_/g'}";
 	echo -e "\ton: ${_arg_on | sed 's/-/_/g'}";
 
 }
@@ -151,13 +177,22 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-outStr="# @parseArger flag $_arg_arg_name \"${_arg_description}\""
+outStr="# @parse";
+outStr="${outStr}Arger flag $_arg_arg_name \"${_arg_description}\""
 
 if [ "$_arg_short" != "" ]; then
   outStr="$outStr --short $_arg_short"
 fi
 if [ "$_arg_on" != "off" ]; then
   outStr="$outStr --on"
+fi
+if [ "$_arg_no_name" != "" ]; then
+  outStr="$outStr --no-name $_arg_no_name"
+fi
+if [ "${#_arg_alias[@]}" -gt 0 ]; then
+	for ali in "${_arg_alias[@]}"; do
+		outStr="$outStr --alias $ali";
+	done
 fi
 
 echo "$outStr";
