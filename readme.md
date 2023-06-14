@@ -2,7 +2,11 @@
 
 Generate standalone argument parsing in bash.
 
-This code is heavilly inspired by [Argbash](https://github.com/matejak/argbash) and uses its generated code as a basis (also, most of the script here still uses it for now)
+Have you ever dealt with the nightmare of bash option parsing ? Or maybe you wanted to clean-up some cool script you created by adding option just to burn your computer at the idea of so much boilerplate ?
+Yeah, me too, and because the neighbor's wheel is not round enough to my taste, I create this, ParseArger !
+
+This code is heavilly inspired by [Argbash](https://github.com/matejak/argbash) and uses its generated code as a basis (also, some of the script here still uses it for now).
+Why not stick with it ? I did not understand how it was working and wanted to add a few things. Also, ParseArger do not have dependencies other than bash ;)
 
 ## TLDR
 
@@ -102,10 +106,10 @@ bin/pos/* [-d|--default-value <arg>] [--repeat-min <arg>] [--repeat-max <arg>] [
 
 * arg-name: positional argument name
 * description: positional argument description
-* -d, --default-value: default value (no default)
+* -d, --default-value: default value, repeatable (no default)
 * --repeat-min: minimum repeatition, forces --repeat (default: '1')
 * --repeat-max: maximum repeatition, forces --repeat (no default)
-* --one-of: list of accepted values (empty by default)
+* --one-of: list of accepted values, repeatable (empty by default)
 * -r, --repeat, --no-repeat: repeatable (off by default)
 * --optional, --no-optional: optional (off by default)
 * --subcommand, --no-subcommand: this is a subcommand (off by default)
@@ -126,14 +130,15 @@ parseArger generate --pos 'my-argument "my argument description"' --pos 'my-othe
 Repeated option. String representing arguments for [bin/opt/*](bin/opt/) scripts.
 
 ```bash
-bin/opt/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--one-of <arg>] [-r|--(no-)repeat] [-h|--help] <arg-name> <description>
+bin/opt/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--one-of <arg>] [-r|--(no-)repeat] [-h|--help] [--alias <alias>] <arg-name> <description>
 ```
 
 * arg-name: positional argument name
 * description: positional argument description
 * -s, --short: short option (no default)
-* -d, --default-value: default value (empty by default)
-* --one-of: list of accepted values (empty by default)
+* -d, --default-value: default value, repeatable (empty by default)
+* --one-of: list of accepted values, repeatable (empty by default)
+* --alias: list of alias, repeatable (empty by default)
 * -r, --repeat, --no-repeat: repeatable (off by default)
 * -h, --help: Prints help
 
