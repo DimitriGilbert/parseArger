@@ -50,7 +50,7 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "I send an SOS to the world:"
+		echo -e "parseArger parsing string for flags:"
 	echo -e "	arg-name: positional argument name"
 	echo -e "	description: positional argument description"
 	echo -e "	-s, --short <short>: short form"
@@ -124,6 +124,14 @@ parse_commandline()
 				print_help;
 				exit 0;
 				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -170,12 +178,17 @@ print_debug()
 	
 	echo -e "\targ-name: ${_arg_arg_name}";
 	echo -e "\tdescription: ${_arg_description}";
-	echo -e "\tshort: ${_arg_short | sed 's/-/_/g'}";
-	echo -e "\tno-name: ${_arg_no-name | sed 's/-/_/g'}";
-	echo -e "\talias: ${_arg_alias | sed 's/-/_/g'}";
-	echo -e "\tno-alias: ${_arg_no-alias | sed 's/-/_/g'}";
-	echo -e "\ton: ${_arg_on | sed 's/-/_/g'}";
+	echo -e "\tshort: ${_arg_short}";
+	echo -e "\tno-name: ${_arg_no_name}";
+	echo -e "\talias: ${_arg_alias[*]}";
+	echo -e "\tno-alias: ${_arg_no_alias[*]}";
+	echo -e "\ton: ${_arg_on}";
 
+}
+
+print_version()
+{
+	echo "";
 }
 
 on_interrupt() {

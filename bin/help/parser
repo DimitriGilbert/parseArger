@@ -9,12 +9,16 @@
 # @parseArger flag has-subcommand "do not exit after print_help"
 # @parseArger-declarations-end
 
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+# @parseArger-utils-end
+
 # @parseArger-parsing
 die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo "$1" >&2
+	echo -e "$1" >&2
 	exit "${_ret}"
 }
 
@@ -39,13 +43,16 @@ _arg_has_subcommand="off"
 print_help()
 {
 
-	echo -e "create help parser:"
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "create help parser:"
 	echo -e "	message: your main help message"
 	echo -e "	--option <option>: help trigger option [default: ' help ']"
 	echo -e "	--short-option <short-option>: help trigger short option [default: ' h ']"
 	echo -e "	--has-subcommand|--no-has-subcommand: do not exit after print_help"
 	echo -e "Usage :
 	$0 <message> [--option <value>] [--short-option <value>] [--[no-]has-subcommand]";
+	fi
 
 }
 
@@ -74,17 +81,27 @@ parse_commandline()
 				_arg_short_option="${_key##--short-option=}"
 				;;
 			
-			--no-has-subcommand|--has-subcommand)
+			--has-subcommand)
 				_arg_has_subcommand="on"
-				test "${1:0:5}" = "--no-" && _arg_has_subcommand="off"
+				;;
+			--no-has-subcommand)
+				_arg_has_subcommand="off"
 				;;
 			-h|--help)
 				print_help;
-			
+				exit 0;
 				;;
 			-h*)
 				print_help;
-			
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
 				;;
 			*)
 				_last_positional="$1"
@@ -100,8 +117,14 @@ parse_commandline()
 handle_passed_args_count()
 {
 	local _required_args_string="message"
-	test "${_positionals_count}" -le 1 || _PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
-	test "${_positionals_count}" -ge 1 || _PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}." 1
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
 }
 
 
@@ -113,7 +136,7 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
+eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -125,10 +148,15 @@ print_debug()
 	echo "DEBUG: $0 $@";
 	
 	echo -e "\tmessage: ${_arg_message}";
-	echo -e "\toption: ${_arg_option | sed 's/-/_/g'}";
-	echo -e "\tshort-option: ${_arg_short-option | sed 's/-/_/g'}";
-	echo -e "\thas-subcommand: ${_arg_has-subcommand | sed 's/-/_/g'}";
+	echo -e "\toption: ${_arg_option}";
+	echo -e "\tshort-option: ${_arg_short_option}";
+	echo -e "\thas-subcommand: ${_arg_has_subcommand}";
 
+}
+
+print_version()
+{
+	echo "";
 }
 
 on_interrupt() {

@@ -24,7 +24,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo "$1" >&2
+	echo -e "$1" >&2
 	exit "${_ret}"
 }
 
@@ -58,7 +58,7 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "I send an SOS to the world:"
+		echo -e "parseArger declaration string for options:"
 	echo -e "	arg-name: positional argument name"
 	echo -e "	description: positional argument description"
 	echo -e "	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']"
@@ -152,13 +152,17 @@ parse_commandline()
 				_arg_empty_value="${_key##--empty-value=}"
 				;;
 			
-			-r|--no-repeat|--repeat)
+			-r|--repeat)
 				_arg_repeat="on"
-				test "${1:0:5}" = "--no-" && _arg_repeat="off"
 				;;
-			--no-empty|--empty)
+			--no-repeat)
+				_arg_repeat="off"
+				;;
+			--empty)
 				_arg_empty="on"
-				test "${1:0:5}" = "--no-" && _arg_empty="off"
+				;;
+			--no-empty)
+				_arg_empty="off"
 				;;
 			-h|--help)
 				print_help;
@@ -166,6 +170,14 @@ parse_commandline()
 				;;
 			-h*)
 				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
 				exit 0;
 				;;
 			*)
@@ -182,11 +194,13 @@ parse_commandline()
 handle_passed_args_count()
 {
 	local _required_args_string="arg-name description"
-	if [ "${_positionals_count}" -lt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 2 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
-	fi
 	if [ "${_positionals_count}" -gt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 2 (namely: $_required_args_string), but got only ${_positionals_count}." 1;
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 2 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 2 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
 	fi
 }
 
@@ -199,7 +213,7 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
+eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -212,16 +226,21 @@ print_debug()
 	
 	echo -e "\targ-name: ${_arg_arg_name}";
 	echo -e "\tdescription: ${_arg_description}";
-	echo -e "\trepeat-min: ${_arg_repeat-min | sed 's/-/_/g'}";
-	echo -e "\trepeat-max: ${_arg_repeat-max | sed 's/-/_/g'}";
-	echo -e "\tone-of: ${_arg_one-of | sed 's/-/_/g'}";
-	echo -e "\tdefault-value: ${_arg_default-value | sed 's/-/_/g'}";
-	echo -e "\tshort: ${_arg_short | sed 's/-/_/g'}";
-	echo -e "\talias: ${_arg_alias | sed 's/-/_/g'}";
-	echo -e "\tempty-value: ${_arg_empty-value | sed 's/-/_/g'}";
-	echo -e "\trepeat: ${_arg_repeat | sed 's/-/_/g'}";
-	echo -e "\tempty: ${_arg_empty | sed 's/-/_/g'}";
+	echo -e "\trepeat-min: ${_arg_repeat_min}";
+	echo -e "\trepeat-max: ${_arg_repeat_max}";
+	echo -e "\tone-of: ${_arg_one_of[*]}";
+	echo -e "\tdefault-value: ${_arg_default_value[*]}";
+	echo -e "\tshort: ${_arg_short}";
+	echo -e "\talias: ${_arg_alias[*]}";
+	echo -e "\tempty-value: ${_arg_empty_value}";
+	echo -e "\trepeat: ${_arg_repeat}";
+	echo -e "\tempty: ${_arg_empty}";
 
+}
+
+print_version()
+{
+	echo "";
 }
 
 on_interrupt() {
