@@ -104,18 +104,16 @@ Repeated option. String representing arguments for [bin/pos/*](bin/pos/) scripts
 
 ```bash
 bin/pos/* [-d|--default-value <arg>] [--repeat-min <arg>] [--repeat-max <arg>] [--one-of <arg>] [-r|--(no-)repeat] [--(no-)optional] [--(no-)subcommand] [-h|--help] <arg-name> <description>
-```
 
-* arg-name: positional argument name
-* description: positional argument description
-* -d, --default-value: default value, repeatable (no default)
-* --repeat-min: minimum repeatition, forces --repeat (default: '1')
-* --repeat-max: maximum repeatition, forces --repeat (no default)
-* --one-of: list of accepted values, repeatable (empty by default)
-* -r, --repeat, --no-repeat: repeatable (off by default)
-* --optional, --no-optional: optional (off by default)
-* --subcommand, --no-subcommand: this is a subcommand (off by default)
-* -h, --help: Prints help
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+```
 
 **Examples**
 
@@ -133,16 +131,19 @@ Repeated option. String representing arguments for [bin/opt/*](bin/opt/) scripts
 
 ```bash
 bin/opt/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--one-of <arg>] [-r|--(no-)repeat] [-h|--help] [--alias <alias>] <arg-name> <description>
-```
 
-* arg-name: positional argument name
-* description: positional argument description
-* -s, --short: short option (no default)
-* -d, --default-value: default value, repeatable (empty by default)
-* --one-of: list of accepted values, repeatable (empty by default)
-* --alias: list of alias, repeatable (empty by default)
-* -r, --repeat, --no-repeat: repeatable (off by default)
-* -h, --help: Prints help
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces repeat
+	--one-of <one-of>: accepted values, repeatable
+	-d, --default-value <default-value>: value, repeatable
+	-s, --short <short>: short form
+	--alias <alias>: option alias, repeatable
+	--empty-value <empty-value>: value for empty option
+	-r|--repeat|--no-repeat: repeatable
+	--empty|--no-empty: use option as flag
+```
 
 **Examples**
 
@@ -164,13 +165,15 @@ Repeated option. String representing arguments for [bin/flag/*](bin/flag/) scrip
 
 ```bash
 bin/flag/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--one-of <arg>] [-r|--(no-)repeat] [-h|--help] <arg-name> <description>
-```
 
-* arg-name: positional argument name
-* description: flag description
-* -s, --short: short option (no default)
-* --on, --no-on: flag on by default (off by default)
-* -h, --help: Prints help
+arg-name: positional argument name
+	description: positional argument description
+	-s, --short <short>: short form
+	--no-name <no-name>: value for the negation
+	--alias <alias>: flag alias, repeatable
+	--no-alias <no-alias>: flag negation alias, repeatable
+	--on|--no-on: on by default
+```
 
 **Examples**
 
