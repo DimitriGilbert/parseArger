@@ -67,23 +67,25 @@ generic usage:
 
 ```bash
 parseArger generate [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--source <arg>] [--help-message <arg>] [--help-option <arg>] [--help-short-option <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]
+
+-p, --pos <pos>: positional argument declaration, repeatable
+-o, --opt <opt>: optional arg declaration, repeatable
+-f, --flag <flag>: flag declaration, repeatable
+-s, --set <set>: declare var, repeatable
+-l, --source <source>: file to source, repeatable
+-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
+--help-option <help-option>: help option trigger
+--help-short-option <help-short-option>: short help option
+--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
+--use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']
+--set-version <set-version>: set version number
+--version-opt-name <version-opt-name>: version option name [default: ' version ']
+--version-short-option <version-short-option>: version short option name [default: ' v ']
+--leftovers|--no-leftovers: accept extra arguments
+--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
+--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+
 ```
-
-* --pos: positional arguments declarations, repeated (empty by default)
-* --opt: optionnal arguments declarations, repeated (empty by default)
-* --flag: flags declarations, repeated (empty by default)
-* --set: variable declarations, repeated (empty by default)
-* --source: file to source, repeated (empty by default)
-* --help-message: general help message for the script (default: 'I send an SOS to the world')
-* --help-option: option to trigger for the script (no default)
-* --help-short-option: option to trigger for the script (no default)
-* --leftovers-name: extra arguments variable name (default: 'leftovers')
-* --use-bang: shebang executable (default: '/bin/bash')
-* --leftovers, --no-leftovers: accept extra arguments (off by default)
-* --bang, --no-bang: include shebang (on by default)
-* -h, --help: Prints help
-* --output: path to file, prepend code if file exists
-
 Variables are created containing passed value so you can easily access it.
 
 created variables follow this pattern `$_arg_<argument|option|flag name>`. note that `-` are replaced with `_`.
@@ -192,10 +194,29 @@ parse an existing parseArger script and add arguments, options, flag, etc...
 
 parseArger parse \
   <file to parse> \
-  -p, --pos <pos>: add positional argument declaration, repeatable
-  -o, --opt <opt>: add optional arg declaration, repeatable
-  -f, --flag <flag>: add flag declaration, repeatable
-  -s, --set <set>: add declare var, repeatable
-  -l, --source <source>: add file to source, repeatable
-  [--inplace|-i]
+	-p, --pos <pos>: add positional argument declaration, repeatable
+	-o, --opt <opt>: add optional arg declaration, repeatable
+	-f, --flag <flag>: add flag declaration, repeatable
+	-s, --set <set>: add declare var, repeatable
+	-l, --source <source>: add file to source, repeatable
+	--set-version <set-version>: set version
+	-i|--inplace|--no-inplace: replace parseArger generated content in place
 ```
+
+### ./bin/document
+
+create documentation for parseArger script:
+
+```bash
+	-f, --file <file>: file to document, repeatable
+	-d, --directory|--folder <directory>: directory to document, repeatable
+	-o, --out <out>: output file
+	--tag <tag>: markdown tag for title [default: ' ## ']
+	--next-tag-prepend <next-tag-prepend>: prepend to next title tag level [default: ' # ']
+	--title <title>: documentation title [default: ' Usage ']
+	--title-tag <title-tag>: documentation title tag [default: ' # ']
+	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
+	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)
+```
+Usage :
+	./bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]

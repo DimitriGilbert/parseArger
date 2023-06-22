@@ -1,0 +1,317 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "create documentation for parseArger script" --option "help" --short-option "h"
+# @parseArger-declarations
+# @parseArger opt file "file to document" --short f --repeat
+# @parseArger opt directory "directory to document" --short d --repeat --alias folder
+# @parseArger opt out "output file" --short o
+# @parseArger opt tag "markdown tag for title" --default-value "##"
+# @parseArger opt next-tag-prepend "prepend to next title tag level" --default-value "#"
+# @parseArger opt title "documentation title" --default-value "Usage"
+# @parseArger opt title-tag "documentation title tag" --default-value "#"
+# @parseArger flag sub-directory "document subdirectory" --on
+# @parseArger flag append-output "add to output file if it exists" --on
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+# @parseArger-utils-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	echo -e "$1" >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+# OPTIONALS ARGUMENTS
+_arg_file=()
+_arg_directory=()
+_arg_out=
+_arg_tag="##"
+_arg_next_tag_prepend="#"
+_arg_title="Usage"
+_arg_title_tag="#"
+# FLAGS
+_arg_sub_directory="on"
+_arg_append_output="on"
+
+
+print_help()
+{
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "create documentation for parseArger script:"
+	echo -e "	-f, --file <file>: file to document, repeatable"
+	echo -e "	-d, --directory|--folder <directory>: directory to document, repeatable"
+	echo -e "	-o, --out <out>: output file"
+	echo -e "	--tag <tag>: markdown tag for title [default: ' ## ']"
+	echo -e "	--next-tag-prepend <next-tag-prepend>: prepend to next title tag level [default: ' # ']"
+	echo -e "	--title <title>: documentation title [default: ' Usage ']"
+	echo -e "	--title-tag <title-tag>: documentation title tag [default: ' # ']"
+	echo -e "	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)"
+	echo -e "	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)"
+	echo -e "Usage :
+	$0 [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]";
+	fi
+
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			-f|--file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_file+=("$2")
+				shift
+				;;
+			--file=*)
+				_arg_file+=("${_key##--file=}")
+				;;
+			-f*)
+				_arg_file+=("${_key##-f}")
+				;;
+			
+			-d|--folder|--directory)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_directory+=("$2")
+				shift
+				;;
+			--directory=*)
+				_arg_directory+=("${_key##--directory=}")
+				;;
+			--folder=*)
+				_arg_directory+=("${_key##--folder=}")
+				;;
+			-d*)
+				_arg_directory+=("${_key##-d}")
+				;;
+			
+			-o|--out)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_out="$2"
+				shift
+				;;
+			--out=*)
+				_arg_out="${_key##--out=}"
+				;;
+			-o*)
+				_arg_out="${_key##-o}"
+				;;
+			
+			--tag)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_tag="$2"
+				shift
+				;;
+			--tag=*)
+				_arg_tag="${_key##--tag=}"
+				;;
+			
+			--next-tag-prepend)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_next_tag_prepend="$2"
+				shift
+				;;
+			--next-tag-prepend=*)
+				_arg_next_tag_prepend="${_key##--next-tag-prepend=}"
+				;;
+			
+			--title)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_title="$2"
+				shift
+				;;
+			--title=*)
+				_arg_title="${_key##--title=}"
+				;;
+			
+			--title-tag)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_title_tag="$2"
+				shift
+				;;
+			--title-tag=*)
+				_arg_title_tag="${_key##--title-tag=}"
+				;;
+			
+			--sub-directory)
+				_arg_sub_directory="on"
+				;;
+			--no-sub-directory)
+				_arg_sub_directory="off"
+				;;
+			--append-output)
+				_arg_append_output="on"
+				;;
+			--no-append-output)
+				_arg_append_output="off"
+				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
+eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\tfile: ${_arg_file[*]}";
+	echo -e "\tdirectory: ${_arg_directory[*]}";
+	echo -e "\tout: ${_arg_out}";
+	echo -e "\ttag: ${_arg_tag}";
+	echo -e "\tnext-tag-prepend: ${_arg_next_tag_prepend}";
+	echo -e "\ttitle: ${_arg_title}";
+	echo -e "\ttitle-tag: ${_arg_title_tag}";
+	echo -e "\tsub-directory: ${_arg_sub_directory}";
+	echo -e "\tappend-output: ${_arg_append_output}";
+
+}
+
+print_version()
+{
+	echo "";
+}
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+SCRIPT_ROOT_DIR=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd -P
+);
+
+outStr="${_arg_title_tag} ${_arg_title}\n\n";
+
+paStart="# @parse";
+paStart+="Arger";
+
+if [ "${#_arg_file[@]}" -gt 0 ]; then
+	for _file in "${_arg_file[@]}"; do
+		if [ -f "$_file" ]; then
+			_isPA="$(sed -ne 's/'"${paStart}"'//p' "$_file")";
+			if [ "${_isPA}" != "" ]; then
+				# TODO: parse help declaration to call correct option
+				# TODO: parse argument for subcommand
+				#			* get sucommand help
+
+				# _help="$(sed -ne 's/'"${paStart}"'-help \(.*\).*/\1/p' "$_file")"
+				# _version="$(sed -ne 's/'"${paStart}"'-version \(.*\).*/\1/p' "$_file")"
+				# readarray -t _set <<< "$(sed -ne 's/'"${paStart}"'-set \(.*\).*/\1/p' "$_file")"
+				# _leftovers="$(sed -ne 's/'"${paStart}"'-leftovers \(.*\).*/\1/p' "$_file")"
+				# readarray -t _source <<< "$(sed -ne 's/'"${paStart}"'-source \(.*\).*/\1/p' "$_file")"
+				# readarray -t _pos <<< "$(sed -ne 's/'"${paStart}"' pos \(.*\).*/\1/p' "$_file")"
+				# readarray -t _opt <<< "$(sed -ne 's/'"${paStart}"' opt \(.*\).*/\1/p' "$_file")"
+				# readarray -t _flag <<< "$(sed -ne 's/'"${paStart}"' flag \(.*\).*/\1/p' "$_file")"
+				outStr+="${_arg_tag} ${_file}\n\n\`\`\`\n$("$_file" --help)\n\`\`\`\n\n";
+			fi
+		fi
+	done
+fi
+
+if [ "${#_arg_directory[@]}" -gt 0 ]; then
+	for _directory in "${_arg_directory[@]}"; do
+		if [ -d "$_directory" ]; then
+			# outStr+="${_arg_tag} ${_directory}\n\n";
+			docCmd=(--tag "${_arg_next_tag_prepend}${_arg_tag}" "--next-tag-prepend" "${_arg_next_tag_prepend}" --title "${_directory}" "--title-tag" "${_arg_tag}");
+			for _file in "$_directory"/*; do
+				if [ -f "${_file}" ]; then
+					docCmd+=(--file "$_file");
+				fi
+				if [ -d "${_file}" ] && [ "$_arg_sub_directory" == "on" ] ; then
+					docCmd+=(--directory "$_file");
+				fi
+			done
+			outStr+="$("$0" "${docCmd[@]}")\n\n";
+		fi
+	done
+fi
+
+if [ "$_arg_out" == "" ]; then
+	echo -e "$outStr"
+else
+	if [ "$_arg_append_output" == "on" ]; then
+		echo -e "$outStr" >> "$_arg_out";
+	else
+		echo -e "$outStr" > "$_arg_out";
+	fi
+fi

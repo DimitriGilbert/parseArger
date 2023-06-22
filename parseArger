@@ -1,11 +1,11 @@
 #!/bin/bash
 # @parseArger-begin
-# @parseArger-help "I send an SOS to the world" --option "help" --short-option "h"
+# @parseArger-help "standalone bash argument parsing framework" --option "help" --short-option "h"
 # @parseArger-set export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
-# @parseArger pos target "what to do" --subcommand --one-of "parse" --one-of "generate"
+# @parseArger pos target "what to do" --subcommand --one-of "parse" --one-of "generate" --one-of "document"
 # @parseArger opt output "create file with command output at value"
 # @parseArger flag prepend "add output on top of file"
 # @parseArger-declarations-end
@@ -19,7 +19,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo "$1" >&2
+	echo -e "$1" >&2
 	exit "${_ret}"
 }
 
@@ -34,7 +34,7 @@ begins_with_short_option()
 # POSITIONALS ARGUMENTS
 _positionals=();
 _arg_target="";
-_one_of_arg_target=("parse" "generate" );
+_one_of_arg_target=("parse" "generate" "document" );
 _arg_subcommand_arg="_arg_target";
 # OPTIONALS ARGUMENTS
 _arg_output=
@@ -55,8 +55,8 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "I send an SOS to the world:"
-	echo -e "	target: what to do [one of 'parse' 'generate']"
+		echo -e "standalone bash argument parsing framework:"
+	echo -e "	target: what to do [one of 'parse' 'generate' 'document']"
 	echo -e "	--output <output>: create file with command output at value"
 	echo -e "	--prepend|--no-prepend: add output on top of file"
 	echo -e "Usage :
@@ -84,9 +84,11 @@ parse_commandline()
 				_arg_output="${_key##--output=}"
 				;;
 			
-			--no-prepend|--prepend)
+			--prepend)
 				_arg_prepend="on"
-				test "${1:0:5}" = "--no-" && _arg_prepend="off"
+				;;
+			--no-prepend)
+				_arg_prepend="off"
 				;;
 			-h|--help)
 				print_help;
@@ -129,7 +131,7 @@ assign_positional_args()
 		if ! [[ "$_positional_name" =~ "_arg_leftovers" ]];then
 			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
 		fi
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
+eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -141,10 +143,15 @@ print_debug()
 	echo "DEBUG: $0 $@";
 	
 	echo -e "\ttarget: ${_arg_target}";
-	echo -e "\toutput: ${_arg_output | sed 's/-/_/g'}";
-	echo -e "\tprepend: ${_arg_prepend | sed 's/-/_/g'}";
+	echo -e "\toutput: ${_arg_output}";
+	echo -e "\tprepend: ${_arg_prepend}";
 	echo -e "\tleftovers: ${_arg_leftovers[*]}";
 
+}
+
+print_version()
+{
+	echo "";
 }
 
 on_interrupt() {
@@ -162,7 +169,9 @@ trap on_interrupt INT;
 # @parseArger-end
 
 if [ "$_arg_output" == "" ]; then
-	"$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}";
+	if [ "$_arg_target" != "" ]; then
+		"$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}";
+	fi
 else
 	output="$("$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}")";
 	

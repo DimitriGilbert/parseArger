@@ -1,6 +1,6 @@
 #!/bin/bash
 # @parseArger-begin
-# @parseArger-help "I send an SOS to the world" --option "help" --short-option "h"
+# @parseArger-help "generate a parseArger script" --option "help" --short-option "h"
 # @parseArger-declarations
 # @parseArger opt pos "positional argument declaration" --short p --repeat
 # @parseArger opt opt "optional arg declaration" --short o --repeat
@@ -68,7 +68,7 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "I send an SOS to the world:"
+		echo -e "generate a parseArger script:"
 	echo -e "	-p, --pos <pos>: positional argument declaration, repeatable"
 	echo -e "	-o, --opt <opt>: optional arg declaration, repeatable"
 	echo -e "	-f, --flag <flag>: flag declaration, repeatable"
@@ -259,6 +259,14 @@ parse_commandline()
 				print_help;
 				exit 0;
 				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -320,6 +328,11 @@ print_debug()
 	echo -e "\tbang: ${_arg_bang}";
 	echo -e "\tversion-opt: ${_arg_version_opt}";
 
+}
+
+print_version()
+{
+	echo "";
 }
 
 on_interrupt() {
