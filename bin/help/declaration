@@ -120,7 +120,8 @@ assign_positional_args 1 "${_positionals[@]}"
 # print_debug "$@"
 # @parseArger-end
 
-outStr="# @parseArger-help \"$_arg_message\"";
+outStr="# @parse"
+outStr+="Arger-help \"$_arg_message\"";
 
 if [ "$_arg_option" != "" ]; then
 	outStr+=" --option \"$_arg_option\"";

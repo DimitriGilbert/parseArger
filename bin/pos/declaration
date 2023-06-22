@@ -188,7 +188,8 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-outStr="# @parseArger pos $_arg_arg_name \"${_arg_description}\""
+outStr="# @parse";
+outStr+="Arger pos $_arg_arg_name \"${_arg_description}\""
 
 if [ "$_arg_default_value" != "" ]; then
   outStr+=" --default-value \"$_arg_default_value\""
