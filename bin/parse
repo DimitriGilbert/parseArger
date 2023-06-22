@@ -8,6 +8,7 @@
 # @parseArger opt flag "add flag declaration" --short f --repeat
 # @parseArger opt set "add declare var" --short s --repeat
 # @parseArger opt source "add file to source" --short l --repeat
+# @parseArger opt set-version "set version"
 # @parseArger flag inplace "replace parseArger generated content in place" --short i
 # @parseArger-declarations-end
 
@@ -20,7 +21,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo "$1" >&2
+	echo -e "$1" >&2
 	exit "${_ret}"
 }
 
@@ -41,6 +42,7 @@ _arg_opt=()
 _arg_flag=()
 _arg_set=()
 _arg_source=()
+_arg_set_version=
 # FLAGS
 _arg_inplace="off"
 
@@ -57,9 +59,10 @@ print_help()
 	echo -e "	-f, --flag <flag>: add flag declaration, repeatable"
 	echo -e "	-s, --set <set>: add declare var, repeatable"
 	echo -e "	-l, --source <source>: add file to source, repeatable"
+	echo -e "	--set-version <set-version>: set version"
 	echo -e "	-i|--inplace|--no-inplace: replace parseArger generated content in place"
 	echo -e "Usage :
-	$0 <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--[no-]inplace]";
+	$0 <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]";
 	fi
 
 }
@@ -131,9 +134,20 @@ parse_commandline()
 				_arg_source+=("${_key##-l}")
 				;;
 			
-			-i|--no-inplace|--inplace)
+			--set-version)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_set_version="$2"
+				shift
+				;;
+			--set-version=*)
+				_arg_set_version="${_key##--set-version=}"
+				;;
+			
+			-i|--inplace)
 				_arg_inplace="on"
-				test "${1:0:5}" = "--no-" && _arg_inplace="off"
+				;;
+			--no-inplace)
+				_arg_inplace="off"
 				;;
 			-h|--help)
 				print_help;
@@ -157,11 +171,13 @@ parse_commandline()
 handle_passed_args_count()
 {
 	local _required_args_string="file"
-	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
-	fi
 	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}." 1;
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
 	fi
 }
 
@@ -174,7 +190,7 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an Argbash bug." 1;
+eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -186,12 +202,13 @@ print_debug()
 	echo "DEBUG: $0 $@";
 	
 	echo -e "\tfile: ${_arg_file}";
-	echo -e "\tpos: ${_arg_pos | sed 's/-/_/g'}";
-	echo -e "\topt: ${_arg_opt | sed 's/-/_/g'}";
-	echo -e "\tflag: ${_arg_flag | sed 's/-/_/g'}";
-	echo -e "\tset: ${_arg_set | sed 's/-/_/g'}";
-	echo -e "\tsource: ${_arg_source | sed 's/-/_/g'}";
-	echo -e "\tinplace: ${_arg_inplace | sed 's/-/_/g'}";
+	echo -e "\tpos: ${_arg_pos[*]}";
+	echo -e "\topt: ${_arg_opt[*]}";
+	echo -e "\tflag: ${_arg_flag[*]}";
+	echo -e "\tset: ${_arg_set[*]}";
+	echo -e "\tsource: ${_arg_source[*]}";
+	echo -e "\tset-version: ${_arg_set_version}";
+	echo -e "\tinplace: ${_arg_inplace}";
 
 }
 
@@ -222,6 +239,7 @@ paStart="# @parse"
 paStart+="Arger"
 
 _help="$(sed -ne 's/'"${paStart}"'-help \(.*\).*/\1/p' "$_arg_file")"
+_version="$(sed -ne 's/'"${paStart}"'-version \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _set <<< "$(sed -ne 's/'"${paStart}"'-set \(.*\).*/\1/p' "$_arg_file")"
 _leftovers="$(sed -ne 's/'"${paStart}"'-leftovers \(.*\).*/\1/p' "$_arg_file")"
 readarray -t _source <<< "$(sed -ne 's/'"${paStart}"'-source \(.*\).*/\1/p' "$_arg_file")"
@@ -237,6 +255,18 @@ readarray -t _flag <<< "$(sed -ne 's/'"${paStart}"' flag \(.*\).*/\1/p' "$_arg_f
 # echo "_flag: ${_flag[@]}";
 
 cmdGen=("--no-bang");
+
+if [[ "${_arg_set_version}" != "" ]]; then
+	# TODO: get versopn opt name and short
+	cmdGen+=("--set-version" "${_arg_set_version}");
+elif [[ "${_version}" != "" ]]; then
+	_version="--set-version ${_version//--option/--version-opt-name}";
+	_version="${_version//--short-option/--version-short-option}";
+	_version="${_version//\"/}";
+	# echo "$_version";
+	read -a vergen <<< "$_version";
+	cmdGen+=("${vergen[@]}");
+fi
 
 if [ "$_help" != "" ]; then
   cmdGen+=("--help-message" "$(eval "parseHelpMessage $_help")");

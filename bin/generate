@@ -12,8 +12,12 @@
 # @parseArger opt help-short-option "short help option"
 # @parseArger opt leftovers-name "extra arguments variable name" --default-value "leftovers"
 # @parseArger opt use-shebang "shebang executable" --default-value "/bin/bash"
+# @parseArger opt set-version "set version number"
+# @parseArger opt version-opt-name "version option name" --default-value "version"
+# @parseArger opt version-short-option "version short option name" --default-value "v"
 # @parseArger flag leftovers "accept extra arguments"
 # @parseArger flag bang "include shebang" --on
+# @parseArger flag version-opt "generate version opt handling" --on
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -25,7 +29,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo "$1" >&2
+	echo -e "$1" >&2
 	exit "${_ret}"
 }
 
@@ -50,9 +54,13 @@ _arg_help_option=
 _arg_help_short_option=
 _arg_leftovers_name="leftovers"
 _arg_use_shebang="/bin/bash"
+_arg_set_version=
+_arg_version_opt_name="version"
+_arg_version_short_option="v"
 # FLAGS
 _arg_leftovers="off"
 _arg_bang="on"
+_arg_version_opt="on"
 
 
 print_help()
@@ -71,10 +79,14 @@ print_help()
 	echo -e "	--help-short-option <help-short-option>: short help option"
 	echo -e "	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']"
 	echo -e "	--use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']"
+	echo -e "	--set-version <set-version>: set version number"
+	echo -e "	--version-opt-name <version-opt-name>: version option name [default: ' version ']"
+	echo -e "	--version-short-option <version-short-option>: version short option name [default: ' v ']"
 	echo -e "	--leftovers|--no-leftovers: accept extra arguments"
 	echo -e "	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)"
+	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
 	echo -e "Usage :
-	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--[no-]leftovers] [--[no-]bang]";
+	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt]";
 	fi
 
 }
@@ -194,13 +206,50 @@ parse_commandline()
 				_arg_use_shebang="${_key##--use-shebang=}"
 				;;
 			
-			--no-leftovers|--leftovers)
-				_arg_leftovers="on"
-				test "${1:0:5}" = "--no-" && _arg_leftovers="off"
+			--set-version)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_set_version="$2"
+				shift
 				;;
-			--no-bang|--bang)
+			--set-version=*)
+				_arg_set_version="${_key##--set-version=}"
+				;;
+			
+			--version-opt-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_version_opt_name="$2"
+				shift
+				;;
+			--version-opt-name=*)
+				_arg_version_opt_name="${_key##--version-opt-name=}"
+				;;
+			
+			--version-short-option)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_version_short_option="$2"
+				shift
+				;;
+			--version-short-option=*)
+				_arg_version_short_option="${_key##--version-short-option=}"
+				;;
+			
+			--leftovers)
+				_arg_leftovers="on"
+				;;
+			--no-leftovers)
+				_arg_leftovers="off"
+				;;
+			--bang)
 				_arg_bang="on"
-				test "${1:0:5}" = "--no-" && _arg_bang="off"
+				;;
+			--no-bang)
+				_arg_bang="off"
+				;;
+			--version-opt)
+				_arg_version_opt="on"
+				;;
+			--no-version-opt)
+				_arg_version_opt="off"
 				;;
 			-h|--help)
 				print_help;
@@ -225,10 +274,12 @@ handle_passed_args_count()
 {
 	local _required_args_string=""
 	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
 	fi
 	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}." 1;
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
 	fi
 }
 
@@ -252,18 +303,22 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tpos: ${_arg_pos | sed 's/-/_/g'}";
-	echo -e "\topt: ${_arg_opt | sed 's/-/_/g'}";
-	echo -e "\tflag: ${_arg_flag | sed 's/-/_/g'}";
-	echo -e "\tset: ${_arg_set | sed 's/-/_/g'}";
-	echo -e "\tsource: ${_arg_source | sed 's/-/_/g'}";
-	echo -e "\thelp-message: ${_arg_help-message | sed 's/-/_/g'}";
-	echo -e "\thelp-option: ${_arg_help-option | sed 's/-/_/g'}";
-	echo -e "\thelp-short-option: ${_arg_help-short-option | sed 's/-/_/g'}";
-	echo -e "\tleftovers-name: ${_arg_leftovers-name | sed 's/-/_/g'}";
-	echo -e "\tuse-shebang: ${_arg_use-shebang | sed 's/-/_/g'}";
-	echo -e "\tleftovers: ${_arg_leftovers | sed 's/-/_/g'}";
-	echo -e "\tbang: ${_arg_bang | sed 's/-/_/g'}";
+	echo -e "\tpos: ${_arg_pos[*]}";
+	echo -e "\topt: ${_arg_opt[*]}";
+	echo -e "\tflag: ${_arg_flag[*]}";
+	echo -e "\tset: ${_arg_set[*]}";
+	echo -e "\tsource: ${_arg_source[*]}";
+	echo -e "\thelp-message: ${_arg_help_message}";
+	echo -e "\thelp-option: ${_arg_help_option}";
+	echo -e "\thelp-short-option: ${_arg_help_short_option}";
+	echo -e "\tleftovers-name: ${_arg_leftovers_name}";
+	echo -e "\tuse-shebang: ${_arg_use_shebang}";
+	echo -e "\tset-version: ${_arg_set_version}";
+	echo -e "\tversion-opt-name: ${_arg_version_opt_name}";
+	echo -e "\tversion-short-option: ${_arg_version_short_option}";
+	echo -e "\tleftovers: ${_arg_leftovers}";
+	echo -e "\tbang: ${_arg_bang}";
+	echo -e "\tversion-opt: ${_arg_version_opt}";
 
 }
 
@@ -346,6 +401,18 @@ if [ "$_arg_help_short_option" != "" ]; then
 	helpDecArg+=("--short-option" "$_arg_help_short_option");
 fi
 "$SCRIPT_ROOT_DIR/help/declaration" "${helpDecArg[@]}";
+
+# version
+if [ "$_arg_set_version" != "" ]; then
+	versionDecArg=("$_arg_set_version");
+	if [ "$_arg_version_opt_name" != "" ]; then
+		versionDecArg+=("--option" "$_arg_version_opt_name");
+	fi
+	if [ "$_arg_version_short_option" != "" ]; then
+		versionDecArg+=("--short-option" "$_arg_version_short_option");
+	fi
+	"$SCRIPT_ROOT_DIR/version/declaration" "${versionDecArg[@]}";
+fi
 
 # setting user variables
 if [ "${#_arg_set[@]}" -gt 0 ]; then
@@ -500,6 +567,7 @@ if [[ "$hasSubCmd" == "0" ]]; then
 	helpDecArg+=("--has-subcommand")
 fi
 "$SCRIPT_ROOT_DIR/help/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
+"$SCRIPT_ROOT_DIR/version/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
 
 echo -e "\t\t\t*)
 				_last_positional=\"\$1\"
@@ -587,6 +655,11 @@ if [ "$_arg_leftovers" != "off" ]; then
 	echo "	echo -e \"\t${_arg_leftovers_name}: \${_arg_${_arg_leftovers_name}[*]}\";";
 fi
 echo -e "
+}
+
+print_version()
+{
+	echo \"${_arg_set_version}\";
 }
 
 on_interrupt() {
