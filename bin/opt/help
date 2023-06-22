@@ -1,6 +1,7 @@
 #!/bin/bash
 # @parseArger-begin
 # @parseArger-help "parseArger help string for options" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-declarations
 # @parseArger pos arg-name "positional argument name"
 # @parseArger pos description "positional argument description"
@@ -240,7 +241,7 @@ print_debug()
 
 print_version()
 {
-	echo "";
+	echo "0.1";
 }
 
 on_interrupt() {

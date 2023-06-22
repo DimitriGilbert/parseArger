@@ -1,12 +1,8 @@
 #!/bin/bash
-
 # @parseArger-begin
-# @parseArger-help "create version parser" --option "help" --short-option "h"
-# @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-help "I send an SOS to the world" --option "help" --short-option "h"
 # @parseArger-declarations
-# @parseArger pos vernum "your version number"
-# @parseArger opt option "version trigger option" --default-value "version"
-# @parseArger opt short-option "version trigger short option" --default-value "v"
+# @parseArger opt bump "new version"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -32,10 +28,8 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
-_arg_vernum="";
 # OPTIONALS ARGUMENTS
-_arg_option="version"
-_arg_short_option="v"
+_arg_bump=
 # FLAGS
 
 
@@ -44,12 +38,10 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "create version parser:"
-	echo -e "	vernum: your version number"
-	echo -e "	--option <option>: version trigger option [default: ' version ']"
-	echo -e "	--short-option <short-option>: version trigger short option [default: ' v ']"
+		echo -e "I send an SOS to the world:"
+	echo -e "	--bump <bump>: new version"
 	echo -e "Usage :
-	$0 <vernum> [--option <value>] [--short-option <value>]";
+	$0 [--bump <value>]";
 	fi
 
 }
@@ -61,22 +53,13 @@ parse_commandline()
 	do
 		_key="$1"
 		case "$_key" in
-			--option)
+			--bump)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_option="$2"
+				_arg_bump="$2"
 				shift
 				;;
-			--option=*)
-				_arg_option="${_key##--option=}"
-				;;
-			
-			--short-option)
-				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_short_option="$2"
-				shift
-				;;
-			--short-option=*)
-				_arg_short_option="${_key##--short-option=}"
+			--bump=*)
+				_arg_bump="${_key##--bump=}"
 				;;
 			
 			-h|--help)
@@ -108,13 +91,13 @@ parse_commandline()
 
 handle_passed_args_count()
 {
-	local _required_args_string="vernum"
-	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	local _required_args_string=""
+	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
 	${_positionals[*]}" 1
 	fi
-	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
 	${_positionals[*]}" 1;
 	fi
 }
@@ -123,7 +106,7 @@ handle_passed_args_count()
 assign_positional_args()
 {
 	local _positional_name _shift_for=$1;
-	_positional_names="_arg_vernum ";
+	_positional_names="";
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
@@ -139,15 +122,13 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tvernum: ${_arg_vernum}";
-	echo -e "\toption: ${_arg_option}";
-	echo -e "\tshort-option: ${_arg_short_option}";
+	echo -e "	bump: ${_arg_bump}";
 
 }
 
 print_version()
 {
-	echo "0.1";
+	echo "";
 }
 
 on_interrupt() {
@@ -164,23 +145,22 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-outStr="";
+pacmd=(./parseArger parse "-i");
 
-if [ "$_arg_option" != "" ]; then
-	outStr+="--$_arg_option";
-fi
-if [ "$_arg_short_option" != "" ]; then
-	outStr="-$_arg_short_option|$outStr";
+if [ "$_arg_bump" != "" ]; then
+  pacmd+=("--set-version" "$_arg_bump");
 fi
 
-echo -e "$outStr)
-	print_version;
-	exit 0;
-	;;"
+"${pacmd[@]}" ./parseArger;
 
-if [ "$_arg_short_option" != "" ]; then
-	echo -e "-${_arg_short_option}*)
-	print_version;
-	exit 0;
-	;;";
-fi
+for directory in "./bin/"*; do
+  if [ -f "$directory" ]; then
+    "${pacmd[@]}" "$directory";
+  elif [[ -d "${directory}" && ! -L "${directory}" ]]; then
+    for subdir in "$directory/"*; do
+      if [ -f "$subdir" ]; then
+        "${pacmd[@]}" "$subdir";
+      fi
+    done    
+  fi
+done

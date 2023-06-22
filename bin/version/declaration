@@ -2,6 +2,7 @@
 
 # @parseArger-begin
 # @parseArger-help "create common version stuff" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-declarations
 # @parseArger pos vernum "your version number"
 # @parseArger opt option "version trigger option" --default-value "version"
@@ -138,15 +139,15 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "	vernum: ${_arg_vernum}";
-	echo -e "	option: ${_arg_option}";
-	echo -e "	short-option: ${_arg_short_option}";
+	echo -e "\tvernum: ${_arg_vernum}";
+	echo -e "\toption: ${_arg_option}";
+	echo -e "\tshort-option: ${_arg_short_option}";
 
 }
 
 print_version()
 {
-	echo "";
+	echo "0.1";
 }
 
 on_interrupt() {

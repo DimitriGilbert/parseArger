@@ -1,6 +1,7 @@
 #!/bin/bash
 # @parseArger-begin
 # @parseArger-help "generate a parseArger script" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-declarations
 # @parseArger opt pos "positional argument declaration" --short p --repeat
 # @parseArger opt opt "optional arg declaration" --short o --repeat
@@ -332,7 +333,7 @@ print_debug()
 
 print_version()
 {
-	echo "";
+	echo "0.1";
 }
 
 on_interrupt() {
@@ -425,6 +426,8 @@ if [ "$_arg_set_version" != "" ]; then
 		versionDecArg+=("--short-option" "$_arg_version_short_option");
 	fi
 	"$SCRIPT_ROOT_DIR/version/declaration" "${versionDecArg[@]}";
+else 
+	versionDecArg=("");
 fi
 
 # setting user variables
@@ -580,7 +583,7 @@ if [[ "$hasSubCmd" == "0" ]]; then
 	helpDecArg+=("--has-subcommand")
 fi
 "$SCRIPT_ROOT_DIR/help/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
-"$SCRIPT_ROOT_DIR/version/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
+"$SCRIPT_ROOT_DIR/version/parser" "${versionDecArg[@]}" | sed -e 's/^/\t\t\t/';
 
 echo -e "\t\t\t*)
 				_last_positional=\"\$1\"

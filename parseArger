@@ -1,6 +1,7 @@
 #!/bin/bash
 # @parseArger-begin
 # @parseArger-help "standalone bash argument parsing framework" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-set export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 # @parseArger-leftovers leftovers
@@ -96,6 +97,14 @@ parse_commandline()
 			-h*)
 				print_help;
 				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -151,7 +160,7 @@ print_debug()
 
 print_version()
 {
-	echo "";
+	echo "0.1";
 }
 
 on_interrupt() {
@@ -175,14 +184,15 @@ if [ "$_arg_output" == "" ]; then
 else
 	output="$("$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}")";
 	
-	if [[ -f "$_arg_output" ]]; then
-		if [ "$_arg_prepend" == "on" ]; then
-			output+=$(cat "$_arg_output");
-		else
-			output=$(cat "$_arg_output")$output;
-		fi	
+	if [ "$_arg_output" != "" ]; then
+		if [[ -f "$_arg_output" ]]; then
+			if [ "$_arg_prepend" == "on" ]; then
+				output+=$(cat "$_arg_output");
+			else
+				output=$(cat "$_arg_output")$output;
+			fi	
+		fi
+		echo -e "${output}" > "$_arg_output";
+		chmod +x "$_arg_output";
 	fi
-
-	echo -e "${output}" > "$_arg_output";
-	chmod +x "$_arg_output";
 fi  

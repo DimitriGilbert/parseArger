@@ -4,7 +4,7 @@
 
 ```
 standalone bash argument parsing framework:
-	target: what to do [one of 'parse' 'generate']
+	target: what to do [one of 'parse' 'generate' 'document']
 	--output <output>: create file with command output at value
 	--prepend|--no-prepend: add output on top of file
 Usage :

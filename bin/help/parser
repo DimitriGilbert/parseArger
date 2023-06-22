@@ -2,6 +2,7 @@
 
 # @parseArger-begin
 # @parseArger-help "create help parser" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-declarations
 # @parseArger pos message "your main help message"
 # @parseArger opt option "help trigger option" --default-value "help"
@@ -156,7 +157,7 @@ print_debug()
 
 print_version()
 {
-	echo "";
+	echo "0.1";
 }
 
 on_interrupt() {
