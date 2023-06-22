@@ -1,6 +1,6 @@
 #!/bin/bash
 # @parseArger-begin
-# @parseArger-help "I send an SOS to the world" --option "help" --short-option "h"
+# @parseArger-help "parseArger init string for options" --option "help" --short-option "h"
 # @parseArger-declarations
 # @parseArger pos arg-name "positional argument name"
 # @parseArger pos description "positional argument description"

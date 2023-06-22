@@ -157,6 +157,14 @@ parse_commandline()
 				print_help;
 				exit 0;
 				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -210,6 +218,11 @@ print_debug()
 	echo -e "\tset-version: ${_arg_set_version}";
 	echo -e "\tinplace: ${_arg_inplace}";
 
+}
+
+print_version()
+{
+	echo "";
 }
 
 on_interrupt() {

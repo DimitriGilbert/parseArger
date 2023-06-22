@@ -86,6 +86,14 @@ parse_commandline()
 				print_help;
 				exit 0;
 				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -130,10 +138,15 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tvernum: ${_arg_vernum}";
-	echo -e "\toption: ${_arg_option}";
-	echo -e "\tshort-option: ${_arg_short_option}";
+	echo -e "	vernum: ${_arg_vernum}";
+	echo -e "	option: ${_arg_option}";
+	echo -e "	short-option: ${_arg_short_option}";
 
+}
+
+print_version()
+{
+	echo "";
 }
 
 on_interrupt() {
