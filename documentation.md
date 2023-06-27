@@ -4,7 +4,7 @@
 
 ```
 standalone bash argument parsing framework:
-	target: what to do [one of 'parse' 'generate' 'document']
+	target: what to do [one of 'parse' 'generate' 'document' 'bulk-parse']
 	--output <output>: create file with command output at value
 	--prepend|--no-prepend: add output on top of file
 Usage :
@@ -12,6 +12,18 @@ Usage :
 ```
 
 ## ./bin
+
+### ./bin/bulk-parse
+
+```
+parse multiple file and directories:
+	--bump <bump>: new version
+	-f, --file <file>: file to document, repeatable
+	-d, --directory|--folder <directory>: directory to document, repeatable
+	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
+Usage :
+	./bin/bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
+```
 
 ### ./bin/document
 
@@ -47,11 +59,16 @@ generate a parseArger script:
 	--set-version <set-version>: set version number
 	--version-opt-name <version-opt-name>: version option name [default: ' version ']
 	--version-short-option <version-short-option>: version short option name [default: ' v ']
+	--die-fn-name <die-fn-name>: die function name [default: ' die ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
+	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']
 	--leftovers|--no-leftovers: accept extra arguments
 	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
 	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
 Usage :
-	./bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt]
+	./bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
 ```
 
 ### ./bin/parse
@@ -370,6 +387,52 @@ parseArger parsing string for arguments:
 	--subcommand|--no-subcommand: is a subcommand
 Usage :
 	./bin/pos/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+```
+
+### ./bin/verbose
+
+#### ./bin/verbose/declaration
+
+```
+create common verbose stuff:
+	--option <option>: verbose trigger option [default: ' verbose ']
+	--level <level>: verbose default level [default: ' 0 ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+Usage :
+	./bin/verbose/declaration [--option <value>] [--level <value>] [--log-fn-name <value>]
+```
+
+#### ./bin/verbose/init
+
+```
+init verbose stuff:
+	--option <option>: verbose trigger option [default: ' verbose ']
+	--level <level>: verbose default level [default: ' 0 ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+Usage :
+	./bin/verbose/init [--option <value>] [--level <value>] [--log-fn-name <value>]
+```
+
+#### ./bin/verbose/logger
+
+```
+init verbose stuff:
+	--option <option>: verbose trigger option [default: ' verbose ']
+	--level <level>: verbose default level [default: ' 0 ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+Usage :
+	./bin/verbose/logger [--option <value>] [--level <value>] [--log-fn-name <value>]
+```
+
+#### ./bin/verbose/parser
+
+```
+create version parser:
+	--option <option>: verbose trigger option [default: ' verbose ']
+	--level <level>: verbose default level [default: ' 0 ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+Usage :
+	./bin/verbose/parser [--option <value>] [--level <value>] [--log-fn-name <value>]
 ```
 
 ### ./bin/version

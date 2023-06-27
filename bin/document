@@ -267,11 +267,6 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-SCRIPT_ROOT_DIR=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
-  pwd -P
-);
-
 outStr="${_arg_title_tag} ${_arg_title}\n\n";
 
 paStart="# @parse";
