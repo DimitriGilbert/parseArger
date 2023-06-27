@@ -291,8 +291,10 @@ fi
 if [ "${#_arg_directory[@]}" -gt 0 ]; then
 	for _directory in "${_arg_directory[@]}"; do
 		if [ -d "$_directory" ]; then
-			# outStr+="${_arg_tag} ${_directory}\n\n";
 			docCmd=(--tag "${_arg_next_tag_prepend}${_arg_tag}" "--next-tag-prepend" "${_arg_next_tag_prepend}" --title "${_directory}" "--title-tag" "${_arg_tag}");
+			if [ "$_arg_sub_directory" == "off" ]; then
+				docCmd+=(--no-sub-directory);
+			fi
 			for _file in "$_directory"/*; do
 				if [ -f "${_file}" ]; then
 					docCmd+=(--file "$_file");
@@ -307,7 +309,7 @@ if [ "${#_arg_directory[@]}" -gt 0 ]; then
 fi
 
 if [ "$_arg_out" == "" ]; then
-	echo -e "$outStr"
+	echo -e "$outStr";
 else
 	if [ "$_arg_append_output" == "on" ]; then
 		echo -e "$outStr" >> "$_arg_out";
