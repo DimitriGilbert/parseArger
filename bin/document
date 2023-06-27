@@ -2,6 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "create documentation for parseArger script" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
 # @parseArger opt file "file to document" --short f --repeat
 # @parseArger opt directory "directory to document" --short d --repeat --alias folder
@@ -48,6 +49,8 @@ _arg_title_tag="#"
 # FLAGS
 _arg_sub_directory="on"
 _arg_append_output="on"
+_verbose_level="0";
+
 
 
 print_help()
@@ -69,6 +72,15 @@ print_help()
 	$0 [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]";
 	fi
 
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		# TODO handle colors
+		echo "${_arg_msg}";
+	fi
 }
 
 parse_commandline()

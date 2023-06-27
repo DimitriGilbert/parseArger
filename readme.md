@@ -5,7 +5,7 @@ Generate standalone argument parsing in bash.
 Have you ever dealt with the nightmare of bash option parsing ? Or maybe you wanted to clean-up some cool script you created by adding option just to burn your computer at the idea of so much boilerplate ?
 Yeah, me too, and because the neighbor's wheel is not round enough to my taste, I create this, ParseArger !
 
-This code is heavilly inspired by [Argbash](https://github.com/matejak/argbash) and uses its generated code as a basis (also, some of the script here still uses it for now).
+This code is heavilly inspired by [Argbash](https://github.com/matejak/argbash) and uses its generated code as a basis.
 Why not stick with it ? I did not understand how it was working and wanted to add a few things. Also, ParseArger do not have dependencies other than bash ;)
 
 ## TLDR
@@ -15,14 +15,12 @@ Why not stick with it ? I did not understand how it was working and wanted to ad
 git clone https://github.com/DimitriGilbert/parseArger
 # add execution rigths
 chmod +x parseArger/parseArger parseArger/bin -R
-# echo parsing script for one argument and one option in a file
+# echo parsing script for one argument and one option in a file, add execution rigths to the file
 parseArger/parseArger generate --pos 'first-argument "my first argument description"' --opt 'my-option "my option description"' --output /path/to/my-script
-# add execution rigths
-chmod +x /path/to/my-script
 # get help
 /path/to/my-script --help
 # add code to your script
-echo -e '\necho "running my script with \"$_arg_first_argument\"";\ntest "$_arg_my_option" != "" && echo "my-option is \"$_arg_my_option\"" || echo "no option given"' >> my-script
+echo -e '\necho "running my script with \"$_arg_first_argument\"";\ntest "$_arg_my_option" != "" && echo "my-option is \"$_arg_my_option\"" || echo "no option given"' >> /path/to/my-script
 # run your script
 /path/to/my-script "parse away" --my-option "but not too far"
 ```

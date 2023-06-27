@@ -2,6 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "standalone bash argument parsing framework" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-set export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")";pwd -P);
 # @parseArger-leftovers leftovers
@@ -43,6 +44,8 @@ _arg_output=
 _arg_prepend="off"
 # LEFTOVERS
 _arg_leftovers=()
+_verbose_level="0";
+
 
 
 print_help()
@@ -67,6 +70,15 @@ print_help()
 	fi
 	
 
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		# TODO handle colors
+		echo "${_arg_msg}";
+	fi
 }
 
 parse_commandline()

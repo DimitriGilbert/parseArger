@@ -2,6 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "generate a parseArger script" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
 # @parseArger opt pos "positional argument declaration" --short p --repeat
 # @parseArger opt opt "optional arg declaration" --short o --repeat
@@ -16,9 +17,14 @@
 # @parseArger opt set-version "set version number"
 # @parseArger opt version-opt-name "version option name" --default-value "version"
 # @parseArger opt version-short-option "version short option name" --default-value "v"
+# @parseArger opt die-fn-name "die function name" --default-value "die"
+# @parseArger opt log-fn-name "log function name" --default-value "log"
+# @parseArger opt verbose-opt-name "verbose option name" --default-value "verbose"
+# @parseArger opt verbose-level "default verbose level" --default-value "0"
 # @parseArger flag leftovers "accept extra arguments"
 # @parseArger flag bang "include shebang" --on
 # @parseArger flag version-opt "generate version opt handling" --on
+# @parseArger flag use-verbose "generate verbose level parser" --on
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -58,10 +64,17 @@ _arg_use_shebang="/bin/bash"
 _arg_set_version=
 _arg_version_opt_name="version"
 _arg_version_short_option="v"
+_arg_die_fn_name="die"
+_arg_log_fn_name="log"
+_arg_verbose_opt_name="verbose"
+_arg_verbose_level="0"
 # FLAGS
 _arg_leftovers="off"
 _arg_bang="on"
 _arg_version_opt="on"
+_arg_use_verbose="on"
+_verbose_level="0";
+
 
 
 print_help()
@@ -83,13 +96,27 @@ print_help()
 	echo -e "	--set-version <set-version>: set version number"
 	echo -e "	--version-opt-name <version-opt-name>: version option name [default: ' version ']"
 	echo -e "	--version-short-option <version-short-option>: version short option name [default: ' v ']"
+	echo -e "	--die-fn-name <die-fn-name>: die function name [default: ' die ']"
+	echo -e "	--log-fn-name <log-fn-name>: log function name [default: ' log ']"
+	echo -e "	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']"
+	echo -e "	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']"
 	echo -e "	--leftovers|--no-leftovers: accept extra arguments"
 	echo -e "	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)"
 	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
+	echo -e "	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)"
 	echo -e "Usage :
-	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt]";
+	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]";
 	fi
 
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		# TODO handle colors
+		echo "${_arg_msg}";
+	fi
 }
 
 parse_commandline()
@@ -234,6 +261,42 @@ parse_commandline()
 				_arg_version_short_option="${_key##--version-short-option=}"
 				;;
 			
+			--die-fn-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_die_fn_name="$2"
+				shift
+				;;
+			--die-fn-name=*)
+				_arg_die_fn_name="${_key##--die-fn-name=}"
+				;;
+			
+			--log-fn-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_log_fn_name="$2"
+				shift
+				;;
+			--log-fn-name=*)
+				_arg_log_fn_name="${_key##--log-fn-name=}"
+				;;
+			
+			--verbose-opt-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_verbose_opt_name="$2"
+				shift
+				;;
+			--verbose-opt-name=*)
+				_arg_verbose_opt_name="${_key##--verbose-opt-name=}"
+				;;
+			
+			--verbose-level)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_verbose_level="$2"
+				shift
+				;;
+			--verbose-level=*)
+				_arg_verbose_level="${_key##--verbose-level=}"
+				;;
+			
 			--leftovers)
 				_arg_leftovers="on"
 				;;
@@ -251,6 +314,12 @@ parse_commandline()
 				;;
 			--no-version-opt)
 				_arg_version_opt="off"
+				;;
+			--use-verbose)
+				_arg_use_verbose="on"
+				;;
+			--no-use-verbose)
+				_arg_use_verbose="off"
 				;;
 			-h|--help)
 				print_help;
@@ -324,9 +393,14 @@ print_debug()
 	echo -e "\tset-version: ${_arg_set_version}";
 	echo -e "\tversion-opt-name: ${_arg_version_opt_name}";
 	echo -e "\tversion-short-option: ${_arg_version_short_option}";
+	echo -e "\tdie-fn-name: ${_arg_die_fn_name}";
+	echo -e "\tlog-fn-name: ${_arg_log_fn_name}";
+	echo -e "\tverbose-opt-name: ${_arg_verbose_opt_name}";
+	echo -e "\tverbose-level: ${_arg_verbose_level}";
 	echo -e "\tleftovers: ${_arg_leftovers}";
 	echo -e "\tbang: ${_arg_bang}";
 	echo -e "\tversion-opt: ${_arg_version_opt}";
+	echo -e "\tuse-verbose: ${_arg_use_verbose}";
 
 }
 
@@ -429,6 +503,14 @@ else
 	versionDecArg=("");
 fi
 
+# verbose
+if [ "$_arg_use_verbose" != "off" ]; then
+	verboseDecArg=("--option" "$_arg_verbose_opt_name" --level "$_arg_verbose_level" --log-fn-name "$_arg_log_fn_name");
+	"$SCRIPT_ROOT_DIR/verbose/declaration" "${verboseDecArg[@]}";
+else 
+	verboseDecArg=("");
+fi
+
 # setting user variables
 if [ "${#_arg_set[@]}" -gt 0 ]; then
 	for _set in "${_arg_set[@]}"; do
@@ -466,6 +548,7 @@ done
 for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/declaration $flag";
 done
+
 # generating parsing function
 echo "# ${paCmtTrgr}declarations-end
 
@@ -508,6 +591,10 @@ done
 if [ "$_arg_leftovers" != "off" ]; then
 	echo -e "# LEFTOVERS
 _arg_$_arg_leftovers_name=()";
+fi
+# verbose level init
+if [ "$_arg_use_verbose" != "off" ]; then
+	"$SCRIPT_ROOT_DIR/verbose/init" "${verboseDecArg[@]}";
 fi
 
 # help
@@ -552,7 +639,6 @@ for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/help $flag";
 done
 
-# actual parsing
 echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}\";
 	fi";
 if [ "$hasSubCmd" == "0" ]; then
@@ -562,7 +648,14 @@ if [ "$hasSubCmd" == "0" ]; then
 fi
 echo -e "
 }
+";
+# verbose log function
+if [ "$_arg_use_verbose" != "off" ]; then
+	"$SCRIPT_ROOT_DIR/verbose/logger" "${verboseDecArg[@]}";
+fi
 
+# actual parsing
+echo -e "
 parse_commandline()
 {
 	_positionals_count=0

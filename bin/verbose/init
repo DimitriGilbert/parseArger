@@ -1,12 +1,13 @@
 #!/bin/bash
+
 # @parseArger-begin
-# @parseArger-help "parse multiple file and directories" --option "help" --short-option "h"
+# @parseArger-help "init verbose stuff" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
-# @parseArger opt bump "new version"
-# @parseArger opt file "file to document" --short f --repeat
-# @parseArger opt directory "directory to document" --short d --repeat --alias folder
-# @parseArger flag sub-directory "document subdirectory" --on
+# @parseArger opt option "verbose trigger option" --default-value "verbose"
+# @parseArger opt level "verbose default level" --default-value "0"
+# @parseArger opt log-fn-name "log function name" --default-value "log"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -33,11 +34,10 @@ begins_with_short_option()
 # POSITIONALS ARGUMENTS
 _positionals=();
 # OPTIONALS ARGUMENTS
-_arg_bump=
-_arg_file=()
-_arg_directory=()
+_arg_option="verbose"
+_arg_level="0"
+_arg_log_fn_name="log"
 # FLAGS
-_arg_sub_directory="on"
 _verbose_level="0";
 
 
@@ -47,13 +47,12 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "parse multiple file and directories:"
-	echo -e "	--bump <bump>: new version"
-	echo -e "	-f, --file <file>: file to document, repeatable"
-	echo -e "	-d, --directory|--folder <directory>: directory to document, repeatable"
-	echo -e "	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)"
+		echo -e "init verbose stuff:"
+	echo -e "	--option <option>: verbose trigger option [default: ' verbose ']"
+	echo -e "	--level <level>: verbose default level [default: ' 0 ']"
+	echo -e "	--log-fn-name <log-fn-name>: log function name [default: ' log ']"
 	echo -e "Usage :
-	$0 [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]";
+	$0 [--option <value>] [--level <value>] [--log-fn-name <value>]";
 	fi
 
 }
@@ -74,48 +73,33 @@ parse_commandline()
 	do
 		_key="$1"
 		case "$_key" in
-			--bump)
+			--option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_bump="$2"
+				_arg_option="$2"
 				shift
 				;;
-			--bump=*)
-				_arg_bump="${_key##--bump=}"
+			--option=*)
+				_arg_option="${_key##--option=}"
 				;;
 			
-			-f|--file)
+			--level)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_file+=("$2")
+				_arg_level="$2"
 				shift
 				;;
-			--file=*)
-				_arg_file+=("${_key##--file=}")
-				;;
-			-f*)
-				_arg_file+=("${_key##-f}")
+			--level=*)
+				_arg_level="${_key##--level=}"
 				;;
 			
-			-d|--folder|--directory)
+			--log-fn-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_directory+=("$2")
+				_arg_log_fn_name="$2"
 				shift
 				;;
-			--directory=*)
-				_arg_directory+=("${_key##--directory=}")
-				;;
-			--folder=*)
-				_arg_directory+=("${_key##--folder=}")
-				;;
-			-d*)
-				_arg_directory+=("${_key##-d}")
+			--log-fn-name=*)
+				_arg_log_fn_name="${_key##--log-fn-name=}"
 				;;
 			
-			--sub-directory)
-				_arg_sub_directory="on"
-				;;
-			--no-sub-directory)
-				_arg_sub_directory="off"
-				;;
 			-h|--help)
 				print_help;
 				exit 0;
@@ -175,16 +159,15 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tbump: ${_arg_bump}";
-	echo -e "\tfile: ${_arg_file[*]}";
-	echo -e "\tdirectory: ${_arg_directory[*]}";
-	echo -e "\tsub-directory: ${_arg_sub_directory}";
+	echo -e "\toption: ${_arg_option}";
+	echo -e "\tlevel: ${_arg_level}";
+	echo -e "\tlog-fn-name: ${_arg_log_fn_name}";
 
 }
 
 print_version()
 {
-	echo "";
+	echo "0.1";
 }
 
 on_interrupt() {
@@ -201,52 +184,6 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-SCRIPT_ROOT_DIR="$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
-  pwd -P
-)/..";
+outStr="_verbose_level=\"${_arg_level}\";\n";
 
-pacmd=("${SCRIPT_ROOT_DIR}/parseArger" parse "-i");
-
-if [ "$_arg_bump" != "" ]; then
-  pacmd+=("--set-version" "$_arg_bump");
-fi
-
-paStart="# @parse";
-paStart+="Arger";
-
-if [ "${#_arg_file[@]}" -gt 0 ]; then
-	for _file in "${_arg_file[@]}"; do
-		if [ -f "$_file" ]; then
-			_isPA="$(sed -ne 's/'"${paStart}"'//p' "$_file")";
-			if [ "${_isPA}" != "" ]; then
-				"${pacmd[@]}" "$_file";
-			fi
-		fi
-	done
-fi
-
-if [ "${#_arg_directory[@]}" -gt 0 ]; then
-	for _directory in "${_arg_directory[@]}"; do
-		if [ -d "$_directory" ]; then
-			rpacmd=();
-			if [ "$_arg_sub_directory" == "off" ]; then
-				rpacmd+=(--no-sub-directory);
-			fi
-
-			if [ "$_arg_bump" != "" ]; then
-				rpacmd+=("--bump" "$_arg_bump");
-			fi
-			
-			for _file in "$_directory"/*; do
-				if [ -f "${_file}" ]; then
-					rpacmd+=(--file "$_file");
-				fi
-				if [ -d "${_file}" ] && [ "$_arg_sub_directory" == "on" ] ; then
-					rpacmd+=(--directory "$_file");
-				fi
-			done
-			"$0" "${rpacmd[@]}";
-		fi
-	done
-fi
+echo -e "$outStr";
