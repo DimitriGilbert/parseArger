@@ -114,8 +114,30 @@ log() {
 	local _arg_msg="${1}";
 	local _arg_level="${2:"0"}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
-		# TODO handle colors
-		echo "${_arg_msg}";
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}";
 	fi
 }
 
