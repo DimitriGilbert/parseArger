@@ -200,6 +200,15 @@ parse_commandline()
 				print_version;
 				exit 0;
 				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")

@@ -359,6 +359,15 @@ parse_commandline()
 				print_version;
 				exit 0;
 				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -698,6 +707,7 @@ if [[ "$hasSubCmd" == "0" ]]; then
 fi
 "$SCRIPT_ROOT_DIR/help/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
 "$SCRIPT_ROOT_DIR/version/parser" "${versionDecArg[@]}" | sed -e 's/^/\t\t\t/';
+"$SCRIPT_ROOT_DIR/verbose/parser" "${verboseDecArg[@]}" | sed -e 's/^/\t\t\t/';
 
 echo -e "\t\t\t*)
 				_last_positional=\"\$1\"

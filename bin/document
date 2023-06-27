@@ -215,6 +215,15 @@ parse_commandline()
 				print_version;
 				exit 0;
 				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -299,6 +308,7 @@ if [ "${#_arg_file[@]}" -gt 0 ]; then
 		if [ -f "$_file" ]; then
 			_isPA="$(sed -ne 's/'"${paStart}"'//p' "$_file")";
 			if [ "${_isPA}" != "" ]; then
+				log "parsing $_file\n" 1;
 				# TODO: parse help declaration to call correct option
 				# TODO: parse argument for subcommand
 				#			* get sucommand help
@@ -320,7 +330,8 @@ fi
 if [ "${#_arg_directory[@]}" -gt 0 ]; then
 	for _directory in "${_arg_directory[@]}"; do
 		if [ -d "$_directory" ]; then
-			docCmd=(--tag "${_arg_next_tag_prepend}${_arg_tag}" "--next-tag-prepend" "${_arg_next_tag_prepend}" --title "${_directory}" "--title-tag" "${_arg_tag}");
+			log "----- processing $_directory directory\n" 1;
+			docCmd=(--tag "${_arg_next_tag_prepend}${_arg_tag}" "--next-tag-prepend" "${_arg_next_tag_prepend}" --title "${_directory}" "--title-tag" "${_arg_tag}" --verbose "${_verbose_level}");
 			if [ "$_arg_sub_directory" == "off" ]; then
 				docCmd+=(--no-sub-directory);
 			fi
@@ -341,8 +352,10 @@ if [ "$_arg_out" == "" ]; then
 	echo -e "$outStr";
 else
 	if [ "$_arg_append_output" == "on" ]; then
+		log "appending to $_arg_out" 1;
 		echo -e "$outStr" >> "$_arg_out";
 	else
+		log "outputing to $_arg_out" 1;
 		echo -e "$outStr" > "$_arg_out";
 	fi
 fi
