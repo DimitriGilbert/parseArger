@@ -200,21 +200,6 @@ if [ "$_arg_bump" != "" ]; then
   pacmd+=("--set-version" "$_arg_bump");
 fi
 
-# "${pacmd[@]}" ./parseArger;
-
-# for directory in "./bin/"*; do
-#   if [ -f "$directory" ]; then
-#     "${pacmd[@]}" "$directory";
-#   elif [[ -d "${directory}" && ! -L "${directory}" ]]; then
-#     for subdir in "$directory/"*; do
-#       if [ -f "$subdir" ]; then
-#         "${pacmd[@]}" "$subdir";
-#       fi
-#     done    
-#   fi
-# done
-
-
 paStart="# @parse";
 paStart+="Arger";
 
@@ -237,6 +222,11 @@ if [ "${#_arg_directory[@]}" -gt 0 ]; then
 			if [ "$_arg_sub_directory" == "off" ]; then
 				rpacmd+=(--no-sub-directory);
 			fi
+
+			if [ "$_arg_bump" != "" ]; then
+				rpacmd+=("--bump" "$_arg_bump");
+			fi
+			
 			for _file in "$_directory"/*; do
 				if [ -f "${_file}" ]; then
 					rpacmd+=(--file "$_file");
