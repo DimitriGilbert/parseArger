@@ -1,0 +1,37 @@
+#!/bin/bash
+paStart="# @parse";
+paStart+="Arger";
+
+parsearger_get_help() {
+  sed -ne 's/'"${paStart}"'-help \(.*\).*/\1/p' "$1"
+}
+parsearger_get_version() {
+  sed -ne 's/'"${paStart}"'-version \(.*\).*/\1/p' "$1"
+}
+parsearger_get_set() {
+  local -n _set=$1;
+  readarray -t _set <<< "$(sed -ne 's/'"${paStart}"'-set \(.*\).*/\1/p' "$2")"
+}
+parsearger_get_leftovers() {
+  sed -ne 's/'"${paStart}"'-leftovers \(.*\).*/\1/p' "$1"
+}
+parsearger_get_source() {
+  local -n _source=$1;
+  readarray -t _source <<< "$(sed -ne 's/'"${paStart}"'-source \(.*\).*/\1/p' "$2")"
+}
+parsearger_get_pos() {
+  local -n _pos=$1;
+  readarray -t _pos <<< "$(sed -ne 's/'"${paStart}"' pos \(.*\).*/\1/p' "$2")"
+}
+parsearger_get_opt() {
+  local -n _opt=$1;
+  readarray -t _opt <<< "$(sed -ne 's/'"${paStart}"' opt \(.*\).*/\1/p' "$2")"
+}
+parsearger_get_flag() {
+  local -n _flag=$1;
+  readarray -t _flag <<< "$(sed -ne 's/'"${paStart}"' flag \(.*\).*/\1/p' "$2")"
+}
+parsearger_get_one_ofs() {
+  local -n _one_ofs=$1;
+  readarray -t _one_ofs <<< "$(echo "$2" | grep -oE -- '--one-of "([^"]+)"' | cut -d'"' -f2)"
+}

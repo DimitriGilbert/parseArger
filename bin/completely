@@ -1,0 +1,442 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "generate a completely yaml config" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-declarations
+# @parseArger pos command-name "command-name"
+# @parseArger pos file "file" --optional
+# @parseArger opt pos "positional argument declaration" --short p --repeat
+# @parseArger opt opt "optional arg declaration" --short o --repeat
+# @parseArger opt flag "flag declaration" --short f --repeat
+# @parseArger opt set "declare var" --short s --repeat
+# @parseArger opt source "file to source" --short l --repeat
+# @parseArger opt help-message "help message for the command" --short m --default-value "I send an SOS to the world"
+# @parseArger opt help-option "help option trigger"
+# @parseArger opt help-short-option "short help option"
+# @parseArger opt leftovers-name "extra arguments variable name" --default-value "leftovers"
+# @parseArger opt version-opt-name "version option name" --default-value "version"
+# @parseArger opt version-short-option "version short option name" --default-value "v"
+# @parseArger opt verbose-opt-name "verbose option name" --default-value "verbose"
+# @parseArger opt subcommand-directory "directory for subcommand target" --alias subcmd-dir
+# @parseArger flag version-opt "generate version opt handling" --on
+# @parseArger flag use-verbose "generate verbose level parser" --on
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+# @parseArger-utils-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	echo -e "$1" >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_arg_command_name="";
+_arg_file="";
+# OPTIONALS ARGUMENTS
+_arg_pos=()
+_arg_opt=()
+_arg_flag=()
+_arg_set=()
+_arg_source=()
+_arg_help_message="I send an SOS to the world"
+_arg_help_option=
+_arg_help_short_option=
+_arg_leftovers_name="leftovers"
+_arg_version_opt_name="version"
+_arg_version_short_option="v"
+_arg_verbose_opt_name="verbose"
+_arg_subcommand_directory=
+# FLAGS
+_arg_version_opt="on"
+_arg_use_verbose="on"
+_verbose_level="0";
+
+
+
+print_help()
+{
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "generate a completely yaml config:"
+	echo -e "	command-name: command-name"
+	echo -e "	file: file, optional"
+	echo -e "	-p, --pos <pos>: positional argument declaration, repeatable"
+	echo -e "	-o, --opt <opt>: optional arg declaration, repeatable"
+	echo -e "	-f, --flag <flag>: flag declaration, repeatable"
+	echo -e "	-s, --set <set>: declare var, repeatable"
+	echo -e "	-l, --source <source>: file to source, repeatable"
+	echo -e "	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']"
+	echo -e "	--help-option <help-option>: help option trigger"
+	echo -e "	--help-short-option <help-short-option>: short help option"
+	echo -e "	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']"
+	echo -e "	--version-opt-name <version-opt-name>: version option name [default: ' version ']"
+	echo -e "	--version-short-option <version-short-option>: version short option name [default: ' v ']"
+	echo -e "	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']"
+	echo -e "	--subcommand-directory|--subcmd-dir <subcommand-directory>: directory for subcommand target"
+	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
+	echo -e "	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)"
+	echo -e "Usage :
+	$0 <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--[no-]version-opt] [--[no-]use-verbose]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}";
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			-p|--pos)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_pos+=("$2")
+				shift
+				;;
+			--pos=*)
+				_arg_pos+=("${_key##--pos=}")
+				;;
+			-p*)
+				_arg_pos+=("${_key##-p}")
+				;;
+			
+			-o|--opt)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_opt+=("$2")
+				shift
+				;;
+			--opt=*)
+				_arg_opt+=("${_key##--opt=}")
+				;;
+			-o*)
+				_arg_opt+=("${_key##-o}")
+				;;
+			
+			-f|--flag)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_flag+=("$2")
+				shift
+				;;
+			--flag=*)
+				_arg_flag+=("${_key##--flag=}")
+				;;
+			-f*)
+				_arg_flag+=("${_key##-f}")
+				;;
+			
+			-s|--set)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_set+=("$2")
+				shift
+				;;
+			--set=*)
+				_arg_set+=("${_key##--set=}")
+				;;
+			-s*)
+				_arg_set+=("${_key##-s}")
+				;;
+			
+			-l|--source)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_source+=("$2")
+				shift
+				;;
+			--source=*)
+				_arg_source+=("${_key##--source=}")
+				;;
+			-l*)
+				_arg_source+=("${_key##-l}")
+				;;
+			
+			-m|--help-message)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_help_message="$2"
+				shift
+				;;
+			--help-message=*)
+				_arg_help_message="${_key##--help-message=}"
+				;;
+			-m*)
+				_arg_help_message="${_key##-m}"
+				;;
+			
+			--help-option)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_help_option="$2"
+				shift
+				;;
+			--help-option=*)
+				_arg_help_option="${_key##--help-option=}"
+				;;
+			
+			--help-short-option)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_help_short_option="$2"
+				shift
+				;;
+			--help-short-option=*)
+				_arg_help_short_option="${_key##--help-short-option=}"
+				;;
+			
+			--leftovers-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_leftovers_name="$2"
+				shift
+				;;
+			--leftovers-name=*)
+				_arg_leftovers_name="${_key##--leftovers-name=}"
+				;;
+			
+			--version-opt-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_version_opt_name="$2"
+				shift
+				;;
+			--version-opt-name=*)
+				_arg_version_opt_name="${_key##--version-opt-name=}"
+				;;
+			
+			--version-short-option)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_version_short_option="$2"
+				shift
+				;;
+			--version-short-option=*)
+				_arg_version_short_option="${_key##--version-short-option=}"
+				;;
+			
+			--verbose-opt-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_verbose_opt_name="$2"
+				shift
+				;;
+			--verbose-opt-name=*)
+				_arg_verbose_opt_name="${_key##--verbose-opt-name=}"
+				;;
+			
+			--subcmd-dir|--subcommand-directory)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_subcommand_directory="$2"
+				shift
+				;;
+			--subcommand-directory=*)
+				_arg_subcommand_directory="${_key##--subcommand-directory=}"
+				;;
+			--subcmd-dir=*)
+				_arg_subcommand_directory="${_key##--subcmd-dir=}"
+				;;
+			
+			--version-opt)
+				_arg_version_opt="on"
+				;;
+			--no-version-opt)
+				_arg_version_opt="off"
+				;;
+			--use-verbose)
+				_arg_use_verbose="on"
+				;;
+			--no-use-verbose)
+				_arg_use_verbose="off"
+				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string="command-name"
+	if [ "${_positionals_count}" -gt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 2 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_command_name _arg_file ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
+eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\tcommand-name: ${_arg_command_name}";
+	echo -e "\tfile: ${_arg_file}";
+	echo -e "\tpos: ${_arg_pos[*]}";
+	echo -e "\topt: ${_arg_opt[*]}";
+	echo -e "\tflag: ${_arg_flag[*]}";
+	echo -e "\tset: ${_arg_set[*]}";
+	echo -e "\tsource: ${_arg_source[*]}";
+	echo -e "\thelp-message: ${_arg_help_message}";
+	echo -e "\thelp-option: ${_arg_help_option}";
+	echo -e "\thelp-short-option: ${_arg_help_short_option}";
+	echo -e "\tleftovers-name: ${_arg_leftovers_name}";
+	echo -e "\tversion-opt-name: ${_arg_version_opt_name}";
+	echo -e "\tversion-short-option: ${_arg_version_short_option}";
+	echo -e "\tverbose-opt-name: ${_arg_verbose_opt_name}";
+	echo -e "\tsubcommand-directory: ${_arg_subcommand_directory}";
+	echo -e "\tversion-opt: ${_arg_version_opt}";
+	echo -e "\tuse-verbose: ${_arg_use_verbose}";
+
+}
+
+print_version()
+{
+	echo "0.1";
+}
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+SCRIPT_ROOT_DIR=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd -P
+);
+# shellcheck source=$SCRIPT_ROOT_DIR/utils
+source "$SCRIPT_ROOT_DIR/utils";
+
+subCmd="";
+
+# argument declarations
+echo -e "${_arg_command_name}:";
+if [ "$_arg_file" != "" ] && [ -f "$_arg_file" ]; then
+	tmp_arg_pos=();
+	tmp_arg_opt=();
+	tmp_arg_flag=();
+	parsearger_get_pos tmp_arg_pos "$_arg_file";
+	parsearger_get_opt tmp_arg_opt "$_arg_file";
+	parsearger_get_flag tmp_arg_flag "$_arg_file";
+	_arg_pos+=("${tmp_arg_pos[@]}");
+	_arg_opt+=("${tmp_arg_opt[@]}");
+	_arg_flag+=("${tmp_arg_flag[@]}");
+fi
+
+for pos in "${_arg_pos[@]}"; do
+	isscmd="$(eval "$SCRIPT_ROOT_DIR/pos/is-subcmd $pos")";
+	if [[ "$isscmd" == "0" ]]; then
+		subCmd="$pos"
+	fi
+	eval "$SCRIPT_ROOT_DIR/pos/completely $pos";
+done
+for opt in "${_arg_opt[@]}"; do
+	eval "$SCRIPT_ROOT_DIR/opt/completely $opt";
+done
+for flag in "${_arg_flag[@]}"; do
+	eval "$SCRIPT_ROOT_DIR/flag/completely $flag";
+done
+
+if [ "$subCmd" != "" ] && [ "$_arg_subcommand_directory" != "" ] && [ -d "$_arg_subcommand_directory" ]; then
+	_oneofs_scmd=();
+	parsearger_get_one_ofs _oneofs_scmd "$subCmd";
+	for _scmd in "${_oneofs_scmd[@]}"; do
+		if [ -f "${_arg_subcommand_directory}/${_scmd}" ]; then
+			echo "";
+			"$0" "${_arg_command_name} ${_scmd}" "${_arg_subcommand_directory}/${_scmd}"
+		fi
+	done
+fi

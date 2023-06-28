@@ -1,0 +1,135 @@
+parseArger:
+- parse
+- generate
+- document
+- bulk-parse
+- completely
+- --output
+- --prepend
+- --no-prepend
+
+parseArger parse:
+- --pos
+- -p
+- --opt
+- -o
+- --flag
+- -f
+- --set
+- -s
+- --source
+- -l
+- --set-version
+- --inplace
+- --no-inplace
+- -i
+
+parseArger generate:
+- --pos
+- -p
+- --opt
+- -o
+- --flag
+- -f
+- --set
+- -s
+- --source
+- -l
+- --help-message
+- -m
+- --help-option
+- --help-short-option
+- --leftovers-name
+- --use-shebang
+- --set-version
+- --version-opt-name
+- --version-short-option
+- --die-fn-name
+- --log-fn-name
+- --verbose-opt-name
+- --verbose-level
+- --leftovers
+- --no-leftovers
+- --bang
+- --no-bang
+- --version-opt
+- --no-version-opt
+- --use-verbose
+- --no-use-verbose
+
+parseArger document:
+- --file
+- -f
+- --directory
+- --folder
+- -d
+- --out
+- -o
+- --tag
+- --next-tag-prepend
+- --title
+- --title-tag
+- --sub-directory
+- --no-sub-directory
+- --append-output
+- --no-append-output
+
+parseArger bulk-parse:
+- --bump
+- --file
+- -f
+- --directory
+- --folder
+- -d
+- --sub-directory
+- --no-sub-directory
+
+parseArger completely:
+- --pos
+- -p
+- --opt
+- -o
+- --flag
+- -f
+- --set
+- -s
+- --source
+- -l
+- --help-message
+- -m
+- --help-option
+- --help-short-option
+- --leftovers-name
+- --version-opt-name
+- --version-short-option
+- --verbose-opt-name
+- --subcommand-directory
+- --subcmd-dir
+- --version-opt
+- --no-version-opt
+- --use-verbose
+- --no-use-verbose
+
+parseArger *--output:
+- <file>
+
+parseArger bulk-parse*--file:
+- <file>
+
+parseArger bulk-parse*--directory:
+- <directory>
+
+parseArger document*--file:
+- <file>
+
+parseArger document*--out:
+- <file>
+
+parseArger document*--directory:
+- <directory>
+
+parseArger completely*--subcommand-directory:
+- <directory>
+
+parseArger completely*--subcmd-dir:
+- <directory>
