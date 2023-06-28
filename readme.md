@@ -223,7 +223,7 @@ parseArger parse \
 	-i|--inplace|--no-inplace: replace parseArger generated content in place
 ```
 
-### ./bin/document
+### document
 
 create documentation for parseArger script:
 
@@ -240,3 +240,34 @@ create documentation for parseArger script:
 ```
 Usage :
 	./bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
+
+### completely
+
+```
+generate a completely yaml config and completion file:
+	command-name: command-name
+	file: file, optional
+	-p, --pos <pos>: positional argument declaration, repeatable
+	-o, --opt <opt>: optional arg declaration, repeatable
+	-f, --flag <flag>: flag declaration, repeatable
+	-s, --set <set>: declare var, repeatable
+	-l, --source <source>: file to source, repeatable
+	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
+	--help-option <help-option>: help option trigger
+	--help-short-option <help-short-option>: short help option
+	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
+	--version-opt-name <version-opt-name>: version option name [default: ' version ']
+	--version-short-option <version-short-option>: version short option name [default: ' v ']
+	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
+	--subcommand-directory|--subcmd-dir <subcommand-directory>: directory for subcommand target
+	--completely-cmd|--cmpcmd <completely-cmd>: completely command, repeatable
+	--extra-file <extra-file>: extra yaml declaration, repeatable
+	--yaml-file <yaml-file>: yaml file name [default: ' completely.yaml ']
+	--completion-file <completion-file>: completion file name [default: ' completely.bash ']
+	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
+	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
+		no-aliases: --no-run,
+Usage :
+	./bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
+```

@@ -4,7 +4,7 @@
 
 ```
 standalone bash argument parsing framework:
-	target: what to do [one of 'parse' 'generate' 'document' 'bulk-parse']
+	target: what to do [one of 'parse' 'generate' 'document' 'bulk-parse' 'completely']
 	--output <output>: create file with command output at value
 	--prepend|--no-prepend: add output on top of file
 Usage :
@@ -23,6 +23,37 @@ parse multiple file and directories:
 	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
 Usage :
 	./bin/bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
+```
+
+### ./bin/completely
+
+```
+generate a completely yaml config:
+	command-name: command-name
+	file: file, optional
+	-p, --pos <pos>: positional argument declaration, repeatable
+	-o, --opt <opt>: optional arg declaration, repeatable
+	-f, --flag <flag>: flag declaration, repeatable
+	-s, --set <set>: declare var, repeatable
+	-l, --source <source>: file to source, repeatable
+	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
+	--help-option <help-option>: help option trigger
+	--help-short-option <help-short-option>: short help option
+	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
+	--version-opt-name <version-opt-name>: version option name [default: ' version ']
+	--version-short-option <version-short-option>: version short option name [default: ' v ']
+	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
+	--subcommand-directory|--subcmd-dir <subcommand-directory>: directory for subcommand target
+	--completely-cmd|--cmpcmd <completely-cmd>: completely command, repeatable
+	--extra-file <extra-file>: extra yaml declaration, repeatable
+	--yaml-file <yaml-file>: yaml file name [default: ' completely.yaml ']
+	--completion-file <completion-file>: completion file name [default: ' completely.bash ']
+	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
+	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
+		no-aliases: --no-run,
+Usage :
+	./bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
 ```
 
 ### ./bin/document
@@ -90,6 +121,21 @@ Usage :
 ### ./bin/common
 
 ### ./bin/flag
+
+#### ./bin/flag/completely
+
+```
+parseArger init string for flags:
+	arg-name: positional argument name
+	description: positional argument description
+	-s, --short <short>: short form
+	--no-name <no-name>: value for the negation
+	--alias <alias>: flag alias, repeatable
+	--no-alias <no-alias>: flag negation alias, repeatable
+	--on|--no-on: on by default
+Usage :
+	./bin/flag/completely <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+```
 
 #### ./bin/flag/declaration
 
@@ -192,6 +238,25 @@ Usage :
 ```
 
 ### ./bin/opt
+
+#### ./bin/opt/completely
+
+```
+parseArger declaration string for options:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces repeat
+	--one-of <one-of>: accepted values, repeatable
+	-d, --default-value <default-value>: value, repeatable
+	-s, --short <short>: short form
+	--alias <alias>: option alias, repeatable
+	--empty-value <empty-value>: value for empty option
+	-r|--repeat|--no-repeat: repeatable
+	--empty|--no-empty: use option as flag
+Usage :
+	./bin/opt/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+```
 
 #### ./bin/opt/declaration
 
@@ -308,6 +373,22 @@ Usage :
 ```
 
 ### ./bin/pos
+
+#### ./bin/pos/completely
+
+```
+parseArger string to declare a new option:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+Usage :
+	./bin/pos/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+```
 
 #### ./bin/pos/declaration
 

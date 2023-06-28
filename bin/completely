@@ -1,6 +1,6 @@
 #!/bin/bash
 # @parseArger-begin
-# @parseArger-help "generate a completely yaml config" --option "help" --short-option "h"
+# @parseArger-help "generate a completely yaml config and completion" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
@@ -84,7 +84,7 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "generate a completely yaml config:"
+		echo -e "generate a completely yaml config and completion:"
 	echo -e "	command-name: command-name"
 	echo -e "	file: file, optional"
 	echo -e "	-p, --pos <pos>: positional argument declaration, repeatable"
