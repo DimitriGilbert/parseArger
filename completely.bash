@@ -61,7 +61,7 @@ _parseArger_completions() {
       ;;
 
     'completely'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --version-opt-name --version-short-option --verbose-opt-name --subcommand-directory --subcmd-dir --version-opt --no-version-opt --use-verbose --no-use-verbose")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --version-opt-name --version-short-option --verbose-opt-name --subcommand-directory --subcmd-dir --completely-cmd --cmpcmd --extra-file --yaml-file --completion-file --version-opt --no-version-opt --use-verbose --no-use-verbose --run-completely --no-run-completely --no-run")" -- "$cur" )
       ;;
 
     *'--output')

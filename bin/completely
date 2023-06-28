@@ -19,8 +19,13 @@
 # @parseArger opt version-short-option "version short option name" --default-value "v"
 # @parseArger opt verbose-opt-name "verbose option name" --default-value "verbose"
 # @parseArger opt subcommand-directory "directory for subcommand target" --alias subcmd-dir
+# @parseArger opt completely-cmd "completely command" --repeat --alias cmpcmd
+# @parseArger opt extra-file "extra yaml declaration" --repeat
+# @parseArger opt yaml-file "yaml file name" --default-value "completely.yaml"
+# @parseArger opt completion-file "completion file name" --default-value "completely.bash"
 # @parseArger flag version-opt "generate version opt handling" --on
 # @parseArger flag use-verbose "generate verbose level parser" --on
+# @parseArger flag run-completely "run completely" --on --no-alias no-run
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -62,9 +67,14 @@ _arg_version_opt_name="version"
 _arg_version_short_option="v"
 _arg_verbose_opt_name="verbose"
 _arg_subcommand_directory=
+_arg_completely_cmd=()
+_arg_extra_file=()
+_arg_yaml_file="completely.yaml"
+_arg_completion_file="completely.bash"
 # FLAGS
 _arg_version_opt="on"
 _arg_use_verbose="on"
+_arg_run_completely="on"
 _verbose_level="0";
 
 
@@ -90,10 +100,16 @@ print_help()
 	echo -e "	--version-short-option <version-short-option>: version short option name [default: ' v ']"
 	echo -e "	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']"
 	echo -e "	--subcommand-directory|--subcmd-dir <subcommand-directory>: directory for subcommand target"
+	echo -e "	--completely-cmd|--cmpcmd <completely-cmd>: completely command, repeatable"
+	echo -e "	--extra-file <extra-file>: extra yaml declaration, repeatable"
+	echo -e "	--yaml-file <yaml-file>: yaml file name [default: ' completely.yaml ']"
+	echo -e "	--completion-file <completion-file>: completion file name [default: ' completely.bash ']"
 	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
 	echo -e "	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)"
+	echo -e "	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
+		no-aliases: --no-run,"
 	echo -e "Usage :
-	$0 <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--[no-]version-opt] [--[no-]use-verbose]";
+	$0 <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]";
 	fi
 
 }
@@ -274,6 +290,45 @@ parse_commandline()
 				_arg_subcommand_directory="${_key##--subcmd-dir=}"
 				;;
 			
+			--cmpcmd|--completely-cmd)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_completely_cmd+=("$2")
+				shift
+				;;
+			--completely-cmd=*)
+				_arg_completely_cmd+=("${_key##--completely-cmd=}")
+				;;
+			--cmpcmd=*)
+				_arg_completely_cmd+=("${_key##--cmpcmd=}")
+				;;
+			
+			--extra-file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_extra_file+=("$2")
+				shift
+				;;
+			--extra-file=*)
+				_arg_extra_file+=("${_key##--extra-file=}")
+				;;
+			
+			--yaml-file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_yaml_file="$2"
+				shift
+				;;
+			--yaml-file=*)
+				_arg_yaml_file="${_key##--yaml-file=}"
+				;;
+			
+			--completion-file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_completion_file="$2"
+				shift
+				;;
+			--completion-file=*)
+				_arg_completion_file="${_key##--completion-file=}"
+				;;
+			
 			--version-opt)
 				_arg_version_opt="on"
 				;;
@@ -285,6 +340,12 @@ parse_commandline()
 				;;
 			--no-use-verbose)
 				_arg_use_verbose="off"
+				;;
+			--run-completely)
+				_arg_run_completely="on"
+				;;
+			--no-run-completely|--no-run)
+				_arg_run_completely="off"
 				;;
 			-h|--help)
 				print_help;
@@ -369,8 +430,13 @@ print_debug()
 	echo -e "\tversion-short-option: ${_arg_version_short_option}";
 	echo -e "\tverbose-opt-name: ${_arg_verbose_opt_name}";
 	echo -e "\tsubcommand-directory: ${_arg_subcommand_directory}";
+	echo -e "\tcompletely-cmd: ${_arg_completely_cmd[*]}";
+	echo -e "\textra-file: ${_arg_extra_file[*]}";
+	echo -e "\tyaml-file: ${_arg_yaml_file}";
+	echo -e "\tcompletion-file: ${_arg_completion_file}";
 	echo -e "\tversion-opt: ${_arg_version_opt}";
 	echo -e "\tuse-verbose: ${_arg_use_verbose}";
+	echo -e "\trun-completely: ${_arg_run_completely}";
 
 }
 
@@ -393,6 +459,8 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
+outStr="";
+
 SCRIPT_ROOT_DIR=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P
@@ -403,7 +471,7 @@ source "$SCRIPT_ROOT_DIR/utils";
 subCmd="";
 
 # argument declarations
-echo -e "${_arg_command_name}:";
+outStr+="${_arg_command_name}:\n";
 if [ "$_arg_file" != "" ] && [ -f "$_arg_file" ]; then
 	tmp_arg_pos=();
 	tmp_arg_opt=();
@@ -424,17 +492,17 @@ for pos in "${_arg_pos[@]}"; do
 				subCmd="$pos"
 			fi
 		fi
-		eval "$SCRIPT_ROOT_DIR/pos/completely $pos";
+		outStr+="$(eval "$SCRIPT_ROOT_DIR/pos/completely $pos")\n";
 	fi
 done
 for opt in "${_arg_opt[@]}"; do
 	if [ "$opt" != "" ]; then
-		eval "$SCRIPT_ROOT_DIR/opt/completely $opt";
+		outStr+="$(eval "$SCRIPT_ROOT_DIR/opt/completely $opt")\n";
 	fi
 done
 for flag in "${_arg_flag[@]}"; do
 	if [ "$flag" != "" ]; then
-		eval "$SCRIPT_ROOT_DIR/flag/completely $flag";
+		outStr+="$(eval "$SCRIPT_ROOT_DIR/flag/completely $flag")\n";
 	fi
 done
 
@@ -443,8 +511,26 @@ if [ "$subCmd" != "" ] && [ "$_arg_subcommand_directory" != "" ] && [ -d "$_arg_
 	parsearger_get_one_ofs _oneofs_scmd "$subCmd";
 	for _scmd in "${_oneofs_scmd[@]}"; do
 		if [ -f "${_arg_subcommand_directory}/${_scmd}" ]; then
-			echo "";
-			"$0" "${_arg_command_name} ${_scmd}" "${_arg_subcommand_directory}/${_scmd}"
+			outStr+="$("$0" "${_arg_command_name} ${_scmd}" "${_arg_subcommand_directory}/${_scmd}" "--no-run-completely")\n";
 		fi
 	done
+fi
+
+if [ "$_arg_yaml_file" != "" ] && [ "$_arg_run_completely" == "on" ]; then
+	if [ "${#_arg_extra_file[@]}" -gt 0 ]; then
+		for _extra_file in "${_arg_extra_file[@]}"; do
+			outStr+="$(cat "$_extra_file")\n";
+		done
+	fi
+
+	echo -e "$outStr" > "$_arg_yaml_file";
+
+	if [ "$_arg_completion_file" != "" ] && [ "$_arg_run_completely" == "on" ] && [ -f "$_arg_yaml_file" ]; then
+		if [ "${#_arg_completely_cmd[@]}" -le 0 ]; then
+			_arg_completely_cmd=("completely");
+		fi
+		"${_arg_completely_cmd[@]}" generate "$_arg_yaml_file" "$_arg_completion_file";
+	fi
+else
+	echo -e "$outStr";
 fi

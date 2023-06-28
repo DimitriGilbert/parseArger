@@ -8,6 +8,8 @@ Yeah, me too, and because the neighbor's wheel is not round enough to my taste, 
 This code is heavilly inspired by [Argbash](https://github.com/matejak/argbash) and uses its generated code as a basis.
 Why not stick with it ? I did not understand how it was working and wanted to add a few things. Also, ParseArger do not have dependencies other than bash ;)
 
+Ehhm, as long as you don't need completion generation, then you'll need [Completely](https://github.com/DannyBen/completely), it's a ruby gem, but theres a docker way to install it :)
+
 ## TLDR
 
 ```bash
@@ -23,6 +25,13 @@ parseArger/parseArger generate --pos 'first-argument "my first argument descript
 echo -e '\necho "running my script with \"$_arg_first_argument\"";\ntest "$_arg_my_option" != "" && echo "my-option is \"$_arg_my_option\"" || echo "no option given"' >> /path/to/my-script
 # run your script
 /path/to/my-script "parse away" --my-option "but not too far"
+
+# generate documentation
+parseArger/parseArger document --file /path/to/my-script --out /path/to/documentation.md
+
+# generate bash completion with completely
+parseArger/parseArger completely /path/to/my-script --completion-file /path/to/completion.bash
+source /path/to/completion.bash
 ```
 
 ## Installation

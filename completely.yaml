@@ -7,8 +7,8 @@ parseArger:
 - --output
 - --prepend
 - --no-prepend
-
 parseArger parse:
+
 - --pos
 - -p
 - --opt
@@ -23,7 +23,6 @@ parseArger parse:
 - --inplace
 - --no-inplace
 - -i
-
 parseArger generate:
 - --pos
 - -p
@@ -56,7 +55,6 @@ parseArger generate:
 - --no-version-opt
 - --use-verbose
 - --no-use-verbose
-
 parseArger document:
 - --file
 - -f
@@ -73,7 +71,6 @@ parseArger document:
 - --no-sub-directory
 - --append-output
 - --no-append-output
-
 parseArger bulk-parse:
 - --bump
 - --file
@@ -83,8 +80,9 @@ parseArger bulk-parse:
 - -d
 - --sub-directory
 - --no-sub-directory
-
 parseArger completely:
+
+
 - --pos
 - -p
 - --opt
@@ -105,10 +103,18 @@ parseArger completely:
 - --verbose-opt-name
 - --subcommand-directory
 - --subcmd-dir
+- --completely-cmd
+- --cmpcmd
+- --extra-file
+- --yaml-file
+- --completion-file
 - --version-opt
 - --no-version-opt
 - --use-verbose
 - --no-use-verbose
+- --run-completely
+- --no-run-completely
+- --no-run
 parseArger *--output:
 - <file>
 
@@ -132,3 +138,4 @@ parseArger completely*--subcommand-directory:
 
 parseArger completely*--subcmd-dir:
 - <directory>
+

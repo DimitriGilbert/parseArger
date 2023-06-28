@@ -3,7 +3,5 @@ documentation:
 reparse:
 	./parseArger bulk-parse --file ./parseArger --directory ./bin;
 complete:
-	./parseArger completely parseArger ./parseArger --subcommand-directory ./bin > completely.yaml;
-	cat ./complete_extra.yaml >> completely.yaml;
-	completely generate;
+	./parseArger completely parseArger ./parseArger --subcommand-directory ./bin --extra-file complete_extra.yaml;
 build: reparse documentation complete
