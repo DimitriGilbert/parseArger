@@ -417,17 +417,25 @@ if [ "$_arg_file" != "" ] && [ -f "$_arg_file" ]; then
 fi
 
 for pos in "${_arg_pos[@]}"; do
-	isscmd="$(eval "$SCRIPT_ROOT_DIR/pos/is-subcmd $pos")";
-	if [[ "$isscmd" == "0" ]]; then
-		subCmd="$pos"
+	if [ "$pos" != "" ]; then
+		if [ "$subCmd" == "" ]; then
+			isscmd="$(eval "$SCRIPT_ROOT_DIR/pos/is-subcmd $pos")";
+			if [[ "$isscmd" == "0" ]]; then
+				subCmd="$pos"
+			fi
+		fi
+		eval "$SCRIPT_ROOT_DIR/pos/completely $pos";
 	fi
-	eval "$SCRIPT_ROOT_DIR/pos/completely $pos";
 done
 for opt in "${_arg_opt[@]}"; do
-	eval "$SCRIPT_ROOT_DIR/opt/completely $opt";
+	if [ "$opt" != "" ]; then
+		eval "$SCRIPT_ROOT_DIR/opt/completely $opt";
+	fi
 done
 for flag in "${_arg_flag[@]}"; do
-	eval "$SCRIPT_ROOT_DIR/flag/completely $flag";
+	if [ "$flag" != "" ]; then
+		eval "$SCRIPT_ROOT_DIR/flag/completely $flag";
+	fi
 done
 
 if [ "$subCmd" != "" ] && [ "$_arg_subcommand_directory" != "" ] && [ -d "$_arg_subcommand_directory" ]; then

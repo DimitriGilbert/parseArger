@@ -109,7 +109,6 @@ parseArger completely:
 - --no-version-opt
 - --use-verbose
 - --no-use-verbose
-
 parseArger *--output:
 - <file>
 

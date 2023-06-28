@@ -42,6 +42,16 @@ unzip "${parseargerTmp}.zip" -d ./;
 rm "$parseargerTmp";
 ```
 
+### Installing bash completion and alias
+
+add this to your Xsh_rc (tested for bash and zsh) (or just run the commands for a one time load)
+
+```bash
+# Completion for parserArger
+source /path/to/parseArger/completely.bash
+alias parseArger=/path/to/parseArger/parseArger
+```
+
 ## Usage
 
 ### Common options
