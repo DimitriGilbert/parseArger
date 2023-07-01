@@ -50,10 +50,12 @@ _verbose_level="0";
 
 print_help()
 {
+	_triggerSCHelp=1;
 
 	if [ "${#_positionals[@]}" -ge 1 ]; then
 		echo "$0 sub command help
 	"
+		_triggerSCHelp=0;
 	else
 	
 
@@ -220,6 +222,10 @@ trap on_interrupt INT;
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
+if [ "$_triggerSCHelp" == "0" ]; then
+	_arg_leftovers+=("--help");
+fi
+
 if [ "$_arg_output" == "" ]; then
 	if [ "$_arg_target" != "" ]; then
 		"$PARSEARGER_ROOT_DIR/bin/$_arg_target" "${_arg_leftovers[@]}";

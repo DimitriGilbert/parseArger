@@ -634,12 +634,14 @@ fi
 echo -e "
 
 print_help()
-{";
+{
+	_triggerSCHelp=1;";
 if [ "$hasSubCmd" == "0" ]; then
 	echo -e "
 	if [ \"\${#_positionals[@]}\" -ge 1 ]; then
 		echo \"\$0 sub command help
 	\"
+		_triggerSCHelp=0;
 	else
 	";
 fi

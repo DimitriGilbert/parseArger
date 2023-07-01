@@ -298,30 +298,36 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-outStr="${_arg_title_tag} ${_arg_title}\n\n";
+SCRIPT_ROOT_DIR=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd -P
+);
 
-paStart="# @parse";
-paStart+="Arger";
+source "$SCRIPT_ROOT_DIR/utils";
+
+outStr="${_arg_title_tag} ${_arg_title}\n\n";
 
 if [ "${#_arg_file[@]}" -gt 0 ]; then
 	for _file in "${_arg_file[@]}"; do
-		if [ -f "$_file" ]; then
-			_isPA="$(sed -ne 's/'"${paStart}"'//p' "$_file")";
-			if [ "${_isPA}" != "" ]; then
-				log "parsing $_file\n" 1;
-				# TODO: parse help declaration to call correct option
-				# TODO: parse argument for subcommand
-				#			* get sucommand help
-
-				# _help="$(sed -ne 's/'"${paStart}"'-help \(.*\).*/\1/p' "$_file")"
-				# _version="$(sed -ne 's/'"${paStart}"'-version \(.*\).*/\1/p' "$_file")"
-				# readarray -t _set <<< "$(sed -ne 's/'"${paStart}"'-set \(.*\).*/\1/p' "$_file")"
-				# _leftovers="$(sed -ne 's/'"${paStart}"'-leftovers \(.*\).*/\1/p' "$_file")"
-				# readarray -t _source <<< "$(sed -ne 's/'"${paStart}"'-source \(.*\).*/\1/p' "$_file")"
-				# readarray -t _pos <<< "$(sed -ne 's/'"${paStart}"' pos \(.*\).*/\1/p' "$_file")"
-				# readarray -t _opt <<< "$(sed -ne 's/'"${paStart}"' opt \(.*\).*/\1/p' "$_file")"
-				# readarray -t _flag <<< "$(sed -ne 's/'"${paStart}"' flag \(.*\).*/\1/p' "$_file")"
-				outStr+="${_arg_tag} ${_file}\n\n\`\`\`\n$("$_file" --help)\n\`\`\`\n\n";
+		if parsearger_is_pa_file "$_file" ; then
+			log "parsing $_file\n" 1;
+			# parse help declaration to call correct option
+			_help_cmd=$(parsearger_get_help "$_file");
+			_help_opt=$(eval "$SCRIPT_ROOT_DIR/help/get-trigger $_help_cmd");
+			outStr+="${_arg_tag} ${_file}\n\n\`\`\`\n$("$_file" "--$_help_opt")\n\`\`\`\n\n";
+			# TODO: parse argument for subcommand
+			#			* get sucommand help
+			_poss=();
+			parsearger_get_pos _poss "$_file";
+			if [ "${#_poss[@]}" -gt 0 ]; then
+				_is_scmd=$(eval "$SCRIPT_ROOT_DIR/pos/is-subcmd ${_poss[0]}" );
+				if [ "$_is_scmd" == "0" ]; then
+					_oneofs_scmd=();
+					parsearger_get_one_ofs _oneofs_scmd "${_poss[0]}";
+					for scmd_tgt in "${_oneofs_scmd[@]}"; do
+						outStr+="${_arg_tag} ${_file} ${scmd_tgt}\n\n\`\`\`\n$("$_file" "$scmd_tgt" "--$_help_opt")\n\`\`\`\n\n";
+					done
+				fi
 			fi
 		fi
 	done

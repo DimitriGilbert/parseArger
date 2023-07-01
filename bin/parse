@@ -286,6 +286,7 @@ SCRIPT_ROOT_DIR=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P
 );
+source "$SCRIPT_ROOT_DIR/utils";
 
 parseHelpMessage() {
 	echo "$1";
@@ -294,14 +295,19 @@ parseHelpMessage() {
 paStart="# @parse"
 paStart+="Arger"
 
-_help="$(sed -ne 's/'"${paStart}"'-help \(.*\).*/\1/p' "$_arg_file")"
-_version="$(sed -ne 's/'"${paStart}"'-version \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _set <<< "$(sed -ne 's/'"${paStart}"'-set \(.*\).*/\1/p' "$_arg_file")"
-_leftovers="$(sed -ne 's/'"${paStart}"'-leftovers \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _source <<< "$(sed -ne 's/'"${paStart}"'-source \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _pos <<< "$(sed -ne 's/'"${paStart}"' pos \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _opt <<< "$(sed -ne 's/'"${paStart}"' opt \(.*\).*/\1/p' "$_arg_file")"
-readarray -t _flag <<< "$(sed -ne 's/'"${paStart}"' flag \(.*\).*/\1/p' "$_arg_file")"
+_help="$(parsearger_get_help "$_arg_file")";
+_version="$(parsearger_get_version "$_arg_file")";
+_leftovers="$(parsearger_get_leftovers "$_arg_file")";
+_set=();
+_source=();
+_pos=();
+_opt=();
+_flag=();
+parsearger_get_set _set "$_arg_file";
+parsearger_get_source _source "$_arg_file";
+parsearger_get_pos _pos "$_arg_file";
+parsearger_get_opt _opt "$_arg_file";
+parsearger_get_flag _flag "$_arg_file";
 
 # echo "_help: $_help";
 # echo "_set: ${_set[@]}";
