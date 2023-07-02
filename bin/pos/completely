@@ -8,6 +8,9 @@
 # @parseArger opt repeat-min "minimum repeatition forces --repeat" --default-value "1"
 # @parseArger opt repeat-max "maximum repeatition forces --repeat"
 # @parseArger opt one-of "accepted values" --repeat
+# @parseArger opt subcommand-directory "directory containing subcommands, force subcommand"
+# @parseArger opt subcommand-variable "array variable containing subcommand parts, force subcommand" --default-value "__subcommand"
+# @parseArger flag subcommand-run "run subcommand, forces sub command"
 # @parseArger flag repeat "repeatable" --short r
 # @parseArger flag optional "optional"
 # @parseArger flag subcommand "is a subcommand"

@@ -585,6 +585,7 @@ echo "# ${paCmtTrgr}declarations-end
 
 # ${paCmtTrgr}utils
 _helpHasBeenPrinted=1;
+_SCRIPT_DIR=\"\$(cd \"\$(dirname \"\${BASH_SOURCE[0]}\")\" && pwd -P)\";
 # ${paCmtTrgr}utils-end
 
 # ${paCmtTrgr}parsing
@@ -592,7 +593,7 @@ die()
 {
 	local _ret=\"\${2:-1}\"
 	test \"\${_PRINT_HELP:-no}\" = yes && print_help >&2
-	echo -e \"\$1\" >&2
+	log \"\$1\" -3 >&2
 	exit \"\${_ret}\"
 }
 
@@ -755,14 +756,21 @@ fi
 	for _positional_name in \${_positional_names};do
 		test \$# -gt 0 || break;";
 	if [ "$_arg_leftovers" == "off" ]; then
-		echo "		eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1";
+		echo -e "		eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1;";
+		if [[ "$hasSubCmd" == "0" ]]; then
+			echo -e "		$(eval "$SCRIPT_ROOT_DIR/pos/subcmd-assign ${_arg_pos[0]}")";
+		fi
 	else
 		echo "		if ! [[ \"\$_positional_name\" =~ \"_arg_$_arg_leftovers_name\" ]];then
-			eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1
-		fi";
+			eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1;"
+		if [[ "$hasSubCmd" == "0" ]]; then
+			echo -e "			$(eval "$SCRIPT_ROOT_DIR/pos/subcmd-assign ${_arg_pos[0]}")";
+		fi
+		echo "		fi";
 	fi
-	echo -e "eval \"\$_positional_name=\\\${1}\" || die \"Error during argument parsing, possibly an ParseArger bug.\" 1;
-		shift;
+	echo -e "		eval \"\$_positional_name=\\\${1}\" || die \"Error during argument parsing, possibly an ParseArger bug.\" 1;";
+
+	echo -e "		shift;
 	done
 }
 
@@ -813,7 +821,11 @@ handle_passed_args_count;
 assign_positional_args 1 \"\${_positionals[@]}\";
 trap on_interrupt INT;
 
-
+";
+if [[ "$hasSubCmd" == "0" ]]; then
+	echo -e "$(eval "$SCRIPT_ROOT_DIR/pos/subcmd-handle ${_arg_pos[0]}")";
+fi
+echo -e "
 # ${paCmtTrgr}parsing-end
 # print_debug \"\$@\"
 # ${paCmtTrgr}end";
