@@ -313,11 +313,6 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-
-if [ "$_arg_subcommand_variable" != "" ]; then
-	_arg_subcommand="on";
-fi
-
 if [ "$_arg_subcommand_directory" != "" ]; then
 	if [ -d "$_arg_subcommand_directory" ]; then
 		_arg_subcommand="on";

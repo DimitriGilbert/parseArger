@@ -338,10 +338,6 @@ if [ "$_arg_default_value" != "" ]; then
 	optHelp+=" [default: '${_arg_default_value}']";
 fi
 
-if [ "$_arg_subcommand_variable" != "" ]; then
-	_arg_subcommand="on";
-fi
-
 if [ "$_arg_subcommand_directory" != "" ]; then
 	if [ -d "$_arg_subcommand_directory" ]; then
 		_arg_subcommand="on";

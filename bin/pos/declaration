@@ -346,11 +346,6 @@ if [ "$_arg_optional" != "off" ]; then
 	outStr+=" --optional";
 fi
 
-if [ "$_arg_subcommand_variable" != "" ]; then
-	outStr+=" --subcommand-variable \"$_arg_subcommand_variable\"";
-	_arg_subcommand="on";
-fi
-
 if [ "$_arg_subcommand_directory" != "" ]; then
 	if [ -d "$_arg_subcommand_directory" ]; then
 		outStr+=" --subcommand-directory \"$_arg_subcommand_directory\"";

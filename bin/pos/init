@@ -343,10 +343,6 @@ if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	initStr+=");";
 fi
 
-if [ "$_arg_subcommand_variable" != "" ]; then
-	_arg_subcommand="on";
-fi
-
 if [ "$_arg_subcommand_run" != "off" ]; then
 	_arg_subcommand="on";
 fi
