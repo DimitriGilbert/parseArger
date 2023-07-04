@@ -4,13 +4,15 @@
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
-# @parseArger pos arg-name "positional argument name" --subcommand-variable "__subcommand" --subcommand
-# @parseArger pos description "positional argument description" --subcommand-variable "__subcommand" --subcommand
+# @parseArger pos arg-name "positional argument name"
+# @parseArger pos description "positional argument description"
 # @parseArger opt repeat-min "minimum repeatition forces --repeat" --default-value "1"
 # @parseArger opt repeat-max "maximum repeatition forces --repeat"
 # @parseArger opt one-of "accepted values" --repeat
 # @parseArger opt subcommand-directory "directory containing subcommands, force subcommand"
 # @parseArger opt subcommand-variable "array variable containing subcommand parts, force subcommand" --default-value "__subcommand"
+# @parseArger opt complete "bash built-in completely function" --repeat
+# @parseArger opt complete-custom "completely custom dynamic suggestion" --repeat
 # @parseArger flag subcommand-run "run subcommand, forces sub command"
 # @parseArger flag repeat "repeatable" --short r
 # @parseArger flag optional "optional"
@@ -43,17 +45,15 @@ begins_with_short_option()
 # POSITIONALS ARGUMENTS
 _positionals=();
 _arg_arg_name="";
-_arg_subcommand_arg="_arg_arg_name";
-__subcommand=();
 _arg_description="";
-_arg_subcommand_arg="_arg_description";
-__subcommand=();
 # OPTIONALS ARGUMENTS
 _arg_repeat_min="1"
 _arg_repeat_max=
 _arg_one_of=()
 _arg_subcommand_directory=
 _arg_subcommand_variable="__subcommand"
+_arg_complete=()
+_arg_complete_custom=()
 # FLAGS
 _arg_subcommand_run="off"
 _arg_repeat="off"
@@ -68,13 +68,6 @@ print_help()
 {
 	_triggerSCHelp=1;
 
-	if [ "${#_positionals[@]}" -ge 1 ]; then
-		echo "$0 sub command help
-	"
-		_triggerSCHelp=0;
-	else
-	
-
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
 		echo -e "parseArger help string for arguments:"
@@ -85,17 +78,16 @@ print_help()
 	echo -e "	--one-of <one-of>: accepted values, repeatable"
 	echo -e "	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand"
 	echo -e "	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']"
+	echo -e "	--complete <complete>: bash built-in completely function, repeatable"
+	echo -e "	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable"
 	echo -e "	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command"
 	echo -e "	-r|--repeat|--no-repeat: repeatable"
 	echo -e "	--optional|--no-optional: optional"
 	echo -e "	--subcommand|--no-subcommand: is a subcommand"
 	echo -e "	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand"
 	echo -e "Usage :
-	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]";
+	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]";
 	fi
-
-	fi
-	
 
 }
 
@@ -126,7 +118,7 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}";
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
 	fi
 }
 
@@ -182,6 +174,24 @@ parse_commandline()
 				_arg_subcommand_variable="${_key##--subcommand-variable=}"
 				;;
 			
+			--complete)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_complete+=("$2")
+				shift
+				;;
+			--complete=*)
+				_arg_complete+=("${_key##--complete=}")
+				;;
+			
+			--complete-custom)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_complete_custom+=("$2")
+				shift
+				;;
+			--complete-custom=*)
+				_arg_complete_custom+=("${_key##--complete-custom=}")
+				;;
+			
 			--subcommand-run)
 				_arg_subcommand_run="on"
 				;;
@@ -214,9 +224,11 @@ parse_commandline()
 				;;
 			-h|--help)
 				print_help;
+				exit 0;
 				;;
 			-h*)
 				print_help;
+				exit 0;
 				;;
 			-v|--version)
 				print_version;
@@ -267,7 +279,6 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
-		__subcommand+=("$_SCRIPT_DIR/${1}");
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
@@ -286,6 +297,8 @@ print_debug()
 	echo -e "\tone-of: ${_arg_one_of[*]}";
 	echo -e "\tsubcommand-directory: ${_arg_subcommand_directory}";
 	echo -e "\tsubcommand-variable: ${_arg_subcommand_variable}";
+	echo -e "\tcomplete: ${_arg_complete[*]}";
+	echo -e "\tcomplete-custom: ${_arg_complete_custom[*]}";
 	echo -e "\tsubcommand-run: ${_arg_subcommand_run}";
 	echo -e "\trepeat: ${_arg_repeat}";
 	echo -e "\toptional: ${_arg_optional}";
@@ -307,6 +320,7 @@ parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 # @parseArger-parsing-end

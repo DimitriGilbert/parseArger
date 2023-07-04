@@ -4,7 +4,7 @@
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
-# @parseArger pos file "file to parse"
+# @parseArger pos file "file to parse" --complete file
 # @parseArger opt pos "add positional argument declaration" --short p --repeat
 # @parseArger opt opt "add optional arg declaration" --short o --repeat
 # @parseArger opt flag "add flag declaration" --short f --repeat

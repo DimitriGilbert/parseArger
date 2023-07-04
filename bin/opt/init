@@ -2,6 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "parseArger init string for options" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
 # @parseArger pos arg-name "positional argument name"
 # @parseArger pos description "positional argument description"
@@ -12,12 +13,15 @@
 # @parseArger opt short "short form" --short s
 # @parseArger opt alias "option alias" --repeat
 # @parseArger opt empty-value "value for empty option"
+# @parseArger opt complete "bash built-in completely function" --repeat
+# @parseArger opt complete-custom "completely custom dynamic suggestion" --repeat
 # @parseArger flag repeat "repeatable" --short r
 # @parseArger flag empty "use option as flag"
 # @parseArger-declarations-end
 
 # @parseArger-utils
 _helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
@@ -25,7 +29,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo -e "$1" >&2
+	log "$1" -3 >&2
 	exit "${_ret}"
 }
 
@@ -49,13 +53,18 @@ _arg_default_value=()
 _arg_short=
 _arg_alias=()
 _arg_empty_value=
+_arg_complete=()
+_arg_complete_custom=()
 # FLAGS
 _arg_repeat="off"
 _arg_empty="off"
+_verbose_level="0";
+
 
 
 print_help()
 {
+	_triggerSCHelp=1;
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
@@ -69,12 +78,45 @@ print_help()
 	echo -e "	-s, --short <short>: short form"
 	echo -e "	--alias <alias>: option alias, repeatable"
 	echo -e "	--empty-value <empty-value>: value for empty option"
+	echo -e "	--complete <complete>: bash built-in completely function, repeatable"
+	echo -e "	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable"
 	echo -e "	-r|--repeat|--no-repeat: repeatable"
 	echo -e "	--empty|--no-empty: use option as flag"
 	echo -e "Usage :
-	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]";
+	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]";
 	fi
 
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+	fi
 }
 
 parse_commandline()
@@ -153,6 +195,24 @@ parse_commandline()
 				_arg_empty_value="${_key##--empty-value=}"
 				;;
 			
+			--complete)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_complete+=("$2")
+				shift
+				;;
+			--complete=*)
+				_arg_complete+=("${_key##--complete=}")
+				;;
+			
+			--complete-custom)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_complete_custom+=("$2")
+				shift
+				;;
+			--complete-custom=*)
+				_arg_complete_custom+=("${_key##--complete-custom=}")
+				;;
+			
 			-r|--repeat)
 				_arg_repeat="on"
 				;;
@@ -181,6 +241,15 @@ parse_commandline()
 				print_version;
 				exit 0;
 				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -212,8 +281,8 @@ assign_positional_args()
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
-		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -233,6 +302,8 @@ print_debug()
 	echo -e "\tshort: ${_arg_short}";
 	echo -e "\talias: ${_arg_alias[*]}";
 	echo -e "\tempty-value: ${_arg_empty_value}";
+	echo -e "\tcomplete: ${_arg_complete[*]}";
+	echo -e "\tcomplete-custom: ${_arg_complete_custom[*]}";
 	echo -e "\trepeat: ${_arg_repeat}";
 	echo -e "\tempty: ${_arg_empty}";
 
@@ -251,6 +322,7 @@ parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 # @parseArger-parsing-end

@@ -4,9 +4,9 @@
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
-# @parseArger opt file "file to document" --short f --repeat
-# @parseArger opt directory "directory to document" --short d --repeat --alias folder
-# @parseArger opt out "output file" --short o
+# @parseArger opt file "file to document" --short f --repeat --complete file
+# @parseArger opt directory "directory to document" --short d --repeat --alias folder --complete directory
+# @parseArger opt out "output file" --short o --complete file
 # @parseArger opt tag "markdown tag for title" --default-value "##"
 # @parseArger opt next-tag-prepend "prepend to next title tag level" --default-value "#"
 # @parseArger opt title "documentation title" --default-value "Usage"

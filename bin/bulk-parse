@@ -4,8 +4,8 @@
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
 # @parseArger opt bump "new version"
-# @parseArger opt file "file to document" --short f --repeat
-# @parseArger opt directory "directory to document" --short d --repeat --alias folder
+# @parseArger opt file "file to document" --short f --repeat --complete file
+# @parseArger opt directory "directory to document" --short d --repeat --alias folder --complete directory
 # @parseArger flag sub-directory "document subdirectory" --on
 # @parseArger-declarations-end
 

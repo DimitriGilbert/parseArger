@@ -5,12 +5,12 @@
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
 # @parseArger pos command-name "command-name"
-# @parseArger pos file "file" --optional
+# @parseArger pos file "file" --optional --complete file
 # @parseArger opt pos "positional argument declaration" --short p --repeat
 # @parseArger opt opt "optional arg declaration" --short o --repeat
 # @parseArger opt flag "flag declaration" --short f --repeat
 # @parseArger opt set "declare var" --short s --repeat
-# @parseArger opt source "file to source" --short l --repeat
+# @parseArger opt source "file to source" --short l --repeat --complete file
 # @parseArger opt help-message "help message for the command" --short m --default-value "I send an SOS to the world"
 # @parseArger opt help-option "help option trigger"
 # @parseArger opt help-short-option "short help option"
@@ -18,11 +18,11 @@
 # @parseArger opt version-opt-name "version option name" --default-value "version"
 # @parseArger opt version-short-option "version short option name" --default-value "v"
 # @parseArger opt verbose-opt-name "verbose option name" --default-value "verbose"
-# @parseArger opt subcommand-directory "directory for subcommand target" --alias subcmd-dir
+# @parseArger opt subcommand-directory "directory for subcommand target" --alias subcmd-dir --complete directory
 # @parseArger opt completely-cmd "completely command" --repeat --alias cmpcmd
-# @parseArger opt extra-file "extra yaml declaration" --repeat
-# @parseArger opt yaml-file "yaml file name" --default-value "completely.yaml"
-# @parseArger opt completion-file "completion file name" --default-value "completely.bash"
+# @parseArger opt extra-file "extra yaml declaration" --repeat --complete file
+# @parseArger opt yaml-file "yaml file name" --default-value "completely.yaml" --complete file
+# @parseArger opt completion-file "completion file name" --default-value "completely.bash" --complete file
 # @parseArger flag version-opt "generate version opt handling" --on
 # @parseArger flag use-verbose "generate verbose level parser" --on
 # @parseArger flag run-completely "run completely" --on --no-alias no-run
@@ -492,12 +492,17 @@ for pos in "${_arg_pos[@]}"; do
 				subCmd="$pos"
 			fi
 		fi
-		outStr+="$(eval "$SCRIPT_ROOT_DIR/pos/completely $pos")\n";
+		_cmpl="$(eval "$SCRIPT_ROOT_DIR/pos/completely $pos")";
+		if [ "$_cmpl" != "" ]; then
+			outStr+="$_cmpl\n";
+		fi
 	fi
 done
+mcopt="";
 for opt in "${_arg_opt[@]}"; do
 	if [ "$opt" != "" ]; then
 		outStr+="$(eval "$SCRIPT_ROOT_DIR/opt/completely $opt")\n";
+		mcopt+="$(eval "$SCRIPT_ROOT_DIR/opt/more-completely $opt --prefix '${_arg_command_name}'")\n";
 	fi
 done
 for flag in "${_arg_flag[@]}"; do
@@ -514,6 +519,10 @@ if [ "$subCmd" != "" ] && [ "$_arg_subcommand_directory" != "" ] && [ -d "$_arg_
 			outStr+="$("$0" "${_arg_command_name} ${_scmd}" "${_arg_subcommand_directory}/${_scmd}" "--no-run-completely")\n";
 		fi
 	done
+fi
+
+if [ "$mcopt" != "" ]; then
+	outStr+="$mcopt\n";
 fi
 
 if [ "$_arg_yaml_file" != "" ] && [ "$_arg_run_completely" == "on" ]; then

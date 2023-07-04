@@ -32,15 +32,39 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
       ;;
 
+    'completely'*'--completion-file')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
+      ;;
+
     'completely'*'--subcmd-dir')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
+      ;;
+
+    'completely'*'--extra-file')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
       ;;
 
     'bulk-parse'*'--directory')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
       ;;
 
+    'completely'*'--yaml-file')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
+      ;;
+
     'document'*'--directory')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
+      ;;
+
+    'bulk-parse'*'--folder')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
+      ;;
+
+    'completely'*'--source')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
+      ;;
+
+    'document'*'--folder')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
       ;;
 
@@ -61,11 +85,7 @@ _parseArger_completions() {
       ;;
 
     'completely'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --version-opt-name --version-short-option --verbose-opt-name --subcommand-directory --subcmd-dir --completely-cmd --cmpcmd --extra-file --yaml-file --completion-file --version-opt --no-version-opt --use-verbose --no-use-verbose --run-completely --no-run-completely --no-run")" -- "$cur" )
-      ;;
-
-    *'--output')
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --version-opt-name --version-short-option --verbose-opt-name --subcommand-directory --subcmd-dir --completely-cmd --cmpcmd --extra-file --yaml-file --completion-file --version-opt --no-version-opt --use-verbose --no-use-verbose --run-completely --no-run-completely --no-run")" -- "$cur" )
       ;;
 
     'generate'*)
@@ -76,8 +96,12 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--file -f --directory --folder -d --out -o --tag --next-tag-prepend --title --title-tag --sub-directory --no-sub-directory --append-output --no-append-output")" -- "$cur" )
       ;;
 
+    *'--output')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
+      ;;
+
     'parse'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --set-version --inplace --no-inplace -i")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --set-version --inplace --no-inplace -i")" -- "$cur" )
       ;;
 
     *)

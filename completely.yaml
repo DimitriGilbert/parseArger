@@ -8,7 +8,7 @@ parseArger:
 - --prepend
 - --no-prepend
 parseArger parse:
-
+- <file>
 - --pos
 - -p
 - --opt
@@ -71,6 +71,15 @@ parseArger document:
 - --no-sub-directory
 - --append-output
 - --no-append-output
+parseArger document*--file:
+- <file>
+parseArger document*--directory:
+- <directory>
+
+parseArger document*--folder:
+- <directory>
+parseArger document*--out:
+- <file>
 parseArger bulk-parse:
 - --bump
 - --file
@@ -80,9 +89,16 @@ parseArger bulk-parse:
 - -d
 - --sub-directory
 - --no-sub-directory
+
+parseArger bulk-parse*--file:
+- <file>
+parseArger bulk-parse*--directory:
+- <directory>
+
+parseArger bulk-parse*--folder:
+- <directory>
 parseArger completely:
-
-
+- <file>
 - --pos
 - -p
 - --opt
@@ -115,23 +131,9 @@ parseArger completely:
 - --run-completely
 - --no-run-completely
 - --no-run
-parseArger *--output:
+
+parseArger completely*--source:
 - <file>
-
-parseArger bulk-parse*--file:
-- <file>
-
-parseArger bulk-parse*--directory:
-- <directory>
-
-parseArger document*--file:
-- <file>
-
-parseArger document*--out:
-- <file>
-
-parseArger document*--directory:
-- <directory>
 
 parseArger completely*--subcommand-directory:
 - <directory>
@@ -139,3 +141,11 @@ parseArger completely*--subcommand-directory:
 parseArger completely*--subcmd-dir:
 - <directory>
 
+parseArger completely*--extra-file:
+- <file>
+parseArger completely*--yaml-file:
+- <file>
+parseArger completely*--completion-file:
+- <file>
+parseArger*--output:
+- <file>
