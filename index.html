@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- BOOTSTRAP -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Code input -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/code-input.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      id="import-theme"
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-okaidia.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- bootswatch theme -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.0/solar/bootstrap.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <title>ParseArger</title>
+  </head>
+  <body>
+    <div class="container">
+
+      <h1>ParseArger</h1>
+      <div class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <nav class="nav nav-tabs">
+          <a href="#" class="nav-link active" id="nav-about" navTo="about"
+            >About</a
+          >
+          <a href="#" class="nav-link" id="nav-install" navTo="install"
+            >Install</a
+          >
+          <a
+            id="nav-github"
+            href="https://github.com/DimitriGilbert/parseArger"
+            target="_blank"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="40"
+              height="40"
+            >
+              <path
+                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+              ></path>
+            </svg>
+          </a>
+        </nav>
+      </div>
+      <div id="pa-about" class="pa-tab">
+        <h2>What is ParseArger ?</h2>
+        <p>
+          ParseArger is a bash library that generate standalone argument parsing, in bash.<br />
+          It uses itself to parse it's own arguments, and generate the output.<br />
+          It generates :
+          <ul>
+            <li>standalone argument, option and flag parsing</li>
+            <li>markdown documentation</li>
+            <li>bash completion script</li>
+          </ul>
+        </p>
+        <h2>Cool, but why ?</h2>
+        <p>
+          Ever wanted to clean-up some cool script you created by adding arguments, options and flags ?<br />
+          Boss wants everyone to use the same script because ! And guess what ? You got stuck with creating it, or even worse, maintaining <span aria-label="Jean-Michel's code, now that is retired, moved half way across the globe and told you all to ">it</span><br />
+          Have you looked at the nightmare of bash option parsing ? I did, and I just wanted to burn your computer at the idea of so much boilerplate !<br />
+          And what about cli completion ? And documentation ? wanna maintain that, eh ?<br />
+          Yeah, me neither, so I created this, ParseArger !
+        </p>
+        <h2>And nothing does that already ?</h2>
+        <p>
+          Yes, Yes there are existing stuff, but the neighbor's wheel is not round enough to my taste !<br />
+          parseArger is based off of <a target="_blank" href="https://github.com/matejak/argbash">Argbash</a> output, but I wanted a few more things, and, I didn't understand how it worked...<br />
+          If you have bigger and more complex project, you should have a look at <a target="_blank" href="https://github.com/DannyBen/bashly">Bashly</a>, 
+          I use <a target="_blank" href="https://github.com/DannyBen/completely">Completely</a> (part of Bashly) to generate the bash completion code, but I wanted the main code to be generated in bash, not ruby<br />
+        </p>
+        <h2>It's gonna be one of those nerd tools, eh ?</h2>
+        <p>
+          Weeeelll, You use it to create command line programs in bash..., if you are afraid of the command line, you ain't gonna have a good day that's for sure.<br />
+          If not, this is just a command line program ;) <br />
+          As it is built using itself, every command is documented using the `--help` flag, you have bash completion available, and you can find all information concerning arguments and options in 
+          the <a target="_blank" href="https://github.com/DimitriGilbert/parseArger/blob/main/readme.md">readme</a>
+          and <a target="_blank" href="https://github.com/DimitriGilbert/parseArger/blob/main/documentation.md">documentation</a>.
+        </p>
+        <h2>And whose using it ?</h2>
+        <p>
+          Heuuum, me, but in several projects of mine : 
+          <ul>
+            <li><a target="_blank" href="https://github.com/DimitriGilbert/parseArger">itself</a></li>
+            <li><a target="_blank" href="https://github.com/DimitriGilbert/sshm0">sshm0</a> : An terminal based ssh server manager</li>
+            <li><a target="_blank" href="https://github.com/DimitriGilbert/StationIO-Station">StationIO</a> : An arduino framework, used in the utility tools (create, upload, ...)</li>
+            <li>A bunch of my scripts for various taks</li>
+          </ul>
+          ParseArger is kind of my bash script template thingy, I need a script, small & dumb ? complex & several scripts ? parseArger !
+        </p>
+        <h2>How do I install it ?</h2>
+        <p>
+          Guess what ? I made a script for that ;-D !
+          <code-input lang="bash"># download the script
+curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -o get_parseArger;
+
+# NOW READ THE DAMN THING ! DO NOT RUN UNKNOWN SCRIPTS FROM THE INTERNET !
+cat get_parseArger;
+# Or
+vim get_parseArger;
+# Or ...
+
+# add exec permission
+chmod +x get_parseArger;
+
+# get command help
+./get_parseArger --help;
+
+# generic install
+./get_parseArger --install;
+
+# reload your shell, change rc file accordingly
+source ~/.bashrc;
+          </code-input>
+        </p>
+        <h2>How do I use it ?</h2>
+        In all the following, I'll consider you have parseArger installed
+        <h3>Create a new script</h3>
+        <p>
+          More information for <a href="https://github.com/DimitriGilbert/parseArger#pos" target="_blank">--pos</a>,
+          <a href="https://github.com/DimitriGilbert/parseArger#opt" target="_blank">--opt</a> and 
+          <a href="https://github.com/DimitriGilbert/parseArger#flag" target="_blank">--flag</a>
+        <code-input lang="bash"># output to stdout
+parseArger generate [...]
+
+# output to file
+parseArger generate --output /path/to/script [...]
+
+# add an argument
+parseArger generate --output /path/to/script --pos 'my-argument "my argument description"'
+
+# add an option
+parseArger generate --output /path/to/script --opt 'my-option "my option description"'
+
+# add an flag
+parseArger generate --output /path/to/script --flag 'my-flag "my flag description"'
+
+# add an argument, 2 options and a flag
+parseArger generate --output /path/to/script \
+  --pos 'my-argument "my argument description"' \
+  --opt 'my-option "my option description"' \
+  --opt 'my-other-option "my other option description"' \
+  --flag 'my-flag "my flag description"'
+          </code-input>
+        </p>
+      </div>
+      <div id="pa-install" class="pa-tab d-none"></div>
+    </div>
+    <script>
+      function navTo(where) {
+        document.querySelectorAll(".nav-link").forEach((el) => {
+          el.classList.remove("active");
+        });
+        document.querySelector("#nav-" + where).classList.add("active");
+        document.querySelectorAll(".pa-tab").forEach((el) => {
+          el.classList.add("d-none");
+        });
+        document
+          .querySelector("#pa-" + where)
+          .classList.remove("d-none");
+      }
+    </script>
+    <script id="js-init">
+
+      window.addEventListener("load", () => {
+        codeInput.registerTemplate(
+          "code-input",
+          codeInput.templates.prism(Prism, [new codeInput.plugins.Indent()])
+        );
+      });
+    </script>
+    <!-- bootstrap -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <!-- code-input -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/code-input.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/plugins/indent.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

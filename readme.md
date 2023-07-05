@@ -129,16 +129,22 @@ echo "$_arg_stuff";
 Repeated option. String representing arguments for [bin/pos/*](bin/pos/) scripts.
 
 ```bash
-bin/pos/* [-d|--default-value <arg>] [--repeat-min <arg>] [--repeat-max <arg>] [--one-of <arg>] [-r|--(no-)repeat] [--(no-)optional] [--(no-)subcommand] [-h|--help] <arg-name> <description>
+bin/pos/* <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
 
 	arg-name: positional argument name
 	description: positional argument description
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--optional|--no-optional: optional
 	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 ```
 
 **Examples**
@@ -156,7 +162,7 @@ parseArger generate --pos 'my-argument "my argument description"' --pos 'my-othe
 Repeated option. String representing arguments for [bin/opt/*](bin/opt/) scripts.
 
 ```bash
-bin/opt/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--one-of <arg>] [-r|--(no-)repeat] [-h|--help] [--alias <alias>] <arg-name> <description>
+bin/opt/* <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 
 	arg-name: positional argument name
 	description: positional argument description
@@ -167,6 +173,8 @@ bin/opt/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--on
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 ```
@@ -190,9 +198,9 @@ parseArger generate --opt 'my-option "my option description"' --opt 'my-other-op
 Repeated option. String representing arguments for [bin/flag/*](bin/flag/) scripts.
 
 ```bash
-bin/flag/* [-s|--short <arg>] [--template <arg>] [-d|--default-value <arg>] [--one-of <arg>] [-r|--(no-)repeat] [-h|--help] <arg-name> <description>
+bin/flag/* <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
 
-arg-name: positional argument name
+	arg-name: positional argument name
 	description: positional argument description
 	-s, --short <short>: short form
 	--no-name <no-name>: value for the negation
