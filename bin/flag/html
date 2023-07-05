@@ -1,0 +1,312 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "parseArger init string for flags" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-declarations
+# @parseArger pos arg-name "positional argument name"
+# @parseArger pos description "positional argument description"
+# @parseArger opt short "short form" --short s
+# @parseArger opt no-name "value for the negation"
+# @parseArger opt alias "flag alias" --repeat
+# @parseArger opt no-alias "flag negation alias" --repeat
+# @parseArger opt checkbox-container-class "checkbox and radio class" --default-value "form-check" --alias radio-container-class
+# @parseArger opt checkbox-class "checkbox and radio class" --default-value "form-check-input" --alias radio-class
+# @parseArger opt checkbox-label-class "checkbox and radio label class" --default-value "form-check-label" --alias radio-label-class
+# @parseArger flag on "on by default"
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_arg_arg_name="";
+_arg_description="";
+# OPTIONALS ARGUMENTS
+_arg_short=
+_arg_no_name=
+_arg_alias=()
+_arg_no_alias=()
+_arg_checkbox_container_class="form-check"
+_arg_checkbox_class="form-check-input"
+_arg_checkbox_label_class="form-check-label"
+# FLAGS
+_arg_on="off"
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "parseArger init string for flags:"
+	echo -e "	arg-name: positional argument name"
+	echo -e "	description: positional argument description"
+	echo -e "	-s, --short <short>: short form"
+	echo -e "	--no-name <no-name>: value for the negation"
+	echo -e "	--alias <alias>: flag alias, repeatable"
+	echo -e "	--no-alias <no-alias>: flag negation alias, repeatable"
+	echo -e "	--checkbox-container-class|--radio-container-class <checkbox-container-class>: checkbox and radio class [default: ' form-check ']"
+	echo -e "	--checkbox-class|--radio-class <checkbox-class>: checkbox and radio class [default: ' form-check-input ']"
+	echo -e "	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']"
+	echo -e "	--on|--no-on: on by default"
+	echo -e "Usage :
+	$0 <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--[no-]on]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			-s|--short)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_short="$2"
+				shift
+				;;
+			--short=*)
+				_arg_short="${_key##--short=}"
+				;;
+			-s*)
+				_arg_short="${_key##-s}"
+				;;
+			
+			--no-name)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_no_name="$2"
+				shift
+				;;
+			--no-name=*)
+				_arg_no_name="${_key##--no-name=}"
+				;;
+			
+			--alias)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_alias+=("$2")
+				shift
+				;;
+			--alias=*)
+				_arg_alias+=("${_key##--alias=}")
+				;;
+			
+			--no-alias)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_no_alias+=("$2")
+				shift
+				;;
+			--no-alias=*)
+				_arg_no_alias+=("${_key##--no-alias=}")
+				;;
+			
+			--radio-container-class|--checkbox-container-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_checkbox_container_class="$2"
+				shift
+				;;
+			--checkbox-container-class=*)
+				_arg_checkbox_container_class="${_key##--checkbox-container-class=}"
+				;;
+			--radio-container-class=*)
+				_arg_checkbox_container_class="${_key##--radio-container-class=}"
+				;;
+			
+			--radio-class|--checkbox-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_checkbox_class="$2"
+				shift
+				;;
+			--checkbox-class=*)
+				_arg_checkbox_class="${_key##--checkbox-class=}"
+				;;
+			--radio-class=*)
+				_arg_checkbox_class="${_key##--radio-class=}"
+				;;
+			
+			--radio-label-class|--checkbox-label-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_checkbox_label_class="$2"
+				shift
+				;;
+			--checkbox-label-class=*)
+				_arg_checkbox_label_class="${_key##--checkbox-label-class=}"
+				;;
+			--radio-label-class=*)
+				_arg_checkbox_label_class="${_key##--radio-label-class=}"
+				;;
+			
+			--on)
+				_arg_on="on"
+				;;
+			--no-on)
+				_arg_on="off"
+				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string="arg-name description"
+	if [ "${_positionals_count}" -gt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 2 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 2 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_arg_name _arg_description ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\targ-name: ${_arg_arg_name}";
+	echo -e "\tdescription: ${_arg_description}";
+	echo -e "\tshort: ${_arg_short}";
+	echo -e "\tno-name: ${_arg_no_name}";
+	echo -e "\talias: ${_arg_alias[*]}";
+	echo -e "\tno-alias: ${_arg_no_alias[*]}";
+	echo -e "\tcheckbox-container-class: ${_arg_checkbox_container_class}";
+	echo -e "\tcheckbox-class: ${_arg_checkbox_class}";
+	echo -e "\tcheckbox-label-class: ${_arg_checkbox_label_class}";
+	echo -e "\ton: ${_arg_on}";
+
+}
+
+print_version()
+{
+	echo "0.1";
+}
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+inpuStr="<input class=\"${_arg_checkbox_class}\" type=\"checkbox\" role=\"switch\" name=\"${_arg_arg_name}\" id=\"${_arg_arg_name}\" value=\"${_arg_arg_name}\" pa-type=\"flag\" ";
+if [ "${_arg_on}" == "on" ];then
+	inpuStr+=" checked";
+fi
+inpuStr+="/>";
+
+echo -e "<div class=\"${_arg_checkbox_container_class}\">
+	<label for=\"${_arg_arg_name}\" class=\"${_arg_checkbox_label_class}\">${_arg_arg_name}</label>
+	<i class=\"input-help\">${_arg_description}</i>
+	${inpuStr}
+</div>";

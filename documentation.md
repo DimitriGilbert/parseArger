@@ -4,79 +4,11 @@
 
 ```
 standalone bash argument parsing framework:
-	target: what to do [one of 'parse' 'generate' 'document' 'bulk-parse' 'completely']
+	target: what to do [one of 'bulk-parse' 'completely' 'document' 'generate' 'html-form' 'parse' ]
 	--output <output>: create file with command output at value
 	--prepend|--no-prepend: add output on top of file
 Usage :
 	./parseArger <target> [--output <value>] [--[no-]prepend]
-```
-
-## ./parseArger parse
-
-```
-./parseArger sub command help
-	
-parse an existing parseArger file:
-	file: file to parse
-	-p, --pos <pos>: add positional argument declaration, repeatable
-	-o, --opt <opt>: add optional arg declaration, repeatable
-	-f, --flag <flag>: add flag declaration, repeatable
-	-s, --set <set>: add declare var, repeatable
-	-l, --source <source>: add file to source, repeatable
-	--set-version <set-version>: set version
-	-i|--inplace|--no-inplace: replace parseArger generated content in place
-Usage :
-	/home/didi/worskpace/Code/parseArger/bin/parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
-```
-
-## ./parseArger generate
-
-```
-./parseArger sub command help
-	
-generate a parseArger script:
-	-p, --pos <pos>: positional argument declaration, repeatable
-	-o, --opt <opt>: optional arg declaration, repeatable
-	-f, --flag <flag>: flag declaration, repeatable
-	-s, --set <set>: declare var, repeatable
-	-l, --source <source>: file to source, repeatable
-	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
-	--help-option <help-option>: help option trigger
-	--help-short-option <help-short-option>: short help option
-	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
-	--use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']
-	--set-version <set-version>: set version number
-	--version-opt-name <version-opt-name>: version option name [default: ' version ']
-	--version-short-option <version-short-option>: version short option name [default: ' v ']
-	--die-fn-name <die-fn-name>: die function name [default: ' die ']
-	--log-fn-name <log-fn-name>: log function name [default: ' log ']
-	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
-	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']
-	--leftovers|--no-leftovers: accept extra arguments
-	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
-	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
-	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
-Usage :
-	/home/didi/worskpace/Code/parseArger/bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
-```
-
-## ./parseArger document
-
-```
-./parseArger sub command help
-	
-create documentation for parseArger script:
-	-f, --file <file>: file to document, repeatable
-	-d, --directory|--folder <directory>: directory to document, repeatable
-	-o, --out <out>: output file
-	--tag <tag>: markdown tag for title [default: ' ## ']
-	--next-tag-prepend <next-tag-prepend>: prepend to next title tag level [default: ' # ']
-	--title <title>: documentation title [default: ' Usage ']
-	--title-tag <title-tag>: documentation title tag [default: ' # ']
-	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
-	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)
-Usage :
-	/home/didi/worskpace/Code/parseArger/bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
 ```
 
 ## ./parseArger bulk-parse
@@ -124,6 +56,100 @@ generate a completely yaml config and completion:
 		no-aliases: --no-run,
 Usage :
 	/home/didi/worskpace/Code/parseArger/bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
+```
+
+## ./parseArger document
+
+```
+./parseArger sub command help
+	
+create documentation for parseArger script:
+	-f, --file <file>: file to document, repeatable
+	-d, --directory|--folder <directory>: directory to document, repeatable
+	-o, --out <out>: output file
+	--tag <tag>: markdown tag for title [default: ' ## ']
+	--next-tag-prepend <next-tag-prepend>: prepend to next title tag level [default: ' # ']
+	--title <title>: documentation title [default: ' Usage ']
+	--title-tag <title-tag>: documentation title tag [default: ' # ']
+	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
+	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
+```
+
+## ./parseArger generate
+
+```
+./parseArger sub command help
+	
+generate a parseArger script:
+	-p, --pos <pos>: positional argument declaration, repeatable
+	-o, --opt <opt>: optional arg declaration, repeatable
+	-f, --flag <flag>: flag declaration, repeatable
+	-s, --set <set>: declare var, repeatable
+	-l, --source <source>: file to source, repeatable
+	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
+	--help-option <help-option>: help option trigger
+	--help-short-option <help-short-option>: short help option
+	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
+	--use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']
+	--set-version <set-version>: set version number
+	--version-opt-name <version-opt-name>: version option name [default: ' version ']
+	--version-short-option <version-short-option>: version short option name [default: ' v ']
+	--die-fn-name <die-fn-name>: die function name [default: ' die ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
+	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']
+	--leftovers|--no-leftovers: accept extra arguments
+	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
+	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
+```
+
+## ./parseArger html-form
+
+```
+./parseArger sub command help
+	
+generate html form for a parsearger file:
+	file: file to process
+	--command <command>: command string, default to file 
+	--action <action>: form action
+	--form-class <form-class>: form html class
+	--input-container-class <input-container-class>: input container class [default: ' form-group ']
+	--input-class <input-class>: input class [default: ' form-control ']
+	--label-class <label-class>: label class [default: ' form-label ']
+	--select-class <select-class>: select class [default: ' form-select ']
+	--checkbox-container-class|--radio-container-class <checkbox-container-class>: checkbox and radio class [default: ' form-check ']
+	--checkbox-class|--radio-class <checkbox-class>: checkbox and radio class [default: ' form-check-input ']
+	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']
+	--parent-form <parent-form>: parent form for result
+	--form|--no-form: display form, on by default (use --no-form to turn it off)
+	--button|--no-button: display button, on by default (use --no-button to turn it off)
+	--js|--no-js: create javascript, --no-js forces --no-result, on by default (use --no-js to turn it off)
+	--result|--no-result: display result, on by default (use --no-result to turn it off)
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/html-form <file> [--command <value>] [--action <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]form] [--[no-]button] [--[no-]js] [--[no-]result]
+```
+
+## ./parseArger parse
+
+```
+./parseArger sub command help
+	
+parse an existing parseArger file:
+	file: file to parse
+	-p, --pos <pos>: add positional argument declaration, repeatable
+	-o, --opt <opt>: add optional arg declaration, repeatable
+	-f, --flag <flag>: add flag declaration, repeatable
+	-s, --set <set>: add declare var, repeatable
+	-l, --source <source>: add file to source, repeatable
+	--set-version <set-version>: set version
+	-i|--inplace|--no-inplace: replace parseArger generated content in place
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
 ```
 
 ## ./bin
@@ -217,6 +243,30 @@ Usage :
 	./bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
 ```
 
+### ./bin/html-form
+
+```
+generate html form for a parsearger file:
+	file: file to process
+	--command <command>: command string, default to file 
+	--action <action>: form action
+	--form-class <form-class>: form html class
+	--input-container-class <input-container-class>: input container class [default: ' form-group ']
+	--input-class <input-class>: input class [default: ' form-control ']
+	--label-class <label-class>: label class [default: ' form-label ']
+	--select-class <select-class>: select class [default: ' form-select ']
+	--checkbox-container-class|--radio-container-class <checkbox-container-class>: checkbox and radio class [default: ' form-check ']
+	--checkbox-class|--radio-class <checkbox-class>: checkbox and radio class [default: ' form-check-input ']
+	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']
+	--parent-form <parent-form>: parent form for result
+	--form|--no-form: display form, on by default (use --no-form to turn it off)
+	--button|--no-button: display button, on by default (use --no-button to turn it off)
+	--js|--no-js: create javascript, --no-js forces --no-result, on by default (use --no-js to turn it off)
+	--result|--no-result: display result, on by default (use --no-result to turn it off)
+Usage :
+	./bin/html-form <file> [--command <value>] [--action <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]form] [--[no-]button] [--[no-]js] [--[no-]result]
+```
+
 ### ./bin/parse
 
 ```
@@ -295,6 +345,24 @@ I send an SOS to the world:
 	--on|--no-on: on by default
 Usage :
 	./bin/flag/help <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+```
+
+#### ./bin/flag/html
+
+```
+parseArger init string for flags:
+	arg-name: positional argument name
+	description: positional argument description
+	-s, --short <short>: short form
+	--no-name <no-name>: value for the negation
+	--alias <alias>: flag alias, repeatable
+	--no-alias <no-alias>: flag negation alias, repeatable
+	--checkbox-container-class|--radio-container-class <checkbox-container-class>: checkbox and radio class [default: ' form-check ']
+	--checkbox-class|--radio-class <checkbox-class>: checkbox and radio class [default: ' form-check-input ']
+	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']
+	--on|--no-on: on by default
+Usage :
+	./bin/flag/html <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--[no-]on]
 ```
 
 #### ./bin/flag/init
@@ -447,6 +515,31 @@ parseArger help string for options:
 	--empty|--no-empty: use option as flag
 Usage :
 	./bin/opt/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+```
+
+#### ./bin/opt/html
+
+```
+option to html form:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces repeat
+	--one-of <one-of>: accepted values, repeatable
+	-d, --default-value <default-value>: value, repeatable
+	-s, --short <short>: short form
+	--alias <alias>: option alias, repeatable
+	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--input-container-class <input-container-class>: input container class [default: ' form-group ']
+	--input-class <input-class>: input class [default: ' form-control ']
+	--label-class <label-class>: label class [default: ' form-label ']
+	--select-class <select-class>: select class [default: ' form-select ']
+	-r|--repeat|--no-repeat: repeatable
+	--empty|--no-empty: use option as flag
+Usage :
+	./bin/opt/html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 #### ./bin/opt/init
@@ -602,6 +695,37 @@ Usage :
 	./bin/pos/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
+#### ./bin/pos/html
+
+```
+positional argument to html input:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--command <command>: command string, default to file 
+	--form-class <form-class>: form html class
+	--input-container-class <input-container-class>: input container class [default: ' form-group ']
+	--input-class <input-class>: input class [default: ' form-control ']
+	--label-class <label-class>: label class [default: ' form-label ']
+	--select-class <select-class>: select class [default: ' form-select ']
+	--checkbox-container-class|--radio-container-class <checkbox-container-class>: checkbox and radio class [default: ' form-check ']
+	--checkbox-class|--radio-class <checkbox-class>: checkbox and radio class [default: ' form-check-input ']
+	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
+Usage :
+	./bin/pos/html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--command <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
+```
+
 #### ./bin/pos/init
 
 ```
@@ -710,6 +834,38 @@ parseArger parsing string for arguments:
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
 	./bin/pos/subcmd-handle <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+```
+
+#### ./bin/pos/subcmd-html
+
+```
+positional argument to html input:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--command <command>: command string, default to file 
+	--form-class <form-class>: form html class
+	--input-container-class <input-container-class>: input container class [default: ' form-group ']
+	--input-class <input-class>: input class [default: ' form-control ']
+	--label-class <label-class>: label class [default: ' form-label ']
+	--select-class <select-class>: select class [default: ' form-select ']
+	--checkbox-container-class|--radio-container-class <checkbox-container-class>: checkbox and radio class [default: ' form-check ']
+	--checkbox-class|--radio-class <checkbox-class>: checkbox and radio class [default: ' form-check-input ']
+	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']
+	--parent-form <parent-form>: parent form for result
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
+Usage :
+	./bin/pos/subcmd-html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--command <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
 ```
 
 ### ./bin/verbose

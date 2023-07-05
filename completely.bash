@@ -64,12 +64,12 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
       ;;
 
-    'document'*'--folder')
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
-      ;;
-
     'bulk-parse'*'--file')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
+      ;;
+
+    'document'*'--folder')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
       ;;
 
     'document'*'--file')
@@ -88,12 +88,16 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --version-opt-name --version-short-option --verbose-opt-name --subcommand-directory --subcmd-dir --completely-cmd --cmpcmd --extra-file --yaml-file --completion-file --version-opt --no-version-opt --use-verbose --no-use-verbose --run-completely --no-run-completely --no-run")" -- "$cur" )
       ;;
 
-    'generate'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --use-shebang --set-version --version-opt-name --version-short-option --die-fn-name --log-fn-name --verbose-opt-name --verbose-level --leftovers --no-leftovers --bang --no-bang --version-opt --no-version-opt --use-verbose --no-use-verbose")" -- "$cur" )
+    'html-form'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--command --action --form-class --input-container-class --input-class --label-class --select-class --checkbox-container-class --radio-container-class --checkbox-class --radio-class --checkbox-label-class --radio-label-class --parent-form --form --no-form --button --no-button --js --no-js --result --no-result")" -- "$cur" )
       ;;
 
     'document'*)
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--file -f --directory --folder -d --out -o --tag --next-tag-prepend --title --title-tag --sub-directory --no-sub-directory --append-output --no-append-output")" -- "$cur" )
+      ;;
+
+    'generate'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --use-shebang --set-version --version-opt-name --version-short-option --die-fn-name --log-fn-name --verbose-opt-name --verbose-level --leftovers --no-leftovers --bang --no-bang --version-opt --no-version-opt --use-verbose --no-use-verbose")" -- "$cur" )
       ;;
 
     *'--output')
@@ -105,7 +109,7 @@ _parseArger_completions() {
       ;;
 
     *)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "parse generate document bulk-parse completely --output --prepend --no-prepend")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "bulk-parse completely document generate html-form parse --output --prepend --no-prepend")" -- "$cur" )
       ;;
 
   esac
