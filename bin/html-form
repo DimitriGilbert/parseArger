@@ -447,7 +447,11 @@ if [ "$_arg_js" != "off" ]; then
 	output+="\n<script type=\"text/javascript\">
 	function ${_frmName}_parse(__form) { 
 		let ${_frmName}_frm = new FormData(__form);
-		let out = '${_arg_command}';
+		let out = '";
+		if [ "$_arg_parent_form" == "" ]; then
+			output+="${_arg_command}";
+		fi
+		output+="';
 		for(const inp of ${_frmName}_frm.keys()) {
 			const ielt = document.getElementById(inp);
 			switch(ielt.getAttribute('pa-type')) {
