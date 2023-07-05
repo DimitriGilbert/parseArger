@@ -16,9 +16,13 @@ Ehhm, as long as you don't need completion generation, then you'll need [Complet
 # install
 git clone https://github.com/DimitriGilbert/parseArger
 # add execution rigths
-chmod +x parseArger/parseArger parseArger/bin -R
+chmod +x parseArger/parseArger parseArger/bin parseArger/utils -R
+# install to bashrc
+parseArger/utils/install --verbose 1 [--shell-rc-file "$HOME/.zshrc"] [--shell-rc-file "$HOME/.<X>rc"]
+# source bashrc, only needed once, modify according to your shell (if you don't know, it's the good one :D)
+source "$HOME/.bashrc"
 # echo parsing script for one argument and one option in a file, add execution rigths to the file
-parseArger/parseArger generate --pos 'first-argument "my first argument description"' --opt 'my-option "my option description"' --output /path/to/my-script
+parseArger generate --pos 'first-argument "my first argument description"' --opt 'my-option "my option description"' --output /path/to/my-script
 # get help
 /path/to/my-script --help
 # add code to your script
@@ -27,10 +31,10 @@ echo -e '\necho "running my script with \"$_arg_first_argument\"";\ntest "$_arg_
 /path/to/my-script "parse away" --my-option "but not too far"
 
 # generate documentation
-parseArger/parseArger document --file /path/to/my-script --out /path/to/documentation.md
+parseArger document --file /path/to/my-script --out /path/to/documentation.md
 
 # generate bash completion with completely
-parseArger/parseArger completely /path/to/my-script --completion-file /path/to/completion.bash
+parseArger completely /path/to/my-script --completion-file /path/to/completion.bash
 source /path/to/completion.bash
 ```
 
