@@ -256,6 +256,7 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 ecmd=();
+mcmd=(chmod "+x" "-R");
 if [ "$(command -v git)" ]; then
 	ecmd+=(git clone);
 
@@ -271,25 +272,33 @@ if [ "$(command -v git)" ]; then
 
 	if [ "$_arg_install_directory" != "" ]; then
 		ecmd+=("$_arg_install_directory");
+		mcmd+=("$_arg_install_directory/parseArger" "$_arg_install_directory/utils" "$_arg_install_directory/bin");
+	else
+		mcmd+=("parseArger/parseArger" "parseArger/utils" "parseArger/bin");
 	fi
 else
 	die "git is not installed" -3;
 fi
 
 log "${ecmd[*]}" 1;
+"${ecmd[@]}"
+log "${mcmd[*]}" 1;
+"${mcmd[@]}"
 
 if [ "$_arg_install" == "on" ] || [ "${#_arg_install_file[@]}" -gt 0 ]; then
-	if [ "$_arg_install_directory" != "" ]; then
-		cd "${_arg_install_directory}";
-	else
-		cd parseArger;
-	fi
-	icmd=("utils/install");
+	icmd=("utils/install" --verbose 1);
 	if [ "${#_arg_install_file[@]}" -gt 0 ]; then
 		for ifile in "${_arg_install_file[@]}"; do
 			icmd+=("--shell-rc-file" "$ifile");
 		done
 	fi
 	log "${icmd[*]}" 1;
+
+	if [ "$_arg_install_directory" != "" ]; then
+		cd "${_arg_install_directory}";
+	else
+		cd parseArger;
+	fi
+	"${icmd[@]}";
 	cd -;
 fi
