@@ -5,12 +5,12 @@
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
 # @parseArger pos command-name "command-name"
-# @parseArger pos file "file" --optional --complete file
+# @parseArger pos file "file" --optional --complete "file"
 # @parseArger opt pos "positional argument declaration" --short p --repeat
 # @parseArger opt opt "optional arg declaration" --short o --repeat
 # @parseArger opt flag "flag declaration" --short f --repeat
 # @parseArger opt set "declare var" --short s --repeat
-# @parseArger opt source "file to source" --short l --repeat --complete file
+# @parseArger opt source "file to source" --short l --repeat --complete "file"
 # @parseArger opt help-message "help message for the command" --short m --default-value "I send an SOS to the world"
 # @parseArger opt help-option "help option trigger"
 # @parseArger opt help-short-option "short help option"
@@ -18,11 +18,11 @@
 # @parseArger opt version-opt-name "version option name" --default-value "version"
 # @parseArger opt version-short-option "version short option name" --default-value "v"
 # @parseArger opt verbose-opt-name "verbose option name" --default-value "verbose"
-# @parseArger opt subcommand-directory "directory for subcommand target" --alias subcmd-dir --complete directory
+# @parseArger opt subcommand-directory "directory for subcommand target" --alias subcmd-dir --complete "directory"
 # @parseArger opt completely-cmd "completely command" --repeat --alias cmpcmd
-# @parseArger opt extra-file "extra yaml declaration" --repeat --complete file
-# @parseArger opt yaml-file "yaml file name" --default-value "completely.yaml" --complete file
-# @parseArger opt completion-file "completion file name" --default-value "completely.bash" --complete file
+# @parseArger opt extra-file "extra yaml declaration" --repeat --complete "file"
+# @parseArger opt yaml-file "yaml file name" --default-value "completely.yaml" --complete "file"
+# @parseArger opt completion-file "completion file name" --default-value "completely.bash" --complete "file"
 # @parseArger flag version-opt "generate version opt handling" --on
 # @parseArger flag use-verbose "generate verbose level parser" --on
 # @parseArger flag run-completely "run completely" --on --no-alias no-run
@@ -30,6 +30,7 @@
 
 # @parseArger-utils
 _helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
@@ -37,7 +38,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo -e "$1" >&2
+	log "$1" -3 >&2
 	exit "${_ret}"
 }
 
@@ -81,6 +82,7 @@ _verbose_level="0";
 
 print_help()
 {
+	_triggerSCHelp=1;
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
@@ -141,7 +143,7 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}";
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
 	fi
 }
 
@@ -403,8 +405,8 @@ assign_positional_args()
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
-		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -453,6 +455,7 @@ parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 # @parseArger-parsing-end

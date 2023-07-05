@@ -4,9 +4,9 @@
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
-# @parseArger opt file "file to document" --short f --repeat --complete file
-# @parseArger opt directory "directory to document" --short d --repeat --alias folder --complete directory
-# @parseArger opt out "output file" --short o --complete file
+# @parseArger opt file "file to document" --short f --repeat --complete "file"
+# @parseArger opt directory "directory to document" --short d --repeat --alias folder --complete "directory"
+# @parseArger opt out "output file" --short o --complete "file"
 # @parseArger opt tag "markdown tag for title" --default-value "##"
 # @parseArger opt next-tag-prepend "prepend to next title tag level" --default-value "#"
 # @parseArger opt title "documentation title" --default-value "Usage"
@@ -17,6 +17,7 @@
 
 # @parseArger-utils
 _helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
@@ -24,7 +25,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo -e "$1" >&2
+	log "$1" -3 >&2
 	exit "${_ret}"
 }
 
@@ -55,6 +56,7 @@ _verbose_level="0";
 
 print_help()
 {
+	_triggerSCHelp=1;
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
@@ -101,7 +103,7 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}";
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
 	fi
 }
 
@@ -255,8 +257,8 @@ assign_positional_args()
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
-		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -294,6 +296,7 @@ assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
 
 
+
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
@@ -319,7 +322,7 @@ if [ "${#_arg_file[@]}" -gt 0 ]; then
 			#			* get sucommand help
 			_poss=();
 			parsearger_get_pos _poss "$_file";
-			if [ "${#_poss[@]}" -gt 0 ]; then
+			if [ "${#_poss[@]}" -gt 0 ] && [ "${_poss[0]}" != "" ]; then
 				_is_scmd=$(eval "$SCRIPT_ROOT_DIR/pos/is-subcmd ${_poss[0]}" );
 				if [ "$_is_scmd" == "0" ]; then
 					_oneofs_scmd=();

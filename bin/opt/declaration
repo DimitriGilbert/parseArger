@@ -358,7 +358,19 @@ fi
 
 if [ "${#_arg_alias[@]}" -gt 0 ]; then
 	for ali in "${_arg_alias[@]}"; do
-  	outStr+=" --alias $ali"
+ 	outStr+=" --alias $ali"
+	done
+fi
+
+if [ "${#_arg_complete[@]}" != "off" ]; then
+	for _c in "${_arg_complete[@]}"; do
+		outStr+=" --complete \"$_c\"";
+	done
+fi
+
+if [ "${#_arg_complete_custom[@]}" != "off" ]; then
+	for _c in "${_arg_complete_custom[@]}"; do
+		outStr+=" --complete-custom \"$_c\"";
 	done
 fi
 

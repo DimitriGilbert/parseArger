@@ -388,6 +388,18 @@ if [ "$_arg_subcommand" != "off" ]; then
 	outStr+=" --subcommand";
 fi
 
+if [ "${#_arg_complete[@]}" != "off" ]; then
+	for _c in "${_arg_complete[@]}"; do
+		outStr+=" --complete \"$_c\"";
+	done
+fi
+
+if [ "${#_arg_complete_custom[@]}" != "off" ]; then
+	for _c in "${_arg_complete_custom[@]}"; do
+		outStr+=" --complete-custom \"$_c\"";
+	done
+fi
+
 if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	for _oof in "${_arg_one_of[@]}"; do
 		outStr+=" --one-of \"$_oof\"";

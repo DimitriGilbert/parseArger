@@ -343,7 +343,7 @@ trap on_interrupt INT;
 # @parseArger-end
 
 
-if [ "${#_arg_complete[@]}" -gt 0 ]; then
+if [ "${#_arg_complete[@]}" -gt 0 ] || [ "${#_arg_complete_custom[@]}" -gt 0 ]; then
 	echo "${_arg_prefix}*--${_arg_arg_name}:";
 
 	_cpstr="";
@@ -359,8 +359,10 @@ if [ "${#_arg_complete[@]}" -gt 0 ]; then
 	fi
 	echo -e "${_cpstr}";
 
-	for ali in "${_arg_alias[@]}"; do
-		echo "${_arg_prefix}*--${ali}:";
-		echo -e "${_cpstr}";
-	done
+	if [ "${#_arg_alias[@]}" -gt 0 ]; then
+		for ali in "${_arg_alias[@]}"; do
+			echo "${_arg_prefix}*--${ali}:";
+			echo -e "${_cpstr}";
+		done
+	fi
 fi

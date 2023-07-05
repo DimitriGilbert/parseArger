@@ -11,6 +11,121 @@ Usage :
 	./parseArger <target> [--output <value>] [--[no-]prepend]
 ```
 
+## ./parseArger parse
+
+```
+./parseArger sub command help
+	
+parse an existing parseArger file:
+	file: file to parse
+	-p, --pos <pos>: add positional argument declaration, repeatable
+	-o, --opt <opt>: add optional arg declaration, repeatable
+	-f, --flag <flag>: add flag declaration, repeatable
+	-s, --set <set>: add declare var, repeatable
+	-l, --source <source>: add file to source, repeatable
+	--set-version <set-version>: set version
+	-i|--inplace|--no-inplace: replace parseArger generated content in place
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
+```
+
+## ./parseArger generate
+
+```
+./parseArger sub command help
+	
+generate a parseArger script:
+	-p, --pos <pos>: positional argument declaration, repeatable
+	-o, --opt <opt>: optional arg declaration, repeatable
+	-f, --flag <flag>: flag declaration, repeatable
+	-s, --set <set>: declare var, repeatable
+	-l, --source <source>: file to source, repeatable
+	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
+	--help-option <help-option>: help option trigger
+	--help-short-option <help-short-option>: short help option
+	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
+	--use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']
+	--set-version <set-version>: set version number
+	--version-opt-name <version-opt-name>: version option name [default: ' version ']
+	--version-short-option <version-short-option>: version short option name [default: ' v ']
+	--die-fn-name <die-fn-name>: die function name [default: ' die ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
+	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']
+	--leftovers|--no-leftovers: accept extra arguments
+	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
+	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
+```
+
+## ./parseArger document
+
+```
+./parseArger sub command help
+	
+create documentation for parseArger script:
+	-f, --file <file>: file to document, repeatable
+	-d, --directory|--folder <directory>: directory to document, repeatable
+	-o, --out <out>: output file
+	--tag <tag>: markdown tag for title [default: ' ## ']
+	--next-tag-prepend <next-tag-prepend>: prepend to next title tag level [default: ' # ']
+	--title <title>: documentation title [default: ' Usage ']
+	--title-tag <title-tag>: documentation title tag [default: ' # ']
+	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
+	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
+```
+
+## ./parseArger bulk-parse
+
+```
+./parseArger sub command help
+	
+parse multiple file and directories:
+	--bump <bump>: new version
+	-f, --file <file>: file to document, repeatable
+	-d, --directory|--folder <directory>: directory to document, repeatable
+	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
+```
+
+## ./parseArger completely
+
+```
+./parseArger sub command help
+	
+generate a completely yaml config and completion:
+	command-name: command-name
+	file: file, optional
+	-p, --pos <pos>: positional argument declaration, repeatable
+	-o, --opt <opt>: optional arg declaration, repeatable
+	-f, --flag <flag>: flag declaration, repeatable
+	-s, --set <set>: declare var, repeatable
+	-l, --source <source>: file to source, repeatable
+	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
+	--help-option <help-option>: help option trigger
+	--help-short-option <help-short-option>: short help option
+	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
+	--version-opt-name <version-opt-name>: version option name [default: ' version ']
+	--version-short-option <version-short-option>: version short option name [default: ' v ']
+	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
+	--subcommand-directory|--subcmd-dir <subcommand-directory>: directory for subcommand target
+	--completely-cmd|--cmpcmd <completely-cmd>: completely command, repeatable
+	--extra-file <extra-file>: extra yaml declaration, repeatable
+	--yaml-file <yaml-file>: yaml file name [default: ' completely.yaml ']
+	--completion-file <completion-file>: completion file name [default: ' completely.bash ']
+	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
+	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
+		no-aliases: --no-run,
+Usage :
+	/home/didi/worskpace/Code/parseArger/bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
+```
+
 ## ./bin
 
 ### ./bin/bulk-parse
@@ -28,7 +143,7 @@ Usage :
 ### ./bin/completely
 
 ```
-generate a completely yaml config:
+generate a completely yaml config and completion:
 	command-name: command-name
 	file: file, optional
 	-p, --pos <pos>: positional argument declaration, repeatable
@@ -225,6 +340,17 @@ Usage :
 	./bin/help/declaration <message> [--option <value>] [--short-option <value>]
 ```
 
+#### ./bin/help/get-trigger
+
+```
+create common help stuff:
+	message: your main help message
+	--option <option>: help trigger option [default: ' help ']
+	--short-option <short-option>: help trigger short option [default: ' h ']
+Usage :
+	./bin/help/get-trigger <message> [--option <value>] [--short-option <value>]
+```
+
 #### ./bin/help/parser
 
 ```
@@ -252,10 +378,12 @@ parseArger declaration string for options:
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+	./bin/opt/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 #### ./bin/opt/declaration
@@ -271,10 +399,12 @@ parseArger declaration string for options:
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+	./bin/opt/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 #### ./bin/opt/docopt-help
@@ -290,10 +420,12 @@ parseArger docOpt string for option:
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/docopt-help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+	./bin/opt/docopt-help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 #### ./bin/opt/help
@@ -309,10 +441,12 @@ parseArger help string for options:
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+	./bin/opt/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 #### ./bin/opt/init
@@ -328,10 +462,12 @@ parseArger init string for options:
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+	./bin/opt/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 #### ./bin/opt/is-repeating
@@ -347,10 +483,34 @@ is the option repeating:
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/is-repeating <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+	./bin/opt/is-repeating <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+```
+
+#### ./bin/opt/more-completely
+
+```
+parseArger declaration string for options:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces repeat
+	--one-of <one-of>: accepted values, repeatable
+	-d, --default-value <default-value>: value, repeatable
+	-s, --short <short>: short form
+	--alias <alias>: option alias, repeatable
+	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--prefix <prefix>: completely prefix
+	-r|--repeat|--no-repeat: repeatable
+	--empty|--no-empty: use option as flag
+Usage :
+	./bin/opt/more-completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--prefix <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 #### ./bin/opt/parser
@@ -366,10 +526,12 @@ parseArger parsing string for options:
 	-s, --short <short>: short form
 	--alias <alias>: option alias, repeatable
 	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--[no-]repeat] [--[no-]empty]
+	./bin/opt/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
 ### ./bin/pos
@@ -383,11 +545,17 @@ parseArger string to declare a new option:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--optional|--no-optional: optional
 	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+	./bin/pos/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
 ```
 
 #### ./bin/pos/declaration
@@ -399,11 +567,17 @@ parseArger string to declare a new option:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
 	-r|--repeat|--no-repeat: repeatable
 	--optional|--no-optional: optional
 	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+	./bin/pos/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
 ```
 
 #### ./bin/pos/help
@@ -415,11 +589,17 @@ parseArger help string for arguments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
 	-r|--repeat|--no-repeat: repeatable
 	--optional|--no-optional: optional
 	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+	./bin/pos/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
 #### ./bin/pos/init
@@ -431,11 +611,17 @@ parseArger init string for agruments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
 	-r|--repeat|--no-repeat: repeatable
 	--optional|--no-optional: optional
 	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+	./bin/pos/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
 #### ./bin/pos/is-subcmd
@@ -447,11 +633,17 @@ is the arg a sub command:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
 	-r|--repeat|--no-repeat: repeatable
 	--optional|--no-optional: optional
 	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/is-subcmd <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+	./bin/pos/is-subcmd <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
 #### ./bin/pos/parser
@@ -463,11 +655,61 @@ parseArger parsing string for arguments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
 	-r|--repeat|--no-repeat: repeatable
 	--optional|--no-optional: optional
 	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand]
+	./bin/pos/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+```
+
+#### ./bin/pos/subcmd-assign
+
+```
+parseArger parsing string for arguments:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
+Usage :
+	./bin/pos/subcmd-assign <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+```
+
+#### ./bin/pos/subcmd-handle
+
+```
+parseArger parsing string for arguments:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
+Usage :
+	./bin/pos/subcmd-handle <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
 ### ./bin/verbose

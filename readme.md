@@ -83,24 +83,29 @@ parseArger generate \
 generic usage:
 
 ```bash
-parseArger generate [--pos <arg>] [--opt <arg>] [--flag <arg>] [--set <arg>] [--source <arg>] [--help-message <arg>] [--help-option <arg>] [--help-short-option <arg>] [--leftovers-name <arg>] [--use-bang <arg>] [--(no-)leftovers] [--(no-)bang] [-h|--help]
+	-p, --pos <pos>: positional argument declaration, repeatable
+	-o, --opt <opt>: optional arg declaration, repeatable
+	-f, --flag <flag>: flag declaration, repeatable
+	-s, --set <set>: declare var, repeatable
+	-l, --source <source>: file to source, repeatable
+	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
+	--help-option <help-option>: help option trigger
+	--help-short-option <help-short-option>: short help option
+	--leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
+	--use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']
+	--set-version <set-version>: set version number
+	--version-opt-name <version-opt-name>: version option name [default: ' version ']
+	--version-short-option <version-short-option>: version short option name [default: ' v ']
+	--die-fn-name <die-fn-name>: die function name [default: ' die ']
+	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
+	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']
+	--leftovers|--no-leftovers: accept extra arguments
+	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
+	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
 
--p, --pos <pos>: positional argument declaration, repeatable
--o, --opt <opt>: optional arg declaration, repeatable
--f, --flag <flag>: flag declaration, repeatable
--s, --set <set>: declare var, repeatable
--l, --source <source>: file to source, repeatable
--m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
---help-option <help-option>: help option trigger
---help-short-option <help-short-option>: short help option
---leftovers-name <leftovers-name>: extra arguments variable name [default: ' leftovers ']
---use-shebang <use-shebang>: shebang executable [default: ' /bin/bash ']
---set-version <set-version>: set version number
---version-opt-name <version-opt-name>: version option name [default: ' version ']
---version-short-option <version-short-option>: version short option name [default: ' v ']
---leftovers|--no-leftovers: accept extra arguments
---bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
---version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
+parseArger generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
 
 ```
 Variables are created containing passed value so you can easily access it.
@@ -213,7 +218,7 @@ parse an existing parseArger script and add arguments, options, flag, etc...
 ```bash
 
 parseArger parse \
-  <file to parse> \
+	file: file to parse
 	-p, --pos <pos>: add positional argument declaration, repeatable
 	-o, --opt <opt>: add optional arg declaration, repeatable
 	-f, --flag <flag>: add flag declaration, repeatable
@@ -243,8 +248,9 @@ Usage :
 
 ### completely
 
-```
 generate a completely yaml config and completion file:
+
+```bash
 	command-name: command-name
 	file: file, optional
 	-p, --pos <pos>: positional argument declaration, repeatable
