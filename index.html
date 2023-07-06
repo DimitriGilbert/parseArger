@@ -52,6 +52,7 @@
         <li>standalone argument, option and flag parsing</li>
         <li>markdown documentation</li>
         <li>bash completion script</li>
+        <li>An html form (to help teach people that command line application, are faster.)</li>
       </ul>
       </p>
       <h2>Cool, but why ?</h2>
@@ -104,26 +105,25 @@
       <p>
         Guess what ? I made a script for that ;-D !
         <code-input lang="bash"># download the script
-          curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -o
-          get_parseArger;
+curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -o get_parseArger;
 
-          # NOW READ THE DAMN THING ! DO NOT RUN UNKNOWN SCRIPTS FROM THE INTERNET !
-          cat get_parseArger;
-          # Or
-          vim get_parseArger;
-          # Or ...
+# NOW READ THE DAMN THING ! DO NOT RUN UNKNOWN SCRIPTS FROM THE INTERNET !
+cat get_parseArger;
+# Or
+vim get_parseArger;
+# Or ...
 
-          # add exec permission
-          chmod +x get_parseArger;
+# add exec permission
+chmod +x get_parseArger;
 
-          # get command help
-          ./get_parseArger --help;
+# get command help
+./get_parseArger --help;
 
-          # generic install
-          ./get_parseArger --install;
+# generic install
+./get_parseArger --install;
 
-          # reload your shell, change rc file accordingly
-          source ~/.bashrc;
+# reload your shell, change rc file accordingly
+source ~/.bashrc;
         </code-input>
       </p>
       <h2>How do I use it ?</h2>
@@ -134,26 +134,26 @@
         <a href="https://github.com/DimitriGilbert/parseArger#opt" target="_blank">--opt</a> and
         <a href="https://github.com/DimitriGilbert/parseArger#flag" target="_blank">--flag</a>
         <code-input lang="bash"># output to stdout
-          parseArger generate [...]
+parseArger generate [...]
 
-          # output to file
-          parseArger generate --output /path/to/script [...]
+# output to file
+parseArger generate --output /path/to/script [...]
 
-          # add an argument
-          parseArger generate --output /path/to/script --pos 'my-argument "my argument description"'
+# add an argument
+parseArger generate --output /path/to/script --pos 'my-argument "my argument description"'
 
-          # add an option
-          parseArger generate --output /path/to/script --opt 'my-option "my option description"'
+# add an option
+parseArger generate --output /path/to/script --opt 'my-option "my option description"'
 
-          # add an flag
-          parseArger generate --output /path/to/script --flag 'my-flag "my flag description"'
+# add an flag
+parseArger generate --output /path/to/script --flag 'my-flag "my flag description"'
 
-          # add an argument, 2 options and a flag
-          parseArger generate --output /path/to/script \
-          --pos 'my-argument "my argument description"' \
-          --opt 'my-option "my option description"' \
-          --opt 'my-other-option "my other option description"' \
-          --flag 'my-flag "my flag description"'
+# add an argument, 2 options and a flag
+parseArger generate --output /path/to/script \
+  --pos 'my-argument "my argument description"' \
+  --opt 'my-option "my option description"' \
+  --opt 'my-other-option "my other option description"' \
+  --flag 'my-flag "my flag description"'
         </code-input>
       </p>
     </div>

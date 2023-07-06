@@ -9,7 +9,7 @@
 # @parseArger opt repeat-min "minimum repeatition forces --repeat" --default-value "1"
 # @parseArger opt repeat-max "maximum repeatition forces --repeat"
 # @parseArger opt one-of "accepted values" --repeat
-# @parseArger opt subcommand-directory "directory containing subcommands, force subcommand"
+# @parseArger opt subcommand-directory "directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of"
 # @parseArger opt subcommand-variable "array variable containing subcommand parts, force subcommand" --default-value "__subcommand"
 # @parseArger opt complete "bash built-in completely function" --repeat
 # @parseArger opt complete-custom "completely custom dynamic suggestion" --repeat
