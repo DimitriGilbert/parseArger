@@ -17,6 +17,11 @@
   <!-- bootswatch theme -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.0/solar/bootstrap.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      form > pre {
+        font-size: 1.2rem !important;
+      }
+    </style>
   <title>ParseArger</title>
 </head>
 
@@ -27,7 +32,7 @@
     <div class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <nav class="nav nav-tabs">
         <a href="#" class="nav-link active" id="nav-about" navTo="about">About</a>
-        <a href="#" class="nav-link" id="nav-cmdform" navTo="cmdform">CLI form</a>
+        <a href="#" class="nav-link" id="nav-cmdform" navTo="cmdform">Command line generation form</a>
         <a id="nav-github" href="https://github.com/DimitriGilbert/parseArger" target="_blank">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="40" height="40">
             <path
@@ -156,7 +161,8 @@
       <form id="parseArger">
         <h2>parseArger form</h2>
         <p>
-          If you are afriad of the big mean terminal window (it is so so dark, and and cursor is so....blinky)
+          If you are afraid of the big mean terminal window (it is so, so dark, and and cursor is soooo....blinky)<br />
+          It is generated automagically by the <i>parseArger html-form</i> command (it will generate the mighty command line so you can battle the terminal monster with the power of copy-paste !)
         </p>
         <div class="form-group">
           <label for="target" class="form-label">target</label>
@@ -226,8 +232,7 @@
                   case 'opt':
                     if (bin_bulk_parse_frm.get(inp) !== '') {
                       if (ielt.hasAttribute('pa-repeat')) {
-                        for (const val of bin_bulk_parse_frm.get(inp).split(`
-          `)) {
+                        for (const val of bin_bulk_parse_frm.get(inp).split(`\n`)) {
                           out += ' --' + inp + ' "' + val + '"';
                         }
                       } else {
@@ -397,8 +402,7 @@
                   case 'opt':
                     if (bin_completely_frm.get(inp) !== '') {
                       if (ielt.hasAttribute('pa-repeat')) {
-                        for (const val of bin_completely_frm.get(inp).split(`
-          `)) {
+                        for (const val of bin_completely_frm.get(inp).split(`\n`)) {
                           out += ' --' + inp + ' "' + val + '"';
                         }
                       } else {
@@ -494,8 +498,7 @@
                   case 'opt':
                     if (bin_document_frm.get(inp) !== '') {
                       if (ielt.hasAttribute('pa-repeat')) {
-                        for (const val of bin_document_frm.get(inp).split(`
-          `)) {
+                        for (const val of bin_document_frm.get(inp).split(`\n`)) {
                           out += ' --' + inp + ' "' + val + '"';
                         }
                       } else {
@@ -657,8 +660,7 @@
                   case 'opt':
                     if (bin_generate_frm.get(inp) !== '') {
                       if (ielt.hasAttribute('pa-repeat')) {
-                        for (const val of bin_generate_frm.get(inp).split(`
-          `)) {
+                        for (const val of bin_generate_frm.get(inp).split(`\n`)) {
                           out += ' --' + inp + ' "' + val + '"';
                         }
                       } else {
@@ -796,8 +798,7 @@
                   case 'opt':
                     if (bin_html_form_frm.get(inp) !== '') {
                       if (ielt.hasAttribute('pa-repeat')) {
-                        for (const val of bin_html_form_frm.get(inp).split(`
-          `)) {
+                        for (const val of bin_html_form_frm.get(inp).split(`\n`)) {
                           out += ' --' + inp + ' "' + val + '"';
                         }
                       } else {
@@ -885,8 +886,7 @@
                   case 'opt':
                     if (bin_parse_frm.get(inp) !== '') {
                       if (ielt.hasAttribute('pa-repeat')) {
-                        for (const val of bin_parse_frm.get(inp).split(`
-          `)) {
+                        for (const val of bin_parse_frm.get(inp).split(`\n`)) {
                           out += ' --' + inp + ' "' + val + '"';
                         }
                       } else {
@@ -939,8 +939,7 @@
             case 'opt':
               if (parseArger_frm.get(inp) !== '') {
                 if (ielt.hasAttribute('pa-repeat')) {
-                  for (const val of parseArger_frm.get(inp).split(`
-          `)) {
+                  for (const val of parseArger_frm.get(inp).split(`\n`)) {
                     out += ' --' + inp + ' "' + val + '"';
                   }
                 } else {
@@ -965,6 +964,45 @@
         parseArger_parse(e.target);
       });
     </script>
+  </div>
+  <script type="text/javascript">
+    function parseArger_parse(__form) {
+      let parseArger_frm = new FormData(__form);
+      let out = 'parseArger';
+      for (const inp of parseArger_frm.keys()) {
+        const ielt = document.getElementById(inp);
+        switch (ielt.getAttribute('pa-type')) {
+          case 'pos':
+            out += ' "' + parseArger_frm.get(inp) + '"';
+            break;
+          case 'opt':
+            if (parseArger_frm.get(inp) !== '') {
+              if (ielt.hasAttribute('pa-repeat')) {
+                for (const val of parseArger_frm.get(inp).split(`\n`)) {
+                  out += ' --' + inp + ' "' + val + '"';
+                }
+              } else {
+                out += ' --' + inp + ' ' + parseArger_frm.get(inp);
+              }
+            }
+            break;
+          case 'flag':
+            if (ielt.checked === true) {
+              out += ' --' + inp;
+            } else {
+              out += ' --no-' + inp;
+            }
+            break;
+        }
+      }
+      document.getElementById('parseArger_result').innerHTML = out;
+    }
+    document.getElementById('parseArger').addEventListener('submit', function (e) {
+      e.preventDefault();
+      e.target.checkValidity();
+      parseArger_parse(e.target);
+    });
+  </script>
 
   </div>
   </div>
@@ -989,6 +1027,15 @@
         "code-input",
         codeInput.templates.prism(Prism, [new codeInput.plugins.Indent()])
       );
+
+      // initializing navigation
+      document
+        .querySelectorAll("[navTo]")
+        .forEach((el) => {
+          el.addEventListener("click", evt => {
+            navTo(evt.target.getAttribute("navTo"));
+          })
+        });
     });
   </script>
   <!-- bootstrap -->
