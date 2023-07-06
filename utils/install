@@ -204,7 +204,8 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 _dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-output="\nsource ${_dir}/parseArger.rc";
+output="\nexport PARSEARGER_DIR=\"$_dir\"
+source ${_dir}/parseArger.rc";
 
 if [ "$_arg_comment" != "off" ]; then
 	output="\n# parseArger${output}";
