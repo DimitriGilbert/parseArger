@@ -638,7 +638,7 @@ parseArger string to declare a new option:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -660,7 +660,7 @@ parseArger string to declare a new option:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -682,7 +682,7 @@ parseArger help string for arguments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -704,7 +704,7 @@ positional argument to html input:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -735,7 +735,7 @@ parseArger init string for agruments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -757,7 +757,7 @@ is the arg a sub command:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -779,7 +779,7 @@ parseArger parsing string for arguments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -801,7 +801,7 @@ parseArger parsing string for arguments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -823,7 +823,7 @@ parseArger parsing string for arguments:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
@@ -845,7 +845,7 @@ positional argument to html input:
 	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
 	--repeat-max <repeat-max>: maximum repeatition forces --repeat
 	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
 	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
 	--complete <complete>: bash built-in completely function, repeatable
 	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable

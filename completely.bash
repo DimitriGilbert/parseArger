@@ -109,7 +109,7 @@ _parseArger_completions() {
       ;;
 
     *)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "bulk-parse completely document generate html-form parse --output --prepend --no-prepend")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "bulk-parse completely document generate html-form parse bulk-parse --output --prepend --no-prepend")" -- "$cur" )
       ;;
 
   esac
