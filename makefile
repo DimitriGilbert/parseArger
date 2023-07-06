@@ -8,8 +8,8 @@ reparse:
 	./parseArger bulk-parse --directory ./bin/verbose;
 	./parseArger bulk-parse --directory ./bin/version;
 	./parseArger bulk-parse --directory ./utils;
-	./parseArger bulk-parse --directory ./bin --no-subdirectory;
-	@./parseArger parse ./parseArger;
+	./parseArger bulk-parse --directory ./bin --no-sub-directory;
+	@./parseArger parse -i ./parseArger;
 complete:
 	./parseArger completely parseArger ./parseArger --subcommand-directory ./bin --extra-file complete_extra.yaml;
 build: reparse documentation complete

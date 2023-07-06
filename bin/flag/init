@@ -2,6 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "parseArger init string for flags" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
 # @parseArger pos arg-name "positional argument name"
 # @parseArger pos description "positional argument description"
@@ -14,6 +15,7 @@
 
 # @parseArger-utils
 _helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
@@ -21,7 +23,7 @@ die()
 {
 	local _ret="${2:-1}"
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo -e "$1" >&2
+	log "$1" -3 >&2
 	exit "${_ret}"
 }
 
@@ -44,10 +46,13 @@ _arg_alias=()
 _arg_no_alias=()
 # FLAGS
 _arg_on="off"
+_verbose_level="0";
+
 
 
 print_help()
 {
+	_triggerSCHelp=1;
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
@@ -63,6 +68,37 @@ print_help()
 	$0 <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]";
 	fi
 
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+	fi
 }
 
 parse_commandline()
@@ -133,6 +169,15 @@ parse_commandline()
 				print_version;
 				exit 0;
 				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -164,8 +209,8 @@ assign_positional_args()
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
-		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1
-eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
 }
@@ -199,6 +244,7 @@ parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 # @parseArger-parsing-end

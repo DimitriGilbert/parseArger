@@ -76,7 +76,7 @@ print_help()
 	echo -e "	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']"
 	echo -e "	--repeat-max <repeat-max>: maximum repeatition forces --repeat"
 	echo -e "	--one-of <one-of>: accepted values, repeatable"
-	echo -e "	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand"
+	echo -e "	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of"
 	echo -e "	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']"
 	echo -e "	--complete <complete>: bash built-in completely function, repeatable"
 	echo -e "	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable"
