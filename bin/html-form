@@ -456,14 +456,14 @@ if [ "$_arg_js" != "off" ]; then
 			const ielt = document.getElementById(inp);
 			switch(ielt.getAttribute('pa-type')) {
 				case 'pos':
-					out+=' '+${_frmName}_frm.get(inp);
+					out+=' \"'+${_frmName}_frm.get(inp)+'\"';
 					break;
 				case 'opt':
 					if(${_frmName}_frm.get(inp) !== '') {
 						if (ielt.hasAttribute('pa-repeat')) {
 							for(const val of ${_frmName}_frm.get(inp).split(\`
 \`)) {
-								out+=' --'+inp+' '+val;
+								out+=' --'+inp+' \"'+val+'\"';
 							}
 						} else {
 							out+=' --'+inp+' '+${_frmName}_frm.get(inp);
@@ -482,7 +482,7 @@ if [ "$_arg_js" != "off" ]; then
 		if [ "$_arg_parent_form" != "" ]; then
 			output+="
 		document.getElementById('${_arg_parent_form}_parse_btn').dispatchEvent(new Event('click'));
-		out=document.getElementById('${_arg_parent_form}_result').innerHTML+' '+out;
+		out=document.getElementById('${_arg_parent_form}_result').innerHTML+out;
 		";
 		fi
 		output+="
@@ -497,6 +497,5 @@ if [ "$_arg_js" != "off" ]; then
 	fi
 	output+="\n</script>";
 fi
-
 
 echo -e "$output";

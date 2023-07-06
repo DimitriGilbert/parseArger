@@ -1,217 +1,1008 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- BOOTSTRAP -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <!-- Code input -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/code-input.min.css"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <link
-      id="import-theme"
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-okaidia.css"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <!-- bootswatch theme -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.0/solar/bootstrap.min.css"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <title>ParseArger</title>
-  </head>
-  <body>
-    <div class="container">
 
-      <h1>ParseArger</h1>
-      <div class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <nav class="nav nav-tabs">
-          <a href="#" class="nav-link active" id="nav-about" navTo="about"
-            >About</a
-          >
-          <a href="#" class="nav-link" id="nav-install" navTo="install"
-            >Install</a
-          >
-          <a
-            id="nav-github"
-            href="https://github.com/DimitriGilbert/parseArger"
-            target="_blank"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              width="40"
-              height="40"
-            >
-              <path
-                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
-              ></path>
-            </svg>
-          </a>
-        </nav>
-      </div>
-      <div id="pa-about" class="pa-tab">
-        <h2>What is ParseArger ?</h2>
-        <p>
-          ParseArger is a bash library that generate standalone argument parsing, in bash.<br />
-          It uses itself to parse it's own arguments, and generate the output.<br />
-          It generates :
-          <ul>
-            <li>standalone argument, option and flag parsing</li>
-            <li>markdown documentation</li>
-            <li>bash completion script</li>
-          </ul>
-        </p>
-        <h2>Cool, but why ?</h2>
-        <p>
-          Ever wanted to clean-up some cool script you created by adding arguments, options and flags ?<br />
-          Boss wants everyone to use the same script because ! And guess what ? You got stuck with creating it, or even worse, maintaining <span aria-label="Jean-Michel's code, now that is retired, moved half way across the globe and told you all to ">it</span><br />
-          Have you looked at the nightmare of bash option parsing ? I did, and I just wanted to burn your computer at the idea of so much boilerplate !<br />
-          And what about cli completion ? And documentation ? wanna maintain that, eh ?<br />
-          Yeah, me neither, so I created this, ParseArger !
-        </p>
-        <h2>And nothing does that already ?</h2>
-        <p>
-          Yes, Yes there are existing stuff, but the neighbor's wheel is not round enough to my taste !<br />
-          parseArger is based off of <a target="_blank" href="https://github.com/matejak/argbash">Argbash</a> output, but I wanted a few more things, and, I didn't understand how it worked...<br />
-          If you have bigger and more complex project, you should have a look at <a target="_blank" href="https://github.com/DannyBen/bashly">Bashly</a>, 
-          I use <a target="_blank" href="https://github.com/DannyBen/completely">Completely</a> (part of Bashly) to generate the bash completion code, but I wanted the main code to be generated in bash, not ruby<br />
-        </p>
-        <h2>It's gonna be one of those nerd tools, eh ?</h2>
-        <p>
-          Weeeelll, You use it to create command line programs in bash..., if you are afraid of the command line, you ain't gonna have a good day that's for sure.<br />
-          If not, this is just a command line program ;) <br />
-          As it is built using itself, every command is documented using the `--help` flag, you have bash completion available, and you can find all information concerning arguments and options in 
-          the <a target="_blank" href="https://github.com/DimitriGilbert/parseArger/blob/main/readme.md">readme</a>
-          and <a target="_blank" href="https://github.com/DimitriGilbert/parseArger/blob/main/documentation.md">documentation</a>.
-        </p>
-        <h2>And whose using it ?</h2>
-        <p>
-          Heuuum, me, but in several projects of mine : 
-          <ul>
-            <li><a target="_blank" href="https://github.com/DimitriGilbert/parseArger">itself</a></li>
-            <li><a target="_blank" href="https://github.com/DimitriGilbert/sshm0">sshm0</a> : An terminal based ssh server manager</li>
-            <li><a target="_blank" href="https://github.com/DimitriGilbert/StationIO-Station">StationIO</a> : An arduino framework, used in the utility tools (create, upload, ...)</li>
-            <li>A bunch of my scripts for various taks</li>
-          </ul>
-          ParseArger is kind of my bash script template thingy, I need a script, small & dumb ? complex & several scripts ? parseArger !
-        </p>
-        <h2>How do I install it ?</h2>
-        <p>
-          Guess what ? I made a script for that ;-D !
-          <code-input lang="bash"># download the script
-curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -o get_parseArger;
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- BOOTSTRAP -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Code input -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/code-input.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link id="import-theme" rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-okaidia.css" crossorigin="anonymous"
+    referrerpolicy="no-referrer" />
+  <!-- bootswatch theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.0/solar/bootstrap.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>ParseArger</title>
+</head>
 
-# NOW READ THE DAMN THING ! DO NOT RUN UNKNOWN SCRIPTS FROM THE INTERNET !
-cat get_parseArger;
-# Or
-vim get_parseArger;
-# Or ...
+<body>
+  <div class="container">
 
-# add exec permission
-chmod +x get_parseArger;
-
-# get command help
-./get_parseArger --help;
-
-# generic install
-./get_parseArger --install;
-
-# reload your shell, change rc file accordingly
-source ~/.bashrc;
-          </code-input>
-        </p>
-        <h2>How do I use it ?</h2>
-        In all the following, I'll consider you have parseArger installed
-        <h3>Create a new script</h3>
-        <p>
-          More information for <a href="https://github.com/DimitriGilbert/parseArger#pos" target="_blank">--pos</a>,
-          <a href="https://github.com/DimitriGilbert/parseArger#opt" target="_blank">--opt</a> and 
-          <a href="https://github.com/DimitriGilbert/parseArger#flag" target="_blank">--flag</a>
-        <code-input lang="bash"># output to stdout
-parseArger generate [...]
-
-# output to file
-parseArger generate --output /path/to/script [...]
-
-# add an argument
-parseArger generate --output /path/to/script --pos 'my-argument "my argument description"'
-
-# add an option
-parseArger generate --output /path/to/script --opt 'my-option "my option description"'
-
-# add an flag
-parseArger generate --output /path/to/script --flag 'my-flag "my flag description"'
-
-# add an argument, 2 options and a flag
-parseArger generate --output /path/to/script \
-  --pos 'my-argument "my argument description"' \
-  --opt 'my-option "my option description"' \
-  --opt 'my-other-option "my other option description"' \
-  --flag 'my-flag "my flag description"'
-          </code-input>
-        </p>
-      </div>
-      <div id="pa-install" class="pa-tab d-none"></div>
+    <h1>ParseArger</h1>
+    <div class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+      <nav class="nav nav-tabs">
+        <a href="#" class="nav-link active" id="nav-about" navTo="about">About</a>
+        <a href="#" class="nav-link" id="nav-cmdform" navTo="cmdform">CLI form</a>
+        <a id="nav-github" href="https://github.com/DimitriGilbert/parseArger" target="_blank">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="40" height="40">
+            <path
+              d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+            </path>
+          </svg>
+        </a>
+      </nav>
     </div>
-    <script>
-      function navTo(where) {
-        document.querySelectorAll(".nav-link").forEach((el) => {
-          el.classList.remove("active");
-        });
-        document.querySelector("#nav-" + where).classList.add("active");
-        document.querySelectorAll(".pa-tab").forEach((el) => {
-          el.classList.add("d-none");
-        });
-        document
-          .querySelector("#pa-" + where)
-          .classList.remove("d-none");
-      }
-    </script>
-    <script id="js-init">
+    <div id="pa-about" class="pa-tab">
+      <h2>What is ParseArger ?</h2>
+      <p>
+        ParseArger is a bash library that generate standalone argument parsing, in bash.<br />
+        It uses itself to parse it's own arguments, and generate the output.<br />
+        It generates :
+      <ul>
+        <li>standalone argument, option and flag parsing</li>
+        <li>markdown documentation</li>
+        <li>bash completion script</li>
+      </ul>
+      </p>
+      <h2>Cool, but why ?</h2>
+      <p>
+        Ever wanted to clean-up some cool script you created by adding arguments, options and flags ?<br />
+        Boss wants everyone to use the same script because ! And guess what ? You got stuck with creating it, or even
+        worse, maintaining <span
+          aria-label="Jean-Michel's code, now that is retired, moved half way across the globe and told you all to ">it</span><br />
+        Have you looked at the nightmare of bash option parsing ? I did, and I just wanted to burn your computer at the
+        idea of so much boilerplate !<br />
+        And what about cli completion ? And documentation ? wanna maintain that, eh ?<br />
+        Yeah, me neither, so I created this, ParseArger !
+      </p>
+      <h2>And nothing does that already ?</h2>
+      <p>
+        Yes, Yes there are existing stuff, but the neighbor's wheel is not round enough to my taste !<br />
+        parseArger is based off of <a target="_blank" href="https://github.com/matejak/argbash">Argbash</a> output, but
+        I wanted a few more things, and, I didn't understand how it worked...<br />
+        If you have bigger and more complex project, you should have a look at <a target="_blank"
+          href="https://github.com/DannyBen/bashly">Bashly</a>,
+        I use <a target="_blank" href="https://github.com/DannyBen/completely">Completely</a> (part of Bashly) to
+        generate the bash completion code, but I wanted the main code to be generated in bash, not ruby<br />
+      </p>
+      <h2>It's gonna be one of those nerd tools, eh ?</h2>
+      <p>
+        Weeeelll, You use it to create command line programs in bash..., if you are afraid of the command line, you
+        ain't gonna have a good day that's for sure.<br />
+        If not, this is just a command line program ;) <br />
+        As it is built using itself, every command is documented using the `--help` flag, you have bash completion
+        available, and you can find all information concerning arguments and options in
+        the <a target="_blank" href="https://github.com/DimitriGilbert/parseArger/blob/main/readme.md">readme</a>
+        and <a target="_blank"
+          href="https://github.com/DimitriGilbert/parseArger/blob/main/documentation.md">documentation</a>.
+      </p>
+      <h2>And whose using it ?</h2>
+      <p>
+        Heuuum, me, but in several projects of mine :
+      <ul>
+        <li><a target="_blank" href="https://github.com/DimitriGilbert/parseArger">itself</a></li>
+        <li><a target="_blank" href="https://github.com/DimitriGilbert/sshm0">sshm0</a> : An terminal based ssh server
+          manager</li>
+        <li><a target="_blank" href="https://github.com/DimitriGilbert/StationIO-Station">StationIO</a> : An arduino
+          framework, used in the utility tools (create, upload, ...)</li>
+        <li>A bunch of my scripts for various taks</li>
+      </ul>
+      ParseArger is kind of my bash script template thingy, I need a script, small & dumb ? complex & several scripts ?
+      parseArger !
+      </p>
+      <h2>How do I install it ?</h2>
+      <p>
+        Guess what ? I made a script for that ;-D !
+        <code-input lang="bash"># download the script
+          curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -o
+          get_parseArger;
 
-      window.addEventListener("load", () => {
-        codeInput.registerTemplate(
-          "code-input",
-          codeInput.templates.prism(Prism, [new codeInput.plugins.Indent()])
-        );
+          # NOW READ THE DAMN THING ! DO NOT RUN UNKNOWN SCRIPTS FROM THE INTERNET !
+          cat get_parseArger;
+          # Or
+          vim get_parseArger;
+          # Or ...
+
+          # add exec permission
+          chmod +x get_parseArger;
+
+          # get command help
+          ./get_parseArger --help;
+
+          # generic install
+          ./get_parseArger --install;
+
+          # reload your shell, change rc file accordingly
+          source ~/.bashrc;
+        </code-input>
+      </p>
+      <h2>How do I use it ?</h2>
+      In all the following, I'll consider you have parseArger installed
+      <h3>Create a new script</h3>
+      <p>
+        More information for <a href="https://github.com/DimitriGilbert/parseArger#pos" target="_blank">--pos</a>,
+        <a href="https://github.com/DimitriGilbert/parseArger#opt" target="_blank">--opt</a> and
+        <a href="https://github.com/DimitriGilbert/parseArger#flag" target="_blank">--flag</a>
+        <code-input lang="bash"># output to stdout
+          parseArger generate [...]
+
+          # output to file
+          parseArger generate --output /path/to/script [...]
+
+          # add an argument
+          parseArger generate --output /path/to/script --pos 'my-argument "my argument description"'
+
+          # add an option
+          parseArger generate --output /path/to/script --opt 'my-option "my option description"'
+
+          # add an flag
+          parseArger generate --output /path/to/script --flag 'my-flag "my flag description"'
+
+          # add an argument, 2 options and a flag
+          parseArger generate --output /path/to/script \
+          --pos 'my-argument "my argument description"' \
+          --opt 'my-option "my option description"' \
+          --opt 'my-other-option "my other option description"' \
+          --flag 'my-flag "my flag description"'
+        </code-input>
+      </p>
+    </div>
+    <div id="pa-cmdform" class="pa-tab d-none">
+      <form id="parseArger">
+        <h2>parseArger form</h2>
+        <p>
+          If you are afriad of the big mean terminal window (it is so so dark, and and cursor is so....blinky)
+        </p>
+        <div class="form-group">
+          <label for="target" class="form-label">target</label>
+          <span class="input-help">what to do</span>
+          <select pa-type="pos" name="target" id="target" required class="form-select">
+
+            <option value="bulk-parse">bulk-parse</option>
+            <option value="completely">completely</option>
+            <option value="document">document</option>
+            <option value="generate">generate</option>
+            <option value="html-form">html-form</option>
+            <option value="parse">parse</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="output" class="form-label">output</label>
+          <span class="input-help">create file with command output at value</span>
+          <input class="form-control" pa-type="opt" name="output" id="output" type="text" />
+        </div>
+        <div class="form-check">
+          <label for="prepend" class="form-check-label">prepend</label>
+          <i class="input-help">add output on top of file</i>
+          <input class="form-check-input" type="checkbox" role="switch" name="prepend" id="prepend" value="prepend"
+            pa-type="flag" />
+        </div><button id="parseArger_parse_btn">Parse</button>
+        <pre id="parseArger_result"></pre>
+      </form>
+      <div id="_subcommands">
+        <h3>Subcommand forms</h3>
+        <div class="d-none subcmd-container-target" id="target_bulk-parse_container">
+          <form id="bin_bulk_parse">
+            <h2>bulk-parse form</h2>
+            <div class="form-group">
+              <label for="bump" class="form-label">bump</label>
+              <span class="input-help">new version</span>
+              <input class="form-control" pa-type="opt" name="bump" id="bump" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="file" class="form-label">file</label>
+              <span class="input-help">file to document</span>
+              <textarea pa-type="opt" name="file" id="file" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="directory" class="form-label">directory</label>
+              <span class="input-help">directory to document</span>
+              <textarea pa-type="opt" name="directory" id="directory" type="text" pa-repeat
+                class="form-control"></textarea>
+            </div>
+            <div class="form-check">
+              <label for="sub-directory" class="form-check-label">sub-directory</label>
+              <i class="input-help">document subdirectory</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="sub-directory" id="sub-directory"
+                value="sub-directory" pa-type="flag" checked />
+            </div><button id="bin_bulk_parse_parse_btn">Parse</button>
+            <pre id="bin_bulk_parse_result"></pre>
+          </form>
+          <script type="text/javascript">
+            function bin_bulk_parse_parse(__form) {
+              let bin_bulk_parse_frm = new FormData(__form);
+              let out = '';
+              for (const inp of bin_bulk_parse_frm.keys()) {
+                const ielt = document.getElementById(inp);
+                switch (ielt.getAttribute('pa-type')) {
+                  case 'pos':
+                    out += ' "' + bin_bulk_parse_frm.get(inp) + '"';
+                    break;
+                  case 'opt':
+                    if (bin_bulk_parse_frm.get(inp) !== '') {
+                      if (ielt.hasAttribute('pa-repeat')) {
+                        for (const val of bin_bulk_parse_frm.get(inp).split(`
+          `)) {
+                          out += ' --' + inp + ' "' + val + '"';
+                        }
+                      } else {
+                        out += ' --' + inp + ' ' + bin_bulk_parse_frm.get(inp);
+                      }
+                    }
+                    break;
+                  case 'flag':
+                    if (ielt.checked === true) {
+                      out += ' --' + inp;
+                    } else {
+                      out += ' --no-' + inp;
+                    }
+                    break;
+                }
+              }
+              document.getElementById('parseArger_parse_btn').dispatchEvent(new Event('click'));
+              out = document.getElementById('parseArger_result').innerHTML + out;
+
+              document.getElementById('bin_bulk_parse_result').innerHTML = out;
+            }
+            document.getElementById('bin_bulk_parse').addEventListener('submit', function (e) {
+              e.preventDefault();
+              e.target.checkValidity();
+              bin_bulk_parse_parse(e.target);
+            });
+          </script>
+        </div>
+        <div class="d-none subcmd-container-target" id="target_completely_container">
+          <form id="bin_completely">
+            <h2>completely form</h2>
+            <div class="form-group">
+              <label for="command-name" class="form-label">command-name</label>
+              <span class="input-help">command-name</span>
+              <input pa-type="pos" name="command-name" id="command-name" required type="text" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="file" class="form-label">file</label>
+              <span class="input-help">file</span>
+              <input pa-type="pos" name="file" id="file" type="text" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="pos" class="form-label">pos</label>
+              <span class="input-help">positional argument declaration</span>
+              <textarea pa-type="opt" name="pos" id="pos" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="opt" class="form-label">opt</label>
+              <span class="input-help">optional arg declaration</span>
+              <textarea pa-type="opt" name="opt" id="opt" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="flag" class="form-label">flag</label>
+              <span class="input-help">flag declaration</span>
+              <textarea pa-type="opt" name="flag" id="flag" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="set" class="form-label">set</label>
+              <span class="input-help">declare var</span>
+              <textarea pa-type="opt" name="set" id="set" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="source" class="form-label">source</label>
+              <span class="input-help">file to source</span>
+              <textarea pa-type="opt" name="source" id="source" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="help-message" class="form-label">help-message</label>
+              <span class="input-help">help message for the command</span>
+              <input class="form-control" pa-type="opt" name="help-message" id="help-message" type="text"
+                value="I send an SOS to the world" />
+            </div>
+            <div class="form-group">
+              <label for="help-option" class="form-label">help-option</label>
+              <span class="input-help">help option trigger</span>
+              <input class="form-control" pa-type="opt" name="help-option" id="help-option" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="help-short-option" class="form-label">help-short-option</label>
+              <span class="input-help">short help option</span>
+              <input class="form-control" pa-type="opt" name="help-short-option" id="help-short-option" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="leftovers-name" class="form-label">leftovers-name</label>
+              <span class="input-help">extra arguments variable name</span>
+              <input class="form-control" pa-type="opt" name="leftovers-name" id="leftovers-name" type="text"
+                value="leftovers" />
+            </div>
+            <div class="form-group">
+              <label for="version-opt-name" class="form-label">version-opt-name</label>
+              <span class="input-help">version option name</span>
+              <input class="form-control" pa-type="opt" name="version-opt-name" id="version-opt-name" type="text"
+                value="version" />
+            </div>
+            <div class="form-group">
+              <label for="version-short-option" class="form-label">version-short-option</label>
+              <span class="input-help">version short option name</span>
+              <input class="form-control" pa-type="opt" name="version-short-option" id="version-short-option"
+                type="text" value="v" />
+            </div>
+            <div class="form-group">
+              <label for="verbose-opt-name" class="form-label">verbose-opt-name</label>
+              <span class="input-help">verbose option name</span>
+              <input class="form-control" pa-type="opt" name="verbose-opt-name" id="verbose-opt-name" type="text"
+                value="verbose" />
+            </div>
+            <div class="form-group">
+              <label for="subcommand-directory" class="form-label">subcommand-directory</label>
+              <span class="input-help">directory for subcommand target</span>
+              <input class="form-control" pa-type="opt" name="subcommand-directory" id="subcommand-directory"
+                type="text" />
+            </div>
+            <div class="form-group">
+              <label for="completely-cmd" class="form-label">completely-cmd</label>
+              <span class="input-help">completely command</span>
+              <textarea pa-type="opt" name="completely-cmd" id="completely-cmd" type="text" pa-repeat
+                class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="extra-file" class="form-label">extra-file</label>
+              <span class="input-help">extra yaml declaration</span>
+              <textarea pa-type="opt" name="extra-file" id="extra-file" type="text" pa-repeat
+                class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="yaml-file" class="form-label">yaml-file</label>
+              <span class="input-help">yaml file name</span>
+              <input class="form-control" pa-type="opt" name="yaml-file" id="yaml-file" type="text"
+                value="completely.yaml" />
+            </div>
+            <div class="form-group">
+              <label for="completion-file" class="form-label">completion-file</label>
+              <span class="input-help">completion file name</span>
+              <input class="form-control" pa-type="opt" name="completion-file" id="completion-file" type="text"
+                value="completely.bash" />
+            </div>
+            <div class="form-check">
+              <label for="version-opt" class="form-check-label">version-opt</label>
+              <i class="input-help">generate version opt handling</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="version-opt" id="version-opt"
+                value="version-opt" pa-type="flag" checked />
+            </div>
+            <div class="form-check">
+              <label for="use-verbose" class="form-check-label">use-verbose</label>
+              <i class="input-help">generate verbose level parser</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="use-verbose" id="use-verbose"
+                value="use-verbose" pa-type="flag" checked />
+            </div>
+            <div class="form-check">
+              <label for="run-completely" class="form-check-label">run-completely</label>
+              <i class="input-help">run completely</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="run-completely" id="run-completely"
+                value="run-completely" pa-type="flag" checked />
+            </div><button id="bin_completely_parse_btn">Parse</button>
+            <pre id="bin_completely_result"></pre>
+          </form>
+          <script type="text/javascript">
+            function bin_completely_parse(__form) {
+              let bin_completely_frm = new FormData(__form);
+              let out = '';
+              for (const inp of bin_completely_frm.keys()) {
+                const ielt = document.getElementById(inp);
+                switch (ielt.getAttribute('pa-type')) {
+                  case 'pos':
+                    out += ' "' + bin_completely_frm.get(inp) + '"';
+                    break;
+                  case 'opt':
+                    if (bin_completely_frm.get(inp) !== '') {
+                      if (ielt.hasAttribute('pa-repeat')) {
+                        for (const val of bin_completely_frm.get(inp).split(`
+          `)) {
+                          out += ' --' + inp + ' "' + val + '"';
+                        }
+                      } else {
+                        out += ' --' + inp + ' ' + bin_completely_frm.get(inp);
+                      }
+                    }
+                    break;
+                  case 'flag':
+                    if (ielt.checked === true) {
+                      out += ' --' + inp;
+                    } else {
+                      out += ' --no-' + inp;
+                    }
+                    break;
+                }
+              }
+              document.getElementById('parseArger_parse_btn').dispatchEvent(new Event('click'));
+              out = document.getElementById('parseArger_result').innerHTML + out;
+
+              document.getElementById('bin_completely_result').innerHTML = out;
+            }
+            document.getElementById('bin_completely').addEventListener('submit', function (e) {
+              e.preventDefault();
+              e.target.checkValidity();
+              bin_completely_parse(e.target);
+            });
+          </script>
+        </div>
+        <div class="d-none subcmd-container-target" id="target_document_container">
+          <form id="bin_document">
+            <h2>document form</h2>
+            <div class="form-group">
+              <label for="file" class="form-label">file</label>
+              <span class="input-help">file to document</span>
+              <textarea pa-type="opt" name="file" id="file" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="directory" class="form-label">directory</label>
+              <span class="input-help">directory to document</span>
+              <textarea pa-type="opt" name="directory" id="directory" type="text" pa-repeat
+                class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="out" class="form-label">out</label>
+              <span class="input-help">output file</span>
+              <input class="form-control" pa-type="opt" name="out" id="out" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="tag" class="form-label">tag</label>
+              <span class="input-help">markdown tag for title</span>
+              <input class="form-control" pa-type="opt" name="tag" id="tag" type="text" value="##" />
+            </div>
+            <div class="form-group">
+              <label for="next-tag-prepend" class="form-label">next-tag-prepend</label>
+              <span class="input-help">prepend to next title tag level</span>
+              <input class="form-control" pa-type="opt" name="next-tag-prepend" id="next-tag-prepend" type="text"
+                value="#" />
+            </div>
+            <div class="form-group">
+              <label for="title" class="form-label">title</label>
+              <span class="input-help">documentation title</span>
+              <input class="form-control" pa-type="opt" name="title" id="title" type="text" value="Usage" />
+            </div>
+            <div class="form-group">
+              <label for="title-tag" class="form-label">title-tag</label>
+              <span class="input-help">documentation title tag</span>
+              <input class="form-control" pa-type="opt" name="title-tag" id="title-tag" type="text" value="#" />
+            </div>
+            <div class="form-check">
+              <label for="sub-directory" class="form-check-label">sub-directory</label>
+              <i class="input-help">document subdirectory</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="sub-directory" id="sub-directory"
+                value="sub-directory" pa-type="flag" checked />
+            </div>
+            <div class="form-check">
+              <label for="append-output" class="form-check-label">append-output</label>
+              <i class="input-help">add to output file if it exists</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="append-output" id="append-output"
+                value="append-output" pa-type="flag" checked />
+            </div><button id="bin_document_parse_btn">Parse</button>
+            <pre id="bin_document_result"></pre>
+          </form>
+          <script type="text/javascript">
+            function bin_document_parse(__form) {
+              let bin_document_frm = new FormData(__form);
+              let out = '';
+              for (const inp of bin_document_frm.keys()) {
+                const ielt = document.getElementById(inp);
+                switch (ielt.getAttribute('pa-type')) {
+                  case 'pos':
+                    out += ' "' + bin_document_frm.get(inp) + '"';
+                    break;
+                  case 'opt':
+                    if (bin_document_frm.get(inp) !== '') {
+                      if (ielt.hasAttribute('pa-repeat')) {
+                        for (const val of bin_document_frm.get(inp).split(`
+          `)) {
+                          out += ' --' + inp + ' "' + val + '"';
+                        }
+                      } else {
+                        out += ' --' + inp + ' ' + bin_document_frm.get(inp);
+                      }
+                    }
+                    break;
+                  case 'flag':
+                    if (ielt.checked === true) {
+                      out += ' --' + inp;
+                    } else {
+                      out += ' --no-' + inp;
+                    }
+                    break;
+                }
+              }
+              document.getElementById('parseArger_parse_btn').dispatchEvent(new Event('click'));
+              out = document.getElementById('parseArger_result').innerHTML + out;
+
+              document.getElementById('bin_document_result').innerHTML = out;
+            }
+            document.getElementById('bin_document').addEventListener('submit', function (e) {
+              e.preventDefault();
+              e.target.checkValidity();
+              bin_document_parse(e.target);
+            });
+          </script>
+        </div>
+        <div class="d-none subcmd-container-target" id="target_generate_container">
+          <form id="bin_generate">
+            <h2>generate form</h2>
+            <div class="form-group">
+              <label for="pos" class="form-label">pos</label>
+              <span class="input-help">positional argument declaration</span>
+              <textarea pa-type="opt" name="pos" id="pos" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="opt" class="form-label">opt</label>
+              <span class="input-help">optional arg declaration</span>
+              <textarea pa-type="opt" name="opt" id="opt" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="flag" class="form-label">flag</label>
+              <span class="input-help">flag declaration</span>
+              <textarea pa-type="opt" name="flag" id="flag" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="set" class="form-label">set</label>
+              <span class="input-help">declare var</span>
+              <textarea pa-type="opt" name="set" id="set" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="source" class="form-label">source</label>
+              <span class="input-help">file to source</span>
+              <textarea pa-type="opt" name="source" id="source" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="help-message" class="form-label">help-message</label>
+              <span class="input-help">help message for the command</span>
+              <input class="form-control" pa-type="opt" name="help-message" id="help-message" type="text"
+                value="I send an SOS to the world" />
+            </div>
+            <div class="form-group">
+              <label for="help-option" class="form-label">help-option</label>
+              <span class="input-help">help option trigger</span>
+              <input class="form-control" pa-type="opt" name="help-option" id="help-option" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="help-short-option" class="form-label">help-short-option</label>
+              <span class="input-help">short help option</span>
+              <input class="form-control" pa-type="opt" name="help-short-option" id="help-short-option" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="leftovers-name" class="form-label">leftovers-name</label>
+              <span class="input-help">extra arguments variable name</span>
+              <input class="form-control" pa-type="opt" name="leftovers-name" id="leftovers-name" type="text"
+                value="leftovers" />
+            </div>
+            <div class="form-group">
+              <label for="use-shebang" class="form-label">use-shebang</label>
+              <span class="input-help">shebang executable</span>
+              <input class="form-control" pa-type="opt" name="use-shebang" id="use-shebang" type="text"
+                value="/bin/bash" />
+            </div>
+            <div class="form-group">
+              <label for="set-version" class="form-label">set-version</label>
+              <span class="input-help">set version number</span>
+              <input class="form-control" pa-type="opt" name="set-version" id="set-version" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="version-opt-name" class="form-label">version-opt-name</label>
+              <span class="input-help">version option name</span>
+              <input class="form-control" pa-type="opt" name="version-opt-name" id="version-opt-name" type="text"
+                value="version" />
+            </div>
+            <div class="form-group">
+              <label for="version-short-option" class="form-label">version-short-option</label>
+              <span class="input-help">version short option name</span>
+              <input class="form-control" pa-type="opt" name="version-short-option" id="version-short-option"
+                type="text" value="v" />
+            </div>
+            <div class="form-group">
+              <label for="die-fn-name" class="form-label">die-fn-name</label>
+              <span class="input-help">die function name</span>
+              <input class="form-control" pa-type="opt" name="die-fn-name" id="die-fn-name" type="text" value="die" />
+            </div>
+            <div class="form-group">
+              <label for="log-fn-name" class="form-label">log-fn-name</label>
+              <span class="input-help">log function name</span>
+              <input class="form-control" pa-type="opt" name="log-fn-name" id="log-fn-name" type="text" value="log" />
+            </div>
+            <div class="form-group">
+              <label for="verbose-opt-name" class="form-label">verbose-opt-name</label>
+              <span class="input-help">verbose option name</span>
+              <input class="form-control" pa-type="opt" name="verbose-opt-name" id="verbose-opt-name" type="text"
+                value="verbose" />
+            </div>
+            <div class="form-group">
+              <label for="verbose-level" class="form-label">verbose-level</label>
+              <span class="input-help">default verbose level</span>
+              <input class="form-control" pa-type="opt" name="verbose-level" id="verbose-level" type="text" value="0" />
+            </div>
+            <div class="form-check">
+              <label for="leftovers" class="form-check-label">leftovers</label>
+              <i class="input-help">accept extra arguments</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="leftovers" id="leftovers"
+                value="leftovers" pa-type="flag" />
+            </div>
+            <div class="form-check">
+              <label for="bang" class="form-check-label">bang</label>
+              <i class="input-help">include shebang</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="bang" id="bang" value="bang"
+                pa-type="flag" checked />
+            </div>
+            <div class="form-check">
+              <label for="version-opt" class="form-check-label">version-opt</label>
+              <i class="input-help">generate version opt handling</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="version-opt" id="version-opt"
+                value="version-opt" pa-type="flag" checked />
+            </div>
+            <div class="form-check">
+              <label for="use-verbose" class="form-check-label">use-verbose</label>
+              <i class="input-help">generate verbose level parser</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="use-verbose" id="use-verbose"
+                value="use-verbose" pa-type="flag" checked />
+            </div><button id="bin_generate_parse_btn">Parse</button>
+            <pre id="bin_generate_result"></pre>
+          </form>
+          <script type="text/javascript">
+            function bin_generate_parse(__form) {
+              let bin_generate_frm = new FormData(__form);
+              let out = '';
+              for (const inp of bin_generate_frm.keys()) {
+                const ielt = document.getElementById(inp);
+                switch (ielt.getAttribute('pa-type')) {
+                  case 'pos':
+                    out += ' "' + bin_generate_frm.get(inp) + '"';
+                    break;
+                  case 'opt':
+                    if (bin_generate_frm.get(inp) !== '') {
+                      if (ielt.hasAttribute('pa-repeat')) {
+                        for (const val of bin_generate_frm.get(inp).split(`
+          `)) {
+                          out += ' --' + inp + ' "' + val + '"';
+                        }
+                      } else {
+                        out += ' --' + inp + ' ' + bin_generate_frm.get(inp);
+                      }
+                    }
+                    break;
+                  case 'flag':
+                    if (ielt.checked === true) {
+                      out += ' --' + inp;
+                    } else {
+                      out += ' --no-' + inp;
+                    }
+                    break;
+                }
+              }
+              document.getElementById('parseArger_parse_btn').dispatchEvent(new Event('click'));
+              out = document.getElementById('parseArger_result').innerHTML + out;
+
+              document.getElementById('bin_generate_result').innerHTML = out;
+            }
+            document.getElementById('bin_generate').addEventListener('submit', function (e) {
+              e.preventDefault();
+              e.target.checkValidity();
+              bin_generate_parse(e.target);
+            });
+          </script>
+        </div>
+        <div class="d-none subcmd-container-target" id="target_html-form_container">
+          <form id="bin_html_form">
+            <h2>html-form form</h2>
+            <div class="form-group">
+              <label for="file" class="form-label">file</label>
+              <span class="input-help">file to process</span>
+              <input pa-type="pos" name="file" id="file" required type="text" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="command" class="form-label">command</label>
+              <span class="input-help">command string, default to file </span>
+              <input class="form-control" pa-type="opt" name="command" id="command" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="action" class="form-label">action</label>
+              <span class="input-help">form action</span>
+              <input class="form-control" pa-type="opt" name="action" id="action" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="form-class" class="form-label">form-class</label>
+              <span class="input-help">form html class</span>
+              <input class="form-control" pa-type="opt" name="form-class" id="form-class" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="input-container-class" class="form-label">input-container-class</label>
+              <span class="input-help">input container class</span>
+              <input class="form-control" pa-type="opt" name="input-container-class" id="input-container-class"
+                type="text" value="form-group" />
+            </div>
+            <div class="form-group">
+              <label for="input-class" class="form-label">input-class</label>
+              <span class="input-help">input class</span>
+              <input class="form-control" pa-type="opt" name="input-class" id="input-class" type="text"
+                value="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="label-class" class="form-label">label-class</label>
+              <span class="input-help">label class</span>
+              <input class="form-control" pa-type="opt" name="label-class" id="label-class" type="text"
+                value="form-label" />
+            </div>
+            <div class="form-group">
+              <label for="select-class" class="form-label">select-class</label>
+              <span class="input-help">select class</span>
+              <input class="form-control" pa-type="opt" name="select-class" id="select-class" type="text"
+                value="form-select" />
+            </div>
+            <div class="form-group">
+              <label for="checkbox-container-class" class="form-label">checkbox-container-class</label>
+              <span class="input-help">checkbox and radio class</span>
+              <input class="form-control" pa-type="opt" name="checkbox-container-class" id="checkbox-container-class"
+                type="text" value="form-check" />
+            </div>
+            <div class="form-group">
+              <label for="checkbox-class" class="form-label">checkbox-class</label>
+              <span class="input-help">checkbox and radio class</span>
+              <input class="form-control" pa-type="opt" name="checkbox-class" id="checkbox-class" type="text"
+                value="form-check-input" />
+            </div>
+            <div class="form-group">
+              <label for="checkbox-label-class" class="form-label">checkbox-label-class</label>
+              <span class="input-help">checkbox and radio label class</span>
+              <input class="form-control" pa-type="opt" name="checkbox-label-class" id="checkbox-label-class"
+                type="text" value="form-check-label" />
+            </div>
+            <div class="form-group">
+              <label for="parent-form" class="form-label">parent-form</label>
+              <span class="input-help">parent form for result</span>
+              <input class="form-control" pa-type="opt" name="parent-form" id="parent-form" type="text" />
+            </div>
+            <div class="form-check">
+              <label for="form" class="form-check-label">form</label>
+              <i class="input-help">display form</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="form" id="form" value="form"
+                pa-type="flag" checked />
+            </div>
+            <div class="form-check">
+              <label for="button" class="form-check-label">button</label>
+              <i class="input-help">display button</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="button" id="button" value="button"
+                pa-type="flag" checked />
+            </div>
+            <div class="form-check">
+              <label for="js" class="form-check-label">js</label>
+              <i class="input-help">create javascript, --no-js forces --no-result</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="js" id="js" value="js" pa-type="flag"
+                checked />
+            </div>
+            <div class="form-check">
+              <label for="result" class="form-check-label">result</label>
+              <i class="input-help">display result</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="result" id="result" value="result"
+                pa-type="flag" checked />
+            </div><button id="bin_html_form_parse_btn">Parse</button>
+            <pre id="bin_html_form_result"></pre>
+          </form>
+          <script type="text/javascript">
+            function bin_html_form_parse(__form) {
+              let bin_html_form_frm = new FormData(__form);
+              let out = '';
+              for (const inp of bin_html_form_frm.keys()) {
+                const ielt = document.getElementById(inp);
+                switch (ielt.getAttribute('pa-type')) {
+                  case 'pos':
+                    out += ' "' + bin_html_form_frm.get(inp) + '"';
+                    break;
+                  case 'opt':
+                    if (bin_html_form_frm.get(inp) !== '') {
+                      if (ielt.hasAttribute('pa-repeat')) {
+                        for (const val of bin_html_form_frm.get(inp).split(`
+          `)) {
+                          out += ' --' + inp + ' "' + val + '"';
+                        }
+                      } else {
+                        out += ' --' + inp + ' ' + bin_html_form_frm.get(inp);
+                      }
+                    }
+                    break;
+                  case 'flag':
+                    if (ielt.checked === true) {
+                      out += ' --' + inp;
+                    } else {
+                      out += ' --no-' + inp;
+                    }
+                    break;
+                }
+              }
+              document.getElementById('parseArger_parse_btn').dispatchEvent(new Event('click'));
+              out = document.getElementById('parseArger_result').innerHTML + out;
+
+              document.getElementById('bin_html_form_result').innerHTML = out;
+            }
+            document.getElementById('bin_html_form').addEventListener('submit', function (e) {
+              e.preventDefault();
+              e.target.checkValidity();
+              bin_html_form_parse(e.target);
+            });
+          </script>
+        </div>
+        <div class="d-none subcmd-container-target" id="target_parse_container">
+          <form id="bin_parse">
+            <h2>parse form</h2>
+            <div class="form-group">
+              <label for="file" class="form-label">file</label>
+              <span class="input-help">file to parse</span>
+              <input pa-type="pos" name="file" id="file" required type="text" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="pos" class="form-label">pos</label>
+              <span class="input-help">add positional argument declaration</span>
+              <textarea pa-type="opt" name="pos" id="pos" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="opt" class="form-label">opt</label>
+              <span class="input-help">add optional arg declaration</span>
+              <textarea pa-type="opt" name="opt" id="opt" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="flag" class="form-label">flag</label>
+              <span class="input-help">add flag declaration</span>
+              <textarea pa-type="opt" name="flag" id="flag" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="set" class="form-label">set</label>
+              <span class="input-help">add declare var</span>
+              <textarea pa-type="opt" name="set" id="set" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="source" class="form-label">source</label>
+              <span class="input-help">add file to source</span>
+              <textarea pa-type="opt" name="source" id="source" type="text" pa-repeat class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="set-version" class="form-label">set-version</label>
+              <span class="input-help">set version</span>
+              <input class="form-control" pa-type="opt" name="set-version" id="set-version" type="text" />
+            </div>
+            <div class="form-check">
+              <label for="inplace" class="form-check-label">inplace</label>
+              <i class="input-help">replace parseArger generated content in place</i>
+              <input class="form-check-input" type="checkbox" role="switch" name="inplace" id="inplace" value="inplace"
+                pa-type="flag" />
+            </div><button id="bin_parse_parse_btn">Parse</button>
+            <pre id="bin_parse_result"></pre>
+          </form>
+          <script type="text/javascript">
+            function bin_parse_parse(__form) {
+              let bin_parse_frm = new FormData(__form);
+              let out = '';
+              for (const inp of bin_parse_frm.keys()) {
+                const ielt = document.getElementById(inp);
+                switch (ielt.getAttribute('pa-type')) {
+                  case 'pos':
+                    out += ' "' + bin_parse_frm.get(inp) + '"';
+                    break;
+                  case 'opt':
+                    if (bin_parse_frm.get(inp) !== '') {
+                      if (ielt.hasAttribute('pa-repeat')) {
+                        for (const val of bin_parse_frm.get(inp).split(`
+          `)) {
+                          out += ' --' + inp + ' "' + val + '"';
+                        }
+                      } else {
+                        out += ' --' + inp + ' ' + bin_parse_frm.get(inp);
+                      }
+                    }
+                    break;
+                  case 'flag':
+                    if (ielt.checked === true) {
+                      out += ' --' + inp;
+                    } else {
+                      out += ' --no-' + inp;
+                    }
+                    break;
+                }
+              }
+              document.getElementById('parseArger_parse_btn').dispatchEvent(new Event('click'));
+              out = document.getElementById('parseArger_result').innerHTML + out;
+
+              document.getElementById('bin_parse_result').innerHTML = out;
+            }
+            document.getElementById('bin_parse').addEventListener('submit', function (e) {
+              e.preventDefault();
+              e.target.checkValidity();
+              bin_parse_parse(e.target);
+            });
+          </script>
+        </div>
+        <script>
+          document.getElementById("target").addEventListener("change", function () {
+            var val = this.value;
+            document.querySelectorAll(".subcmd-container-target").forEach(function (el) {
+              el.classList.add("d-none");
+            });
+            var subcmd = document.getElementById("target_" + val + "_container").classList.remove("d-none");
+          });
+        </script>
+      </div>
+    </div>
+    <script type="text/javascript">
+      function parseArger_parse(__form) {
+        let parseArger_frm = new FormData(__form);
+        let out = 'parseArger';
+        for (const inp of parseArger_frm.keys()) {
+          const ielt = document.getElementById(inp);
+          switch (ielt.getAttribute('pa-type')) {
+            case 'pos':
+              out += ' "' + parseArger_frm.get(inp) + '"';
+              break;
+            case 'opt':
+              if (parseArger_frm.get(inp) !== '') {
+                if (ielt.hasAttribute('pa-repeat')) {
+                  for (const val of parseArger_frm.get(inp).split(`
+          `)) {
+                    out += ' --' + inp + ' "' + val + '"';
+                  }
+                } else {
+                  out += ' --' + inp + ' ' + parseArger_frm.get(inp);
+                }
+              }
+              break;
+            case 'flag':
+              if (ielt.checked === true) {
+                out += ' --' + inp;
+              } else {
+                out += ' --no-' + inp;
+              }
+              break;
+          }
+        }
+        document.getElementById('parseArger_result').innerHTML = out;
+      }
+      document.getElementById('parseArger').addEventListener('submit', function (e) {
+        e.preventDefault();
+        e.target.checkValidity();
+        parseArger_parse(e.target);
       });
     </script>
-    <!-- bootstrap -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-      crossorigin="anonymous"
-    ></script>
-    <!-- code-input -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/code-input.min.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/plugins/indent.js"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+
+  </div>
+  </div>
+  <script>
+    function navTo(where) {
+      document.querySelectorAll(".nav-link").forEach((el) => {
+        el.classList.remove("active");
+      });
+      document.querySelector("#nav-" + where).classList.add("active");
+      document.querySelectorAll(".pa-tab").forEach((el) => {
+        el.classList.add("d-none");
+      });
+      document
+        .querySelector("#pa-" + where)
+        .classList.remove("d-none");
+    }
+  </script>
+  <script id="js-init">
+
+    window.addEventListener("load", () => {
+      codeInput.registerTemplate(
+        "code-input",
+        codeInput.templates.prism(Prism, [new codeInput.plugins.Indent()])
+      );
+    });
+  </script>
+  <!-- bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"></script>
+  <!-- code-input -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/code-input.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/gh/WebCoder49/code-input@1.5.1/plugins/indent.js"
+    crossorigin="anonymous"></script>
+</body>
+
 </html>
