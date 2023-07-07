@@ -5,7 +5,6 @@ parseArger:
 - generate
 - html-form
 - parse
-- bulk-parse
 - --output
 - --prepend
 - --no-prepend
@@ -181,23 +180,6 @@ parseArger parse:
 - --inplace
 - --no-inplace
 - -i
-parseArger bulk-parse:
-- --bump
-- --file
-- -f
-- --directory
-- --folder
-- -d
-- --sub-directory
-- --no-sub-directory
-
-parseArger bulk-parse*--file:
-- <file>
-parseArger bulk-parse*--directory:
-- <directory>
-
-parseArger bulk-parse*--folder:
-- <directory>
 parseArger*--output:
 - <file>
 
