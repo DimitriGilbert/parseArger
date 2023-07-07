@@ -9,6 +9,7 @@
 # @parseArger flag install "install in bashrc" --short i
 # @parseArger flag remove-installer "remove install script itself" --alias rm
 # @parseArger flag ssh "clone using ssh"
+# @parseArger flag zip "install using zip archive, not recommended"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -43,6 +44,7 @@ _arg_install_file=()
 _arg_install="off"
 _arg_remove_installer="off"
 _arg_ssh="off"
+_arg_zip="off"
 _verbose_level="0";
 
 
@@ -61,8 +63,9 @@ print_help()
 	echo -e "	--remove-installer|--no-remove-installer: remove install script itself
 		aliases: --rm,"
 	echo -e "	--ssh|--no-ssh: clone using ssh"
+	echo -e "	--zip|--no-zip: install using zip archive, not recommended"
 	echo -e "Usage :
-	$0 [--branch <value>] [--install-directory <value>] [--install-file <value>] [--[no-]install] [--[no-]remove-installer] [--[no-]ssh]";
+	$0 [--branch <value>] [--install-directory <value>] [--install-file <value>] [--[no-]install] [--[no-]remove-installer] [--[no-]ssh] [--[no-]zip]";
 	fi
 
 }
@@ -159,6 +162,12 @@ parse_commandline()
 			--no-ssh)
 				_arg_ssh="off"
 				;;
+			--zip)
+				_arg_zip="on"
+				;;
+			--no-zip)
+				_arg_zip="off"
+				;;
 			-h|--help)
 				print_help;
 				exit 0;
@@ -233,6 +242,7 @@ print_debug()
 	echo -e "\tinstall: ${_arg_install}";
 	echo -e "\tremove-installer: ${_arg_remove_installer}";
 	echo -e "\tssh: ${_arg_ssh}";
+	echo -e "\tzip: ${_arg_zip}";
 
 }
 
@@ -257,7 +267,7 @@ trap on_interrupt INT;
 # @parseArger-end
 ecmd=();
 mcmd=(chmod "+x" "-R");
-if [ "$(command -v git)" ]; then
+if [ "$_arg_zip" != "on" ] && [ "$(command -v git)" ]; then
 	ecmd+=(git clone);
 
 	if [ "$_arg_ssh" == "on" ]; then
@@ -277,11 +287,37 @@ if [ "$(command -v git)" ]; then
 		mcmd+=("parseArger/parseArger" "parseArger/utils" "parseArger/bin");
 	fi
 else
-	die "git is not installed" -3;
+	if [ "$_arg_branch" == "" ]; then
+		_arg_branch="main";
+	fi
+	_arg_zip="on";
+	log "Install using zip, it is not recommended" -1;
+	ecmd+=(curl "https://github.com/DimitriGilbert/parseArger/archive/refs/heads/${_arg_branch}.zip" -LJO);
+	zcmd=(unzip -qq);
+	zcmd2=(mv);
+
+	if [ "$_arg_install_directory" != "" ]; then
+		zcmd+=(-d "/tmp");
+		mcmd+=("$_arg_install_directory/parseArger" "$_arg_install_directory/utils" "$_arg_install_directory/bin");
+		zcmd2+=("/tmp/parseArger-${_arg_branch}" "$_arg_install_directory");
+	else
+		mcmd+=("parseArger/parseArger" "parseArger/utils" "parseArger/bin");
+		zcmd2+=("parseArger-${_arg_branch}" "parseArger");
+	fi
+	zcmd+=( "parseArger-${_arg_branch}.zip" );
 fi
 
 log "${ecmd[*]}" 1;
 "${ecmd[@]}"
+
+if [ "$_arg_zip" == "on" ]; then
+	log "${zcmd[*]}" 1;
+	"${zcmd[@]}";
+	log "${zcmd2[*]}" 1;
+	"${zcmd2[@]}";
+	rm "parseArger-${_arg_branch}.zip";
+fi
+
 log "${mcmd[*]}" 1;
 "${mcmd[@]}"
 
