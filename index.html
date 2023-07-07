@@ -21,6 +21,9 @@
       form > pre {
         font-size: 1.2rem !important;
       }
+      .pa-answer {
+        margin-bottom: 2rem;
+      }
     </style>
   <title>ParseArger</title>
 </head>
@@ -44,6 +47,9 @@
     <div id="pa-about" class="pa-tab">
       <h2>What is ParseArger ?</h2>
       <p>
+      </p>
+      <div class="row justify-content-between pa-answer">
+        <div class="col-8">
         ParseArger is a bash library that generate standalone argument parsing, in bash.<br />
         It uses itself to parse it's own arguments, and generate the output.<br />
         It generates :
@@ -53,42 +59,66 @@
         <li>bash completion script (a good dev is a lazy dev)</li>
         <li>An html form (to help teach people that command line applications, are faster.)</li>
       </ul>
-      </p>
-      <h2>Cool, but why ?</h2>
-      <p>
-        Ever wanted to clean-up some cool script you created by adding arguments, options and flags ?<br />
-        Maybe Boss wants a magic script that does, yesterday, with a smile ! And guess what ? You got stuck with creating it, or even
-        worse, maintaining <span
-          aria-label="Jean-Michel's code, now that is retired, moved half way across the globe and told you all to ">it</span><br />
-        Have you looked at the nightmare of bash option parsing ? I did, and I just wanted to burn my computer at the
-        idea of so much boilerplate !<br />
-        And what about cli completion ? And documentation ? wanna maintain that, eh ?<br />
-        Yeah, me neither, so I created this, ParseArger !
-      </p>
-      <h2>And nothing does that already ?</h2>
-      <p>
-        Yes, Yes there are existing stuff, but the neighbor's wheel is not round enough to my taste !<br />
-        parseArger is based off of <a target="_blank" href="https://github.com/matejak/argbash">Argbash</a> output, but
-        I wanted a few more things, and, I didn't understand how it worked...<br />
-        If you have bigger and more complex project, you should have a look at <a target="_blank"
-          href="https://github.com/DannyBen/bashly">Bashly</a>,
-        I use <a target="_blank" href="https://github.com/DannyBen/completely">Completely</a> (part of Bashly) to
-        generate the bash completion code, but I wanted the main code to be generated in bash, not ruby<br />
-      </p>
-      <h2>It's gonna be one of those nerd tools, eh ?</h2>
-      <p>
-        Weeeelll, dude, You use it to create command line programs in bash..., if you are afraid of the command line, you
-        ain't gonna have a good day that's for sure.<br />
-        If not, this is just another command line program ;) <br />
-        As it is built using itself, every command is documented using the `--help` flag, you have bash completion
-        available, and you can find all information concerning arguments and options in
-        the <a target="_blank" href="https://github.com/DimitriGilbert/parseArger/blob/main/readme.md">readme</a>
-        and <a target="_blank"
-          href="https://github.com/DimitriGilbert/parseArger/blob/main/documentation.md">documentation</a>.
-      </p>
-      <h2>And whose using it ?</h2>
-      <p>
-        Heuuum, me, but in several projects of mine :
+        </div>
+        <div class="col-3">
+          <img src="https://media.tenor.com/h7pTjqI3gskAAAAM/wow-hillary-clinton.gif" alt="You made this, I made this" class="img-fluid">
+          <a href="https://tenor.com/view/wow-hillary-clinton-amused-gif-5925072" target="_blank" rel="noopener noreferrer">Source</a>
+        </div>
+      </div> 
+      <h2 class="pa-question">Cool, but why ?</h2>
+      <div class="row justify-content-between pa-answer">
+        <div class="col-8">
+          Ever wanted to clean-up some cool script you created by adding arguments, options and flags ?<br />
+          Maybe Boss wants a magic script that does, yesterday, with a smile ! And guess what ? You got stuck with creating it, or even
+          worse, maintaining <span
+            aria-label="Jean-Michel's code, now that is retired, moved half way across the globe and told you all to ">it</span><br />
+          Have you looked at the nightmare of bash option parsing ? I did, and I just wanted to burn my computer at the
+          idea of so much boilerplate !<br />
+          And what about cli completion ? And documentation ? wanna maintain that, eh ?<br />
+          Yeah, me neither, so I created this, ParseArger !
+        </div>
+        <div class="col-3">
+          <img src="https://media.tenor.com/ou8FHfIO7EAAAAAM/nacho-libre.gif" alt="but...why ?" class="img-fluid" />
+          <a href="https://tenor.com/view/nacho-libre-why-but-gif-23595404" target="_blank" rel="noopener noreferrer">Source</a>
+        </div>
+      </div>
+      <h2 class="pa-question">And nothing does that already ?</h2>
+      <div class="row justify-content-between pa-answer">
+        <div class="col-8">
+          Yes, Yes there are existing stuff, but the neighbor's wheel is not round enough to my taste !<br />
+          parseArger is based off of <a target="_blank" href="https://github.com/matejak/argbash">Argbash</a> output, but
+          I wanted a few more things, and, I didn't understand how it worked...<br />
+          If you have bigger and more complex project, you should have a look at <a target="_blank"
+            href="https://github.com/DannyBen/bashly">Bashly</a>,
+          I use <a target="_blank" href="https://github.com/DannyBen/completely">Completely</a> (part of Bashly) to
+          generate the bash completion code, but I wanted the main code to be generated in bash, not ruby<br />
+        </div>
+        <div class="col-3">
+          <img src="https://64.media.tumblr.com/981b9455b35ca551cbfd2227110b9da2/tumblr_mhgcs6PtMw1qgbu2uo1_1280.pnj" alt="You made this, I made this" class="img-fluid">
+          <a href="https://nedroidcomics.tumblr.com/post/41879001445/the-internet" target="_blank" rel="noopener noreferrer">Source</a>
+        </div>        
+      </div>
+      <h2 class="pa-question">It's gonna be one of those nerd tools, eh ?</h2>
+      <div class="row justify-content-between pa-answer">
+        <div class="col-8">
+          Weeeelll, dude, You use it to create command line programs in bash..., if you are afraid of the command line, you
+          ain't gonna have a good day that's for sure.<br />
+          If not, this is just another command line program ;) <br />
+          As it is built using itself, every command is documented using the `--help` flag, you have bash completion
+          available, and you can find all information concerning arguments and options in
+          the <a target="_blank" href="https://github.com/DimitriGilbert/parseArger/blob/main/readme.md">readme</a>
+          and <a target="_blank"
+            href="https://github.com/DimitriGilbert/parseArger/blob/main/documentation.md">documentation</a>.
+        </div>
+        <div class="col-3">
+          <img src="https://i.imgflip.com/15c33.jpg" alt="You made this, I made this" class="img-fluid">
+          <a href="https://imgflip.com/memetemplate/1928559/computer-nerd" target="_blank" rel="noopener noreferrer">Source</a>
+        </div>
+      </div> 
+      <h2 class="pa-question">And whose using it ?</h2>
+      <div class="row justify-content-between pa-answer">
+        <div class="col-8">
+          Heuuum, me, but in several projects of mine :
       <ul>
         <li><a target="_blank" href="https://github.com/DimitriGilbert/parseArger">itself</a></li>
         <li><a target="_blank" href="https://github.com/DimitriGilbert/sshm0">sshm0</a> : An terminal based ssh server
@@ -100,7 +130,12 @@
       ParseArger is kind of my bash script template thingy, I need a script, small & dumb ? complex & several scripts ?
       parseArger !<br />
       If you would like me to showcase your project, feel free to open an <a href="https://github.com/DimitriGilbert/parseArger/issues" target="_blank" rel="noopener noreferrer">issue</a>, I'll be happy to add it here !
-      </p>
+        </div>
+        <div class="col-3">
+          <img src="https://i.imgflip.com/ccv2l.jpg" alt="You made this, I made this" class="img-fluid">
+          <a href="https://imgflip.com/memetemplate/20755533/The-Office-Jim-This-Guy" target="_blank" rel="noopener noreferrer">Source</a>
+        </div>
+      </div>
       <h2>How do I install it ?</h2>
       <p>
         Guess what ? I made a script for that ;-D !
