@@ -64,6 +64,10 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
       ;;
 
+    'project'*'--directory')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
+      ;;
+
     'bulk-parse'*'--file')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
       ;;
@@ -78,6 +82,14 @@ _parseArger_completions() {
 
     'document'*'--out')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
+      ;;
+
+    'project'*'--dir')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
+      ;;
+
+    'project'*'--cp')
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -A directory -- "$cur" )
       ;;
 
     'bulk-parse'*)
@@ -104,12 +116,16 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
       ;;
 
+    'project'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--description --project-help --directory --dir -d --subcommand-dir --subcommand-directory --subcommand --completely --document --html-form --cp --readme --no-readme --git --no-git")" -- "$cur" )
+      ;;
+
     'parse'*)
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --set-version --inplace --no-inplace -i")" -- "$cur" )
       ;;
 
     *)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "bulk-parse completely document generate html-form parse bulk-parse --output --prepend --no-prepend")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "bulk-parse completely document generate html-form parse project --output --prepend --no-prepend")" -- "$cur" )
       ;;
 
   esac

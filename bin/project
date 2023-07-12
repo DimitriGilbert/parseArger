@@ -1,0 +1,466 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "generate or parse a project" --option "help" --short-option "h"
+# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-leftovers leftovers
+# @parseArger-declarations
+# @parseArger pos name "project name"
+# @parseArger opt description "project description" --alias project-help
+# @parseArger opt directory "output directory, ./<project_name> by default" --short d --alias dir --complete "directory"
+# @parseArger opt subcommand-dir "subcommand script directory" --default-value "bin" --alias subcommand-directory
+# @parseArger opt subcommand "project subcommand, forces has-subcommand" --repeat
+# @parseArger opt completely "generate bash completion, filename (.yaml and .bash) if value is specified"
+# @parseArger opt document "generate documentation, filename (.md) if value is specified"
+# @parseArger opt html-form "generate html-form, filename (.html) if value is specified"
+# @parseArger opt cp "file or directory to copy to the project directory" --repeat --complete "file" --complete "directory"
+# @parseArger flag readme "create a basic readme" --on
+# @parseArger flag git "git init" --on
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_arg_name="";
+# OPTIONALS ARGUMENTS
+_arg_description=
+_arg_directory=
+_arg_subcommand_dir="bin"
+_arg_subcommand=()
+_arg_completely=
+_arg_document=
+_arg_html_form=
+_arg_cp=()
+# FLAGS
+_arg_readme="on"
+_arg_git="on"
+# LEFTOVERS
+_arg_leftovers=()
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "generate or parse a project:"
+	echo -e "	name: project name"
+	echo -e "	--description|--project-help <description>: project description"
+	echo -e "	-d, --directory|--dir <directory>: output directory, ./<project_name> by default"
+	echo -e "	--subcommand-dir|--subcommand-directory <subcommand-dir>: subcommand script directory [default: ' bin ']"
+	echo -e "	--subcommand <subcommand>: project subcommand, forces has-subcommand, repeatable"
+	echo -e "	--completely <completely>: generate bash completion, filename (.yaml and .bash) if value is specified, can be empty"
+	echo -e "	--document <document>: generate documentation, filename (.md) if value is specified, can be empty"
+	echo -e "	--html-form <html-form>: generate html-form, filename (.html) if value is specified, can be empty"
+	echo -e "	--cp <cp>: file or directory to copy to the project directory, repeatable"
+	echo -e "	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)"
+	echo -e "	--git|--no-git: git init, on by default (use --no-git to turn it off)"
+	echo -e "Usage :
+	$0 <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--[no-]readme] [--[no-]git]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			--project-help|--description)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_description="$2"
+				shift
+				;;
+			--description=*)
+				_arg_description="${_key##--description=}"
+				;;
+			--project-help=*)
+				_arg_description="${_key##--project-help=}"
+				;;
+			
+			-d|--dir|--directory)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_directory="$2"
+				shift
+				;;
+			--directory=*)
+				_arg_directory="${_key##--directory=}"
+				;;
+			--dir=*)
+				_arg_directory="${_key##--dir=}"
+				;;
+			-d*)
+				_arg_directory="${_key##-d}"
+				;;
+			
+			--subcommand-directory|--subcommand-dir)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_subcommand_dir="$2"
+				shift
+				;;
+			--subcommand-dir=*)
+				_arg_subcommand_dir="${_key##--subcommand-dir=}"
+				;;
+			--subcommand-directory=*)
+				_arg_subcommand_dir="${_key##--subcommand-directory=}"
+				;;
+			
+			--subcommand)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_subcommand+=("$2")
+				shift
+				;;
+			--subcommand=*)
+				_arg_subcommand+=("${_key##--subcommand=}")
+				;;
+			
+			--completely)
+				if [ $# -lt 2 ];then
+					_arg_completely="on";
+				else
+					_arg_completely="$2";
+				fi
+				;;
+			--completely=*)
+				_arg_completely="${_key##--completely=}"
+				;;
+			
+			--document)
+				if [ $# -lt 2 ];then
+					_arg_document="on";
+				else
+					_arg_document="$2";
+				fi
+				;;
+			--document=*)
+				_arg_document="${_key##--document=}"
+				;;
+			
+			--html-form)
+				if [ $# -lt 2 ];then
+					_arg_html_form="on";
+				else
+					_arg_html_form="$2";
+				fi
+				;;
+			--html-form=*)
+				_arg_html_form="${_key##--html-form=}"
+				;;
+			
+			--cp)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_cp+=("$2")
+				shift
+				;;
+			--cp=*)
+				_arg_cp+=("${_key##--cp=}")
+				;;
+			
+			--readme)
+				_arg_readme="on"
+				;;
+			--no-readme)
+				_arg_readme="off"
+				;;
+			--git)
+				_arg_git="on"
+				;;
+			--no-git)
+				_arg_git="off"
+				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string="name"
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_name ";
+	_leftovers_count=$((${#_positionals[@]} - 1))
+	for ((ii = 0; ii < _leftovers_count; ii++));do
+		_positional_names="$_positional_names _arg_leftovers[$((ii + 0))]";
+	done
+
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		if ! [[ "$_positional_name" =~ "_arg_leftovers" ]];then
+			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		fi
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\tname: ${_arg_name}";
+	echo -e "\tdescription: ${_arg_description}";
+	echo -e "\tdirectory: ${_arg_directory}";
+	echo -e "\tsubcommand-dir: ${_arg_subcommand_dir}";
+	echo -e "\tsubcommand: ${_arg_subcommand[*]}";
+	echo -e "\tcompletely: ${_arg_completely}";
+	echo -e "\tdocument: ${_arg_document}";
+	echo -e "\thtml-form: ${_arg_html_form}";
+	echo -e "\tcp: ${_arg_cp[*]}";
+	echo -e "\treadme: ${_arg_readme}";
+	echo -e "\tgit: ${_arg_git}";
+	echo -e "\tleftovers: ${_arg_leftovers[*]}";
+
+}
+
+print_version()
+{
+	echo "";
+}
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+source "$_SCRIPT_DIR/utils";
+
+if [ "$_arg_directory" == "" ]; then
+	log "No directory specified" 3;
+	_arg_directory="$(pwd)/$_arg_name";
+fi
+
+if [ "$_arg_description" == "" ]; then
+	log "No description specified" 3;
+	_arg_description="$_arg_name, a ParseArger project";
+fi
+
+if [ ! -d "$_arg_directory" ]; then
+	log "Creating $_arg_directory" 2;
+	mkdir -p "$_arg_directory";
+fi
+
+cd "$_arg_directory";
+
+paBin="$_SCRIPT_DIR/../parseArger";
+
+mainBin="$_arg_name"
+genMainCmd=("$paBin" generate --help-message "$_arg_description" --output "$mainBin");
+
+if [ "${#_arg_subcommand[@]}" -gt 0 ]; then
+	log "Generating subcommands" 4;
+	
+	if [ ! -d "./${_arg_subcommand_dir}" ]; then
+		log "Creating ./${_arg_subcommand_dir}" 2;
+		mkdir -p "./${_arg_subcommand_dir}";
+	fi
+	
+	genMainCmd+=(--leftovers --pos "target '$_arg_name subcommand' --subcommand-use-leftovers --subcommand-run --subcommand-directory './${_arg_subcommand_dir}'");
+	
+	for sbcmd in "${_arg_subcommand[@]}"; do
+		if [ ! -f "./${_arg_subcommand_dir}/$sbcmd" ]; then
+			log "Generating ./${_arg_subcommand_dir}/$sbcmd" 1;
+			"$paBin" generate --help-message "$_arg_name $sbcmd command" --output "./${_arg_subcommand_dir}/$sbcmd";
+		else 
+			log "Parsing ./${_arg_subcommand_dir}/$sbcmd" 1;
+			"$paBin" parse -i "./${_arg_subcommand_dir}/$sbcmd";
+		fi
+	done
+
+fi
+
+if [ "${#_arg_cp[@]}" -gt 0 ]; then
+	log "Copying files and directories" 4;
+	for cp in "${_arg_cp[@]}"; do
+		if [ -d "$cp" ]; then
+			log "copying directory $cp" 2;
+			cp -r "$cp" "./";
+		elif [ -f "$cp" ]; then
+			log "copying $cp" 2;
+			cp "$cp" "./"
+		else
+			log "No such file or directory :\n$cp" -1;
+		fi
+	done
+fi
+
+if [ ! -f "$mainBin" ]; then
+	log "Generating main command" 4;
+	log "${genMainCmd[*]}" 1;
+	"${genMainCmd[@]}";
+else 
+	log "Parsing main command" 4;
+	"$paBin" parse -i "$mainBin";
+fi
+
+if [ "$_arg_completely" != "" ]; then
+	log "Generating completions" 4;
+	pacCmd=("$paBin" completely "$_arg_name" "$mainBin");
+	if [ "$_arg_completely" != "on" ]; then
+		pacCmd+=(--yaml-file  "${_arg_completely}.yaml" --completion-file "${_arg_completely}.bash");
+	fi
+	log "${pacCmd[*]}" 1;
+	"${pacCmd[@]}";
+fi
+
+if [ "$_arg_document" != "" ]; then
+	log "Generating documentation" 4;
+	if [ "$_arg_document" == "on" ]; then
+		_arg_document="documentation";
+	fi
+	
+	if [ ! -f "${_arg_document}.md" ]; then
+		padCmd=("$paBin" document --file "./$mainBin" --out "${_arg_document}.md");
+
+		log "${padCmd[*]}" 1;
+		"${padCmd[@]}";
+	else
+		log "documentation already exists" -1;
+	fi
+fi
+
+if [ "$_arg_html_form" != "" ]; then
+	log "Generating html form" 4;
+	if [ "$_arg_html_form" == "on" ]; then
+		_arg_html_form="form";
+	fi
+	
+	if [ ! -f "${_arg_html_form}.html" ]; then
+		
+		pahCmd=("$paBin" html-form "$mainBin" --output "${_arg_html_form}.html");
+
+		log "${pahCmd[*]}" 1;
+		"${pahCmd[@]}";
+	else
+		log "html form already exists" -1;
+	fi
+fi
+
+if [ "$_arg_readme" != "off" ]; then
+	log "Generating readme" 4;
+	
+	if [ ! -f "${_arg_readme}" ]; then
+		echo -e "# $_arg_name\n\n$_arg_description\n" > readme.md;
+	else
+		log "readme already exists" -1;
+	fi
+fi
+
+if [ "$_arg_git" != "off" ]; then
+	log "Initializing git" 4;
+	
+	if [ ! -d ".git" ]; then
+		git init;
+		# git add .;
+		# git commit -m "Initial commit";
+	else
+		log "git already initialized" -1;
+	fi
+fi

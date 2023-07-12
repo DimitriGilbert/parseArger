@@ -5,6 +5,7 @@ parseArger:
 - generate
 - html-form
 - parse
+- project
 - --output
 - --prepend
 - --no-prepend
@@ -180,6 +181,37 @@ parseArger parse:
 - --inplace
 - --no-inplace
 - -i
+parseArger project:
+- --description
+- --project-help
+- --directory
+- --dir
+- -d
+- --subcommand-dir
+- --subcommand-directory
+- --subcommand
+- --completely
+- --document
+- --html-form
+- --cp
+- --readme
+- --no-readme
+- --git
+- --no-git
+
+parseArger project*--directory:
+- <directory>
+
+parseArger project*--dir:
+- <directory>
+
+
+
+
+
+parseArger project*--cp:
+- <file>
+- <directory>
 parseArger*--output:
 - <file>
 
