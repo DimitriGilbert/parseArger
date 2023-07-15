@@ -22,7 +22,7 @@ parse multiple file and directories:
 	-d, --directory|--folder <directory>: directory to document, repeatable
 	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
 Usage :
-	/home/didi/worskpace/Code/parseArger/bin/bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
+	parseArger bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
 ```
 
 ## ./parseArger completely
@@ -55,7 +55,7 @@ generate a completely yaml config and completion:
 	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
 		no-aliases: --no-run,
 Usage :
-	/home/didi/worskpace/Code/parseArger/bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
+	parseArger completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
 ```
 
 ## ./parseArger document
@@ -74,7 +74,7 @@ create documentation for parseArger script:
 	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
 	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)
 Usage :
-	/home/didi/worskpace/Code/parseArger/bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
+	parseArger document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
 ```
 
 ## ./parseArger generate
@@ -105,7 +105,7 @@ generate a parseArger script:
 	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
 	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
 Usage :
-	/home/didi/worskpace/Code/parseArger/bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
+	parseArger generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
 ```
 
 ## ./parseArger html-form
@@ -131,7 +131,7 @@ generate html form for a parsearger file:
 	--js|--no-js: create javascript, --no-js forces --no-result, on by default (use --no-js to turn it off)
 	--result|--no-result: display result, on by default (use --no-result to turn it off)
 Usage :
-	/home/didi/worskpace/Code/parseArger/bin/html-form <file> [--command <value>] [--action <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]form] [--[no-]button] [--[no-]js] [--[no-]result]
+	parseArger html-form <file> [--command <value>] [--action <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]form] [--[no-]button] [--[no-]js] [--[no-]result]
 ```
 
 ## ./parseArger parse
@@ -149,7 +149,7 @@ parse an existing parseArger file:
 	--set-version <set-version>: set version
 	-i|--inplace|--no-inplace: replace parseArger generated content in place
 Usage :
-	/home/didi/worskpace/Code/parseArger/bin/parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
+	parseArger parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
 ```
 
 ## ./bin

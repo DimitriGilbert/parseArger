@@ -3,11 +3,12 @@
 # @parseArger-begin
 # @parseArger-help "create version parser" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-declarations
 # @parseArger opt option "verbose trigger option" --default-value "verbose"
 # @parseArger opt level "verbose default level" --default-value "0"
 # @parseArger opt log-fn-name "log function name" --default-value "log"
+# @parseArger opt quiet-option "trigger to tell script to shut up" --default-value "quiet"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -38,6 +39,7 @@ _positionals=();
 _arg_option="verbose"
 _arg_level="0"
 _arg_log_fn_name="log"
+_arg_quiet_option="quiet"
 # FLAGS
 _verbose_level="0";
 
@@ -53,8 +55,9 @@ print_help()
 	echo -e "	--option <option>: verbose trigger option [default: ' verbose ']"
 	echo -e "	--level <level>: verbose default level [default: ' 0 ']"
 	echo -e "	--log-fn-name <log-fn-name>: log function name [default: ' log ']"
+	echo -e "	--quiet-option <quiet-option>: trigger to tell script to shut up [default: ' quiet ']"
 	echo -e "Usage :
-	$0 [--option <value>] [--level <value>] [--log-fn-name <value>]";
+	$0 [--option <value>] [--level <value>] [--log-fn-name <value>] [--quiet-option <value>]";
 	fi
 
 }
@@ -122,6 +125,15 @@ parse_commandline()
 				;;
 			--log-fn-name=*)
 				_arg_log_fn_name="${_key##--log-fn-name=}"
+				;;
+			
+			--quiet-option)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_quiet_option="$2"
+				shift
+				;;
+			--quiet-option=*)
+				_arg_quiet_option="${_key##--quiet-option=}"
 				;;
 			
 			-h|--help)
@@ -195,6 +207,7 @@ print_debug()
 	echo -e "\toption: ${_arg_option}";
 	echo -e "\tlevel: ${_arg_level}";
 	echo -e "\tlog-fn-name: ${_arg_log_fn_name}";
+	echo -e "\tquiet-option: ${_arg_quiet_option}";
 
 }
 
@@ -221,15 +234,28 @@ trap on_interrupt INT;
 outStr="";
 
 if [ "$_arg_option" != "" ]; then
-	outStr+="--$_arg_option";
+	# outStr+="--$_arg_option";
+	outStr+="--$_arg_option)
+		if [ \$# -lt 2 ];then
+			_verbose_level=\"\$((_verbose_level + 1))\";
+		else
+			_verbose_level=\"\$2\";
+			shift;
+		fi
+		;;
+	";
 fi
 
-echo -e "$outStr)
-	if [ \$# -lt 2 ];then
-		_verbose_level=\"\$((_verbose_level + 1))\";
-	else
-		_verbose_level=\"\$2\";
-		shift;
-	fi
-	;;
-"
+if [ "$_arg_quiet_option" != "" ]; then
+	outStr+="--$_arg_quiet_option)
+		if [ \$# -lt 2 ];then
+			_verbose_level=\"\$((_verbose_level - 1))\";
+		else
+			_verbose_level=\"-\$2\";
+			shift;
+		fi
+		;;
+	";
+fi
+
+echo -e "$outStr";

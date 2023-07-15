@@ -1,0 +1,73 @@
+ecmd=();
+mcmd=(chmod "+x" "-R");
+if [ "$_arg_zip" != "on" ] && [ "$(command -v git)" ]; then
+	ecmd+=(git clone);
+
+	if [ "$_arg_ssh" == "on" ]; then
+		ecmd+=("__git_ssh_url__");
+	else
+		ecmd+=("__git_https_url__");
+	fi
+
+	if [ "$_arg_branch" != "" ]; then
+		ecmd+=(-b "$_arg_branch");
+	fi
+
+	if [ "$_arg_install_directory" != "" ]; then
+		ecmd+=("$_arg_install_directory");
+		mcmd+=("$_arg_install_directory/__program_name__" "$_arg_install_directory/utils" "$_arg_install_directory/bin");
+	else
+		mcmd+=("__program_name__/__program_name__" "__program_name__/utils" "__program_name__/bin");
+	fi
+else
+	if [ "$_arg_branch" == "" ]; then
+		_arg_branch="main";
+	fi
+	_arg_zip="on";
+	log "Install using zip, it is not recommended" -1;
+	ecmd+=(curl "__zip_url__/${_arg_branch}.zip" -LJO);
+	zcmd=(unzip -qq);
+	zcmd2=(mv);
+
+	if [ "$_arg_install_directory" != "" ]; then
+		zcmd+=(-d "/tmp");
+		mcmd+=("$_arg_install_directory/__program_name__" "$_arg_install_directory/utils" "$_arg_install_directory/bin");
+		zcmd2+=("/tmp/__program_name__-${_arg_branch}" "$_arg_install_directory");
+	else
+		mcmd+=("__program_name__/__program_name__" "__program_name__/utils" "__program_name__/bin");
+		zcmd2+=("__program_name__-${_arg_branch}" "__program_name__");
+	fi
+	zcmd+=( "__program_name__-${_arg_branch}.zip" );
+fi
+
+log "${ecmd[*]}" 1;
+"${ecmd[@]}"
+
+if [ "$_arg_zip" == "on" ]; then
+	log "${zcmd[*]}" 1;
+	"${zcmd[@]}";
+	log "${zcmd2[*]}" 1;
+	"${zcmd2[@]}";
+	rm "__program_name__-${_arg_branch}.zip";
+fi
+
+log "${mcmd[*]}" 1;
+"${mcmd[@]}"
+
+if [ "$_arg_install" == "on" ] || [ "${#_arg_install_file[@]}" -gt 0 ]; then
+	icmd=("utils/install" --verbose 1);
+	if [ "${#_arg_install_file[@]}" -gt 0 ]; then
+		for ifile in "${_arg_install_file[@]}"; do
+			icmd+=("--shell-rc-file" "$ifile");
+		done
+	fi
+	log "${icmd[*]}" 1;
+
+	if [ "$_arg_install_directory" != "" ]; then
+		cd "${_arg_install_directory}";
+	else
+		cd __program_name__;
+	fi
+	"${icmd[@]}";
+	cd -;
+fi

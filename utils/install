@@ -3,7 +3,7 @@
 # @parseArger-help "Install parseArger" --option "help" --short-option "h"
 # @parseArger-verbose --option "verbose" --level "0"
 # @parseArger-declarations
-# @parseArger opt shell-rc-file "where to put the source directive" --default-value "/home/didi/.bashrc" --repeat --alias install-file
+# @parseArger opt shell-rc-file "where to put the source directive" --default-value "\$HOME/.bashrc" --repeat --alias install-file
 # @parseArger flag comment "add parsearger comment" --on
 # @parseArger-declarations-end
 
@@ -32,7 +32,7 @@ begins_with_short_option()
 # POSITIONALS ARGUMENTS
 _positionals=();
 # OPTIONALS ARGUMENTS
-_arg_shell_rc_file=("/home/didi/.bashrc" )
+_arg_shell_rc_file=("$HOME/.bashrc" )
 # FLAGS
 _arg_comment="on"
 _verbose_level="0";
@@ -46,7 +46,7 @@ print_help()
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
 		echo -e "Install parseArger:"
-	echo -e "	--shell-rc-file|--install-file <shell-rc-file>: where to put the source directive, repeatable [default: '( /home/didi/.bashrc )']"
+	echo -e "	--shell-rc-file|--install-file <shell-rc-file>: where to put the source directive, repeatable [default: '( $HOME/.bashrc )']"
 	echo -e "	--comment|--no-comment: add parsearger comment, on by default (use --no-comment to turn it off)"
 	echo -e "Usage :
 	$0 [--shell-rc-file <value>] [--[no-]comment]";

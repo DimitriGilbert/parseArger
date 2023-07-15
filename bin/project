@@ -1,7 +1,7 @@
 #!/bin/bash
 # @parseArger-begin
 # @parseArger-help "generate or parse a project" --option "help" --short-option "h"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
 # @parseArger pos name "project name"
@@ -9,10 +9,12 @@
 # @parseArger opt directory "output directory, ./<project_name> by default" --short d --alias dir --complete "directory"
 # @parseArger opt subcommand-dir "subcommand script directory" --default-value "bin" --alias subcommand-directory
 # @parseArger opt subcommand "project subcommand, forces has-subcommand" --repeat
-# @parseArger opt completely "generate bash completion, filename (.yaml and .bash) if value is specified"
-# @parseArger opt document "generate documentation, filename (.md) if value is specified"
-# @parseArger opt html-form "generate html-form, filename (.html) if value is specified"
+# @parseArger opt completely "generate bash completion, filename (.yaml and .bash) if value is specified" --default-value "on"
+# @parseArger opt document "generate documentation, filename (.md) if value is specified" --default-value "on"
+# @parseArger opt html-form "generate html-form, filename (.html) if value is specified" --default-value "on"
 # @parseArger opt cp "file or directory to copy to the project directory" --repeat --complete "file" --complete "directory"
+# @parseArger opt installer-git-service "git service" --default-value "github.com" --alias git-provider
+# @parseArger opt installer-git-repo "git repo eg DimitriGilbert/parseArger" --alias git-repo
 # @parseArger flag readme "create a basic readme" --on
 # @parseArger flag git "git init" --on
 # @parseArger-declarations-end
@@ -47,10 +49,12 @@ _arg_description=
 _arg_directory=
 _arg_subcommand_dir="bin"
 _arg_subcommand=()
-_arg_completely=
-_arg_document=
-_arg_html_form=
+_arg_completely="on"
+_arg_document="on"
+_arg_html_form="on"
 _arg_cp=()
+_arg_installer_git_service="github.com"
+_arg_installer_git_repo=
 # FLAGS
 _arg_readme="on"
 _arg_git="on"
@@ -72,14 +76,16 @@ print_help()
 	echo -e "	-d, --directory|--dir <directory>: output directory, ./<project_name> by default"
 	echo -e "	--subcommand-dir|--subcommand-directory <subcommand-dir>: subcommand script directory [default: ' bin ']"
 	echo -e "	--subcommand <subcommand>: project subcommand, forces has-subcommand, repeatable"
-	echo -e "	--completely <completely>: generate bash completion, filename (.yaml and .bash) if value is specified, can be empty"
-	echo -e "	--document <document>: generate documentation, filename (.md) if value is specified, can be empty"
-	echo -e "	--html-form <html-form>: generate html-form, filename (.html) if value is specified, can be empty"
+	echo -e "	--completely <completely>: generate bash completion, filename (.yaml and .bash) if value is specified [default: ' on ']"
+	echo -e "	--document <document>: generate documentation, filename (.md) if value is specified [default: ' on ']"
+	echo -e "	--html-form <html-form>: generate html-form, filename (.html) if value is specified [default: ' on ']"
 	echo -e "	--cp <cp>: file or directory to copy to the project directory, repeatable"
+	echo -e "	--installer-git-service|--git-provider <installer-git-service>: git service [default: ' github.com ']"
+	echo -e "	--installer-git-repo|--git-repo <installer-git-repo>: git repo eg DimitriGilbert/parseArger"
 	echo -e "	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)"
 	echo -e "	--git|--no-git: git init, on by default (use --no-git to turn it off)"
 	echo -e "Usage :
-	$0 <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--[no-]readme] [--[no-]git]";
+	$0 <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--[no-]readme] [--[no-]git]";
 	fi
 
 }
@@ -171,33 +177,27 @@ parse_commandline()
 				;;
 			
 			--completely)
-				if [ $# -lt 2 ];then
-					_arg_completely="on";
-				else
-					_arg_completely="$2";
-				fi
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_completely="$2"
+				shift
 				;;
 			--completely=*)
 				_arg_completely="${_key##--completely=}"
 				;;
 			
 			--document)
-				if [ $# -lt 2 ];then
-					_arg_document="on";
-				else
-					_arg_document="$2";
-				fi
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_document="$2"
+				shift
 				;;
 			--document=*)
 				_arg_document="${_key##--document=}"
 				;;
 			
 			--html-form)
-				if [ $# -lt 2 ];then
-					_arg_html_form="on";
-				else
-					_arg_html_form="$2";
-				fi
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_html_form="$2"
+				shift
 				;;
 			--html-form=*)
 				_arg_html_form="${_key##--html-form=}"
@@ -210,6 +210,30 @@ parse_commandline()
 				;;
 			--cp=*)
 				_arg_cp+=("${_key##--cp=}")
+				;;
+			
+			--git-provider|--installer-git-service)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_installer_git_service="$2"
+				shift
+				;;
+			--installer-git-service=*)
+				_arg_installer_git_service="${_key##--installer-git-service=}"
+				;;
+			--git-provider=*)
+				_arg_installer_git_service="${_key##--git-provider=}"
+				;;
+			
+			--git-repo|--installer-git-repo)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_installer_git_repo="$2"
+				shift
+				;;
+			--installer-git-repo=*)
+				_arg_installer_git_repo="${_key##--installer-git-repo=}"
+				;;
+			--git-repo=*)
+				_arg_installer_git_repo="${_key##--git-repo=}"
 				;;
 			
 			--readme)
@@ -241,14 +265,22 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-				if [ $# -lt 2 ];then
-					_verbose_level="$((_verbose_level + 1))";
-				else
-					_verbose_level="$2";
-					shift;
-				fi
-				;;
-			
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -305,6 +337,8 @@ print_debug()
 	echo -e "\tdocument: ${_arg_document}";
 	echo -e "\thtml-form: ${_arg_html_form}";
 	echo -e "\tcp: ${_arg_cp[*]}";
+	echo -e "\tinstaller-git-service: ${_arg_installer_git_service}";
+	echo -e "\tinstaller-git-repo: ${_arg_installer_git_repo}";
 	echo -e "\treadme: ${_arg_readme}";
 	echo -e "\tgit: ${_arg_git}";
 	echo -e "\tleftovers: ${_arg_leftovers[*]}";
@@ -462,5 +496,50 @@ if [ "$_arg_git" != "off" ]; then
 		# git commit -m "Initial commit";
 	else
 		log "git already initialized" -1;
+	fi
+fi
+
+if [ "$_arg_installer_git_repo" != "" ]; then
+	log "Generating installer" 4;
+	sshurl="git@${_arg_installer_git_service}:${_arg_installer_git_repo}.git";
+	httpsurl="https://${_arg_installer_git_service}/${_arg_installer_git_repo}.git";
+	zipurl="https://${_arg_installer_git_service}/${_arg_installer_git_repo}/archive/refs/heads/\${_arg_branch}.zip";
+	
+	if [ ! -d "utils" ]; then
+		log "Creating utils directory" 4;
+		mkdir -p "utils";
+	fi
+
+	if [ ! -f "utils/get_${_arg_name}" ]; then
+		genget_=("$paBin" generate --help-message "Get $_arg_name installer" --output "utils/get_${_arg_name}");
+		genget_+=(--opt 'branch "version to install" --short b --alias tag --alias install-version');
+		genget_+=(--opt 'install-directory "where to install" --complete "directory"');
+		genget_+=(--opt 'install-file "rc files to install to, forces install" --repeat');
+		genget_+=(--flag 'install "install in bashrc" --short i');
+		genget_+=(--flag 'remove-installer "remove install script itself" --alias rm');
+		genget_+=(--flag 'ssh "clone using ssh"');
+		genget_+=(--flag 'zip "install using zip archive, not recommended"');
+		log "generating gette script" 4;
+		log "${genget_[*]}" 1;
+		"${genget_[@]}";
+
+		sed "${_SCRIPT_DIR}/../utils_templates/get_" \
+			-e "s|__git_ssh_url__|$sshurl|g" \
+			-e "s|__git_https_url__|$httpsurl|g" \
+			-e "s|__zip_url__|$zipurl|g" \
+			-e "s|__program_name__|$_arg_name|g" >> "utils/get_${_arg_name}";
+	fi
+
+	if [ ! -f "utils/install" ]; then
+		geninst_=("$paBin" generate --help-message "Install $_arg_name" --output "utils/install");
+		geninst_+=(--opt 'shell-rc-file "where to put the source directive" --default-value "\$HOME/.bashrc" --repeat --alias install-file');
+		geninst_+=(--flag 'comment "add parsearger comment" --on');
+		log "generating install script" 4;
+		log "${geninst_[*]}" 1;
+		"${geninst_[@]}";
+
+		sed "${_SCRIPT_DIR}/../utils_templates/install" \
+			-e "s|__program_name__|$_arg_name|g" \
+			-e "s|__program_name_upper__|${_arg_name^^}|g" >> "utils/install";
 	fi
 fi

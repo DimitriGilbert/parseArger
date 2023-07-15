@@ -1,0 +1,21 @@
+
+_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+output="\nexport __program_name_upper___DIR=\"$_dir\"
+source ${_dir}/__program_name__.rc";
+
+if [ "$_arg_comment" != "off" ]; then
+	output="\n# __program_name__${output}";
+fi
+
+for _file in "${_arg_shell_rc_file[@]}"; do
+	if [ -f "$_file" ]; then
+		if ! grep -q "__program_name__" "$_file"; then
+			echo -e "$output" >> "$_file";
+			log "__program_name__ installed in $_file" 1;
+		else
+			log "__program_name__ already installed in $_file" 1;
+		fi
+	else
+		log "File $_file not found" -1;
+	fi
+done

@@ -358,6 +358,7 @@ if [ "$_arg_empty" == "on" ] || [ "$_arg_empty_value" != "" ]; then
   if [ "$_arg_empty_value" == "" ]; then
     _arg_empty_value="on"
   fi
+	# TODO: not working if not last element of command
   optParser="${optParser}if [ \$# -lt 2 ];then
 		_arg_${_arg_arg_name//-/_}=\"${_arg_empty_value}\";
 	else
