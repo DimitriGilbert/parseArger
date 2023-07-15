@@ -523,7 +523,7 @@ if [ "$_arg_installer_git_repo" != "" ]; then
 		log "${genget_[*]}" 1;
 		"${genget_[@]}";
 
-		sed "${_SCRIPT_DIR}/../utils_templates/get_" \
+		sed "${_SCRIPT_DIR}/../templates/utils/get_" \
 			-e "s|__git_ssh_url__|$sshurl|g" \
 			-e "s|__git_https_url__|$httpsurl|g" \
 			-e "s|__zip_url__|$zipurl|g" \
@@ -538,8 +538,15 @@ if [ "$_arg_installer_git_repo" != "" ]; then
 		log "${geninst_[*]}" 1;
 		"${geninst_[@]}";
 
-		sed "${_SCRIPT_DIR}/../utils_templates/install" \
+		sed "${_SCRIPT_DIR}/../templates/utils/install" \
 			-e "s|__program_name__|$_arg_name|g" \
 			-e "s|__program_name_upper__|${_arg_name^^}|g" >> "utils/install";
+	fi
+
+	if [ -f "readme.md" ]; then
+		log "Adding install instruction to readme" 4;
+		sed "${_SCRIPT_DIR}/../templates/readme.md" \
+			-e "s|__program_name__|$_arg_name|g" \
+			-e "s|__git_repo__|${_arg_installer_git_repo}|g" >> "readme.md";
 	fi
 fi
