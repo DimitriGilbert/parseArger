@@ -1,21 +1,19 @@
 # Usage
 
-## ./parseArger
+## parseArger
 
 ```
 standalone bash argument parsing framework:
-	target: what to do [one of 'bulk-parse' 'completely' 'document' 'generate' 'html-form' 'parse' ]
+	target: what to do [one of 'bulk-parse' 'completely' 'document' 'generate' 'html-form' 'parse' 'project']
 	--output <output>: create file with command output at value
 	--prepend|--no-prepend: add output on top of file
 Usage :
-	./parseArger <target> [--output <value>] [--[no-]prepend]
+	parseArger <target> [--output <value>] [--[no-]prepend]
 ```
 
-## ./parseArger bulk-parse
+## parseArger bulk-parse
 
 ```
-./parseArger sub command help
-	
 parse multiple file and directories:
 	--bump <bump>: new version
 	-f, --file <file>: file to document, repeatable
@@ -25,11 +23,9 @@ Usage :
 	parseArger bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
 ```
 
-## ./parseArger completely
+## parseArger completely
 
 ```
-./parseArger sub command help
-	
 generate a completely yaml config and completion:
 	command-name: command-name
 	file: file, optional
@@ -58,11 +54,9 @@ Usage :
 	parseArger completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
 ```
 
-## ./parseArger document
+## parseArger document
 
 ```
-./parseArger sub command help
-	
 create documentation for parseArger script:
 	-f, --file <file>: file to document, repeatable
 	-d, --directory|--folder <directory>: directory to document, repeatable
@@ -77,11 +71,9 @@ Usage :
 	parseArger document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
 ```
 
-## ./parseArger generate
+## parseArger generate
 
 ```
-./parseArger sub command help
-	
 generate a parseArger script:
 	-p, --pos <pos>: positional argument declaration, repeatable
 	-o, --opt <opt>: optional arg declaration, repeatable
@@ -108,11 +100,9 @@ Usage :
 	parseArger generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
 ```
 
-## ./parseArger html-form
+## parseArger html-form
 
 ```
-./parseArger sub command help
-	
 generate html form for a parsearger file:
 	file: file to process
 	--command <command>: command string, default to file 
@@ -134,11 +124,9 @@ Usage :
 	parseArger html-form <file> [--command <value>] [--action <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]form] [--[no-]button] [--[no-]js] [--[no-]result]
 ```
 
-## ./parseArger parse
+## parseArger parse
 
 ```
-./parseArger sub command help
-	
 parse an existing parseArger file:
 	file: file to parse
 	-p, --pos <pos>: add positional argument declaration, repeatable
@@ -152,9 +140,30 @@ Usage :
 	parseArger parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
 ```
 
-## ./bin
+## parseArger project
 
-### ./bin/bulk-parse
+```
+generate or parse a project:
+	name: project name
+	--description|--project-help <description>: project description
+	-d, --directory|--dir <directory>: output directory, ./<project_name> by default
+	--subcommand-dir|--subcommand-directory <subcommand-dir>: subcommand script directory [default: ' bin ']
+	--subcommand <subcommand>: project subcommand, forces has-subcommand, repeatable
+	--completely <completely>: generate bash completion, filename (.yaml and .bash) if value is specified [default: ' on ']
+	--document <document>: generate documentation, filename (.md) if value is specified [default: ' on ']
+	--html-form <html-form>: generate html-form, filename (.html) if value is specified [default: ' on ']
+	--cp <cp>: file or directory to copy to the project directory, repeatable
+	--installer-git-service|--git-provider <installer-git-service>: git service [default: ' github.com ']
+	--installer-git-repo|--git-repo <installer-git-repo>: git repo eg DimitriGilbert/parseArger
+	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)
+	--git|--no-git: git init, on by default (use --no-git to turn it off)
+Usage :
+	parseArger project <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--[no-]readme] [--[no-]git]
+```
+
+## bin
+
+### bin/bulk-parse
 
 ```
 parse multiple file and directories:
@@ -163,10 +172,10 @@ parse multiple file and directories:
 	-d, --directory|--folder <directory>: directory to document, repeatable
 	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
 Usage :
-	./bin/bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
+	bin/bulk-parse [--bump <value>] [--file <value>] [--directory <value>] [--[no-]sub-directory]
 ```
 
-### ./bin/completely
+### bin/completely
 
 ```
 generate a completely yaml config and completion:
@@ -194,10 +203,10 @@ generate a completely yaml config and completion:
 	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
 		no-aliases: --no-run,
 Usage :
-	./bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
+	bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
 ```
 
-### ./bin/document
+### bin/document
 
 ```
 create documentation for parseArger script:
@@ -211,10 +220,10 @@ create documentation for parseArger script:
 	--sub-directory|--no-sub-directory: document subdirectory, on by default (use --no-sub-directory to turn it off)
 	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)
 Usage :
-	./bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
+	bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
 ```
 
-### ./bin/generate
+### bin/generate
 
 ```
 generate a parseArger script:
@@ -240,10 +249,10 @@ generate a parseArger script:
 	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
 	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
 Usage :
-	./bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
+	bin/generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
 ```
 
-### ./bin/html-form
+### bin/html-form
 
 ```
 generate html form for a parsearger file:
@@ -264,10 +273,10 @@ generate html form for a parsearger file:
 	--js|--no-js: create javascript, --no-js forces --no-result, on by default (use --no-js to turn it off)
 	--result|--no-result: display result, on by default (use --no-result to turn it off)
 Usage :
-	./bin/html-form <file> [--command <value>] [--action <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]form] [--[no-]button] [--[no-]js] [--[no-]result]
+	bin/html-form <file> [--command <value>] [--action <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]form] [--[no-]button] [--[no-]js] [--[no-]result]
 ```
 
-### ./bin/parse
+### bin/parse
 
 ```
 parse an existing parseArger file:
@@ -280,14 +289,35 @@ parse an existing parseArger file:
 	--set-version <set-version>: set version
 	-i|--inplace|--no-inplace: replace parseArger generated content in place
 Usage :
-	./bin/parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
+	bin/parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
 ```
 
-### ./bin/common
+### bin/project
 
-### ./bin/flag
+```
+generate or parse a project:
+	name: project name
+	--description|--project-help <description>: project description
+	-d, --directory|--dir <directory>: output directory, ./<project_name> by default
+	--subcommand-dir|--subcommand-directory <subcommand-dir>: subcommand script directory [default: ' bin ']
+	--subcommand <subcommand>: project subcommand, forces has-subcommand, repeatable
+	--completely <completely>: generate bash completion, filename (.yaml and .bash) if value is specified [default: ' on ']
+	--document <document>: generate documentation, filename (.md) if value is specified [default: ' on ']
+	--html-form <html-form>: generate html-form, filename (.html) if value is specified [default: ' on ']
+	--cp <cp>: file or directory to copy to the project directory, repeatable
+	--installer-git-service|--git-provider <installer-git-service>: git service [default: ' github.com ']
+	--installer-git-repo|--git-repo <installer-git-repo>: git repo eg DimitriGilbert/parseArger
+	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)
+	--git|--no-git: git init, on by default (use --no-git to turn it off)
+Usage :
+	bin/project <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--[no-]readme] [--[no-]git]
+```
 
-#### ./bin/flag/completely
+### bin/common
+
+### bin/flag
+
+#### bin/flag/completely
 
 ```
 parseArger init string for flags:
@@ -299,10 +329,10 @@ parseArger init string for flags:
 	--no-alias <no-alias>: flag negation alias, repeatable
 	--on|--no-on: on by default
 Usage :
-	./bin/flag/completely <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+	bin/flag/completely <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
 ```
 
-#### ./bin/flag/declaration
+#### bin/flag/declaration
 
 ```
 parseArger declaration string for flags:
@@ -314,10 +344,10 @@ parseArger declaration string for flags:
 	--no-alias <no-alias>: flag negation alias, repeatable
 	--on|--no-on: on by default
 Usage :
-	./bin/flag/declaration <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+	bin/flag/declaration <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
 ```
 
-#### ./bin/flag/docopt-help
+#### bin/flag/docopt-help
 
 ```
 parseArger docopt string for flags:
@@ -329,10 +359,10 @@ parseArger docopt string for flags:
 	--no-alias <no-alias>: flag negation alias, repeatable
 	--on|--no-on: on by default
 Usage :
-	./bin/flag/docopt-help <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+	bin/flag/docopt-help <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
 ```
 
-#### ./bin/flag/help
+#### bin/flag/help
 
 ```
 I send an SOS to the world:
@@ -344,10 +374,10 @@ I send an SOS to the world:
 	--no-alias <no-alias>: flag negation alias, repeatable
 	--on|--no-on: on by default
 Usage :
-	./bin/flag/help <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+	bin/flag/help <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
 ```
 
-#### ./bin/flag/html
+#### bin/flag/html
 
 ```
 parseArger init string for flags:
@@ -362,10 +392,10 @@ parseArger init string for flags:
 	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']
 	--on|--no-on: on by default
 Usage :
-	./bin/flag/html <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--[no-]on]
+	bin/flag/html <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--[no-]on]
 ```
 
-#### ./bin/flag/init
+#### bin/flag/init
 
 ```
 parseArger init string for flags:
@@ -377,10 +407,10 @@ parseArger init string for flags:
 	--no-alias <no-alias>: flag negation alias, repeatable
 	--on|--no-on: on by default
 Usage :
-	./bin/flag/init <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+	bin/flag/init <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
 ```
 
-#### ./bin/flag/parser
+#### bin/flag/parser
 
 ```
 parseArger parsing string for flags:
@@ -392,23 +422,12 @@ parseArger parsing string for flags:
 	--no-alias <no-alias>: flag negation alias, repeatable
 	--on|--no-on: on by default
 Usage :
-	./bin/flag/parser <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
+	bin/flag/parser <arg-name> <description> [--short <value>] [--no-name <value>] [--alias <value>] [--no-alias <value>] [--[no-]on]
 ```
 
-### ./bin/help
+### bin/help
 
-#### ./bin/help/declaration
-
-```
-create common help stuff:
-	message: your main help message
-	--option <option>: help trigger option [default: ' help ']
-	--short-option <short-option>: help trigger short option [default: ' h ']
-Usage :
-	./bin/help/declaration <message> [--option <value>] [--short-option <value>]
-```
-
-#### ./bin/help/get-trigger
+#### bin/help/declaration
 
 ```
 create common help stuff:
@@ -416,10 +435,21 @@ create common help stuff:
 	--option <option>: help trigger option [default: ' help ']
 	--short-option <short-option>: help trigger short option [default: ' h ']
 Usage :
-	./bin/help/get-trigger <message> [--option <value>] [--short-option <value>]
+	bin/help/declaration <message> [--option <value>] [--short-option <value>]
 ```
 
-#### ./bin/help/parser
+#### bin/help/get-trigger
+
+```
+create common help stuff:
+	message: your main help message
+	--option <option>: help trigger option [default: ' help ']
+	--short-option <short-option>: help trigger short option [default: ' h ']
+Usage :
+	bin/help/get-trigger <message> [--option <value>] [--short-option <value>]
+```
+
+#### bin/help/parser
 
 ```
 create help parser:
@@ -428,33 +458,12 @@ create help parser:
 	--short-option <short-option>: help trigger short option [default: ' h ']
 	--has-subcommand|--no-has-subcommand: do not exit after print_help
 Usage :
-	./bin/help/parser <message> [--option <value>] [--short-option <value>] [--[no-]has-subcommand]
+	bin/help/parser <message> [--option <value>] [--short-option <value>] [--[no-]has-subcommand]
 ```
 
-### ./bin/opt
+### bin/opt
 
-#### ./bin/opt/completely
-
-```
-parseArger declaration string for options:
-	arg-name: positional argument name
-	description: positional argument description
-	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']
-	--repeat-max <repeat-max>: maximum repeatition forces repeat
-	--one-of <one-of>: accepted values, repeatable
-	-d, --default-value <default-value>: value, repeatable
-	-s, --short <short>: short form
-	--alias <alias>: option alias, repeatable
-	--empty-value <empty-value>: value for empty option
-	--complete <complete>: bash built-in completely function, repeatable
-	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
-	-r|--repeat|--no-repeat: repeatable
-	--empty|--no-empty: use option as flag
-Usage :
-	./bin/opt/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
-```
-
-#### ./bin/opt/declaration
+#### bin/opt/completely
 
 ```
 parseArger declaration string for options:
@@ -472,10 +481,31 @@ parseArger declaration string for options:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-#### ./bin/opt/docopt-help
+#### bin/opt/declaration
+
+```
+parseArger declaration string for options:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces repeat
+	--one-of <one-of>: accepted values, repeatable
+	-d, --default-value <default-value>: value, repeatable
+	-s, --short <short>: short form
+	--alias <alias>: option alias, repeatable
+	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	-r|--repeat|--no-repeat: repeatable
+	--empty|--no-empty: use option as flag
+Usage :
+	bin/opt/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+```
+
+#### bin/opt/docopt-help
 
 ```
 parseArger docOpt string for option:
@@ -493,10 +523,10 @@ parseArger docOpt string for option:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/docopt-help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/docopt-help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-#### ./bin/opt/help
+#### bin/opt/help
 
 ```
 parseArger help string for options:
@@ -514,10 +544,10 @@ parseArger help string for options:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-#### ./bin/opt/html
+#### bin/opt/html
 
 ```
 option to html form:
@@ -539,10 +569,10 @@ option to html form:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-#### ./bin/opt/init
+#### bin/opt/init
 
 ```
 parseArger init string for options:
@@ -560,10 +590,10 @@ parseArger init string for options:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-#### ./bin/opt/is-repeating
+#### bin/opt/is-repeating
 
 ```
 is the option repeating:
@@ -581,10 +611,10 @@ is the option repeating:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/is-repeating <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/is-repeating <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-#### ./bin/opt/more-completely
+#### bin/opt/more-completely
 
 ```
 parseArger declaration string for options:
@@ -603,10 +633,10 @@ parseArger declaration string for options:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/more-completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--prefix <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/more-completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--prefix <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-#### ./bin/opt/parser
+#### bin/opt/parser
 
 ```
 parseArger parsing string for options:
@@ -624,34 +654,12 @@ parseArger parsing string for options:
 	-r|--repeat|--no-repeat: repeatable
 	--empty|--no-empty: use option as flag
 Usage :
-	./bin/opt/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+	bin/opt/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
 ```
 
-### ./bin/pos
+### bin/pos
 
-#### ./bin/pos/completely
-
-```
-parseArger string to declare a new option:
-	arg-name: positional argument name
-	description: positional argument description
-	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
-	--repeat-max <repeat-max>: maximum repeatition forces --repeat
-	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
-	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
-	--complete <complete>: bash built-in completely function, repeatable
-	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
-	-r|--repeat|--no-repeat: repeatable
-	--optional|--no-optional: optional
-	--subcommand|--no-subcommand: is a subcommand
-	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
-	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
-Usage :
-	./bin/pos/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
-```
-
-#### ./bin/pos/declaration
+#### bin/pos/completely
 
 ```
 parseArger string to declare a new option:
@@ -670,10 +678,32 @@ parseArger string to declare a new option:
 	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
+	bin/pos/completely <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
 ```
 
-#### ./bin/pos/help
+#### bin/pos/declaration
+
+```
+parseArger string to declare a new option:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
+Usage :
+	bin/pos/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
+```
+
+#### bin/pos/help
 
 ```
 parseArger help string for arguments:
@@ -692,10 +722,10 @@ parseArger help string for arguments:
 	--subcommand|--no-subcommand: is a subcommand
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+	bin/pos/help <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
-#### ./bin/pos/html
+#### bin/pos/html
 
 ```
 positional argument to html input:
@@ -723,10 +753,10 @@ positional argument to html input:
 	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--command <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
+	bin/pos/html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--command <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
 ```
 
-#### ./bin/pos/init
+#### bin/pos/init
 
 ```
 parseArger init string for agruments:
@@ -745,10 +775,10 @@ parseArger init string for agruments:
 	--subcommand|--no-subcommand: is a subcommand
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+	bin/pos/init <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
-#### ./bin/pos/is-subcmd
+#### bin/pos/is-subcmd
 
 ```
 is the arg a sub command:
@@ -767,32 +797,10 @@ is the arg a sub command:
 	--subcommand|--no-subcommand: is a subcommand
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/is-subcmd <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+	bin/pos/is-subcmd <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
-#### ./bin/pos/parser
-
-```
-parseArger parsing string for arguments:
-	arg-name: positional argument name
-	description: positional argument description
-	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
-	--repeat-max <repeat-max>: maximum repeatition forces --repeat
-	--one-of <one-of>: accepted values, repeatable
-	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
-	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
-	--complete <complete>: bash built-in completely function, repeatable
-	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
-	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
-	-r|--repeat|--no-repeat: repeatable
-	--optional|--no-optional: optional
-	--subcommand|--no-subcommand: is a subcommand
-	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
-Usage :
-	./bin/pos/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
-```
-
-#### ./bin/pos/subcmd-assign
+#### bin/pos/parser
 
 ```
 parseArger parsing string for arguments:
@@ -811,10 +819,10 @@ parseArger parsing string for arguments:
 	--subcommand|--no-subcommand: is a subcommand
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/subcmd-assign <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+	bin/pos/parser <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
-#### ./bin/pos/subcmd-handle
+#### bin/pos/subcmd-assign
 
 ```
 parseArger parsing string for arguments:
@@ -833,10 +841,32 @@ parseArger parsing string for arguments:
 	--subcommand|--no-subcommand: is a subcommand
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/subcmd-handle <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+	bin/pos/subcmd-assign <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
 ```
 
-#### ./bin/pos/subcmd-html
+#### bin/pos/subcmd-handle
+
+```
+parseArger parsing string for arguments:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces --repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces --repeat
+	--one-of <one-of>: accepted values, repeatable
+	--subcommand-directory <subcommand-directory>: directory containing subcommands, force subcommand, list parseArger script in directory to fill --one-of
+	--subcommand-variable <subcommand-variable>: array variable containing subcommand parts, force subcommand [default: ' __subcommand ']
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
+	-r|--repeat|--no-repeat: repeatable
+	--optional|--no-optional: optional
+	--subcommand|--no-subcommand: is a subcommand
+	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
+Usage :
+	bin/pos/subcmd-handle <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]
+```
+
+#### bin/pos/subcmd-html
 
 ```
 positional argument to html input:
@@ -865,58 +895,62 @@ positional argument to html input:
 	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
-	./bin/pos/subcmd-html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--command <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
+	bin/pos/subcmd-html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--command <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
 ```
 
-### ./bin/verbose
+### bin/verbose
 
-#### ./bin/verbose/declaration
+#### bin/verbose/declaration
 
 ```
 create common verbose stuff:
 	--option <option>: verbose trigger option [default: ' verbose ']
 	--level <level>: verbose default level [default: ' 0 ']
 	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--quiet-option <quiet-option>: trigger to tell script to shut up [default: ' quiet ']
 Usage :
-	./bin/verbose/declaration [--option <value>] [--level <value>] [--log-fn-name <value>]
+	bin/verbose/declaration [--option <value>] [--level <value>] [--log-fn-name <value>] [--quiet-option <value>]
 ```
 
-#### ./bin/verbose/init
+#### bin/verbose/init
 
 ```
 init verbose stuff:
 	--option <option>: verbose trigger option [default: ' verbose ']
 	--level <level>: verbose default level [default: ' 0 ']
 	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--quiet-option <quiet-option>: trigger to tell script to shut up [default: ' quiet ']
 Usage :
-	./bin/verbose/init [--option <value>] [--level <value>] [--log-fn-name <value>]
+	bin/verbose/init [--option <value>] [--level <value>] [--log-fn-name <value>] [--quiet-option <value>]
 ```
 
-#### ./bin/verbose/logger
+#### bin/verbose/logger
 
 ```
 init verbose stuff:
 	--option <option>: verbose trigger option [default: ' verbose ']
 	--level <level>: verbose default level [default: ' 0 ']
 	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--quiet-option <quiet-option>: trigger to tell script to shut up [default: ' quiet ']
 Usage :
-	./bin/verbose/logger [--option <value>] [--level <value>] [--log-fn-name <value>]
+	bin/verbose/logger [--option <value>] [--level <value>] [--log-fn-name <value>] [--quiet-option <value>]
 ```
 
-#### ./bin/verbose/parser
+#### bin/verbose/parser
 
 ```
 create version parser:
 	--option <option>: verbose trigger option [default: ' verbose ']
 	--level <level>: verbose default level [default: ' 0 ']
 	--log-fn-name <log-fn-name>: log function name [default: ' log ']
+	--quiet-option <quiet-option>: trigger to tell script to shut up [default: ' quiet ']
 Usage :
-	./bin/verbose/parser [--option <value>] [--level <value>] [--log-fn-name <value>]
+	bin/verbose/parser [--option <value>] [--level <value>] [--log-fn-name <value>] [--quiet-option <value>]
 ```
 
-### ./bin/version
+### bin/version
 
-#### ./bin/version/declaration
+#### bin/version/declaration
 
 ```
 create common version stuff:
@@ -924,10 +958,10 @@ create common version stuff:
 	--option <option>: version trigger option [default: ' version ']
 	--short-option <short-option>: version trigger short option [default: ' v ']
 Usage :
-	./bin/version/declaration <vernum> [--option <value>] [--short-option <value>]
+	bin/version/declaration <vernum> [--option <value>] [--short-option <value>]
 ```
 
-#### ./bin/version/parser
+#### bin/version/parser
 
 ```
 create version parser:
@@ -935,7 +969,7 @@ create version parser:
 	--option <option>: version trigger option [default: ' version ']
 	--short-option <short-option>: version trigger short option [default: ' v ']
 Usage :
-	./bin/version/parser <vernum> [--option <value>] [--short-option <value>]
+	bin/version/parser <vernum> [--option <value>] [--short-option <value>]
 ```
 
 

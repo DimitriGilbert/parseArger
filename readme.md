@@ -13,12 +13,12 @@ Ehhm, as long as you don't need completion generation, then you'll need [Complet
 ## TLDR
 
 ```bash
+# download the install script
+curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -O;
+# make it executable
+chmod +x get_parseArger;
 # install
-git clone https://github.com/DimitriGilbert/parseArger
-# add execution rigths
-chmod +x parseArger/parseArger parseArger/bin parseArger/utils -R
-# install to bashrc
-parseArger/utils/install --verbose 1 [--shell-rc-file "$HOME/.zshrc"] [--shell-rc-file "$HOME/.<X>rc"]
+./get_parseArger --install;
 # source bashrc, only needed once, modify according to your shell (if you don't know, it's the good one :D)
 source "$HOME/.bashrc"
 # echo parsing script for one argument and one option in a file, add execution rigths to the file
@@ -39,6 +39,19 @@ source /path/to/completion.bash
 ```
 
 ## Installation
+
+An installation script is provided if you are feeling lazy
+
+```bash
+# download the script
+curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -O;
+# make it executable
+chmod +x get_parseArger;
+# display the help
+./get_parseArger --help;
+# generic install
+./get_parseArger --install;
+```
 
 ### git (recommended)
 
@@ -256,7 +269,7 @@ create documentation for parseArger script:
 	--append-output|--no-append-output: add to output file if it exists, on by default (use --no-append-output to turn it off)
 ```
 Usage :
-	./bin/document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
+	parseArger document [--file <value>] [--directory <value>] [--out <value>] [--tag <value>] [--next-tag-prepend <value>] [--title <value>] [--title-tag <value>] [--[no-]sub-directory] [--[no-]append-output]
 
 ### completely
 
@@ -287,5 +300,27 @@ generate a completely yaml config and completion file:
 	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
 		no-aliases: --no-run,
 Usage :
-	./bin/completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
+	parseArger completely <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]
+```
+
+### project
+
+generate or parse a project:
+
+```bash
+	name: project name
+	--description|--project-help <description>: project description
+	-d, --directory|--dir <directory>: output directory, ./<project_name> by default
+	--subcommand-dir|--subcommand-directory <subcommand-dir>: subcommand script directory [default: ' bin ']
+	--subcommand <subcommand>: project subcommand, forces has-subcommand, repeatable
+	--completely <completely>: generate bash completion, filename (.yaml and .bash) if value is specified [default: ' on ']
+	--document <document>: generate documentation, filename (.md) if value is specified [default: ' on ']
+	--html-form <html-form>: generate html-form, filename (.html) if value is specified [default: ' on ']
+	--cp <cp>: file or directory to copy to the project directory, repeatable
+	--installer-git-service|--git-provider <installer-git-service>: git service [default: ' github.com ']
+	--installer-git-repo|--git-repo <installer-git-repo>: git repo eg DimitriGilbert/parseArger
+	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)
+	--git|--no-git: git init, on by default (use --no-git to turn it off)
+Usage :
+	parseArger project <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--[no-]readme] [--[no-]git]
 ```
