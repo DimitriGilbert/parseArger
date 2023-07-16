@@ -40,7 +40,10 @@ source /path/to/completion.bash
 
 ## Installation
 
-An installation script is provided if you are feeling lazy
+An installation script is provided if you are feeling lazy, it will :
+* clone (or download) parseArger,
+* set execution permission,
+* define a shell variable for parseArger directory and source parseArger.rc (alias and completion)
 
 ```bash
 # download the script
@@ -49,11 +52,20 @@ curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/g
 chmod +x get_parseArger;
 # display the help
 ./get_parseArger --help;
+#	-b, --branch|--tag|--install-version <branch>: version to install
+#	--install-directory <install-directory>: where to install
+#	--install-file <install-file>: rc files to install to, forces install, repeatable
+#	-i|--install|--no-install: install in bashrc
+#	--remove-installer|--no-remove-installer: remove install script itself
+#	aliases: --rm,
+#	--ssh|--no-ssh: clone using ssh
+#	--zip|--no-zip: install using zip archive, not recommended
+
 # generic install
 ./get_parseArger --install;
 ```
 
-### git (recommended)
+### git
 
 ```bash
 git clone https://github.com/DimitriGilbert/parseArger
@@ -324,3 +336,4 @@ generate or parse a project:
 Usage :
 	parseArger project <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--[no-]readme] [--[no-]git]
 ```
+

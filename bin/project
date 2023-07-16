@@ -9,7 +9,7 @@
 # @parseArger opt directory "output directory, ./<project_name> by default" --short d --alias dir --complete "directory"
 # @parseArger opt subcommand-dir "subcommand script directory" --default-value "bin" --alias subcommand-directory
 # @parseArger opt subcommand "project subcommand, forces has-subcommand" --repeat
-# @parseArger opt completely "generate bash completion, filename (.yaml and .bash) if value is specified" --default-value "on"
+# @parseArger opt completely "generate bash completion, filenames (.yaml and .bash) if value is specified"
 # @parseArger opt document "generate documentation, filename (.md) if value is specified" --default-value "on"
 # @parseArger opt html-form "generate html-form, filename (.html) if value is specified" --default-value "on"
 # @parseArger opt cp "file or directory to copy to the project directory" --repeat --complete "file" --complete "directory"
@@ -545,7 +545,7 @@ if [ "$_arg_installer_git_repo" != "" ]; then
 
 	if [ -f "readme.md" ]; then
 		log "Adding install instruction to readme" 4;
-		sed "${_SCRIPT_DIR}/../templates/readme.md" \
+		sed "${_SCRIPT_DIR}/../templates/install.md" \
 			-e "s|__program_name__|$_arg_name|g" \
 			-e "s|__git_repo__|${_arg_installer_git_repo}|g" >> "readme.md";
 	fi
