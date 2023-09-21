@@ -2,7 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "generate a completely yaml config and completion" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-declarations
 # @parseArger pos command-name "command-name"
 # @parseArger pos file "file" --optional --complete "file"
@@ -26,6 +26,7 @@
 # @parseArger flag version-opt "generate version opt handling" --on
 # @parseArger flag use-verbose "generate verbose level parser" --on
 # @parseArger flag run-completely "run completely" --on --no-alias no-run
+# @parseArger flag discover-subcommand "auto run completely on found subcommand"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -76,6 +77,7 @@ _arg_completion_file="completely.bash"
 _arg_version_opt="on"
 _arg_use_verbose="on"
 _arg_run_completely="on"
+_arg_discover_subcommand="off"
 _verbose_level="0";
 
 
@@ -110,8 +112,9 @@ print_help()
 	echo -e "	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)"
 	echo -e "	--run-completely|--no-run-completely: run completely, on by default (use --no-run-completely to turn it off)
 		no-aliases: --no-run,"
+	echo -e "	--discover-subcommand|--no-discover-subcommand: auto run completely on found subcommand"
 	echo -e "Usage :
-	$0 <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely]";
+	$0 <command-name> [file] [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--version-opt-name <value>] [--version-short-option <value>] [--verbose-opt-name <value>] [--subcommand-directory <value>] [--completely-cmd <value>] [--extra-file <value>] [--yaml-file <value>] [--completion-file <value>] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]run-completely] [--[no-]discover-subcommand]";
 	fi
 
 }
@@ -349,6 +352,12 @@ parse_commandline()
 			--no-run-completely|--no-run)
 				_arg_run_completely="off"
 				;;
+			--discover-subcommand)
+				_arg_discover_subcommand="on"
+				;;
+			--no-discover-subcommand)
+				_arg_discover_subcommand="off"
+				;;
 			-h|--help)
 				print_help;
 				exit 0;
@@ -366,14 +375,22 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-				if [ $# -lt 2 ];then
-					_verbose_level="$((_verbose_level + 1))";
-				else
-					_verbose_level="$2";
-					shift;
-				fi
-				;;
-			
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -439,6 +456,7 @@ print_debug()
 	echo -e "\tversion-opt: ${_arg_version_opt}";
 	echo -e "\tuse-verbose: ${_arg_use_verbose}";
 	echo -e "\trun-completely: ${_arg_run_completely}";
+	echo -e "\tdiscover-subcommand: ${_arg_discover_subcommand}";
 
 }
 
@@ -514,12 +532,16 @@ for flag in "${_arg_flag[@]}"; do
 	fi
 done
 
+if [ "$_arg_discover_subcommand" == "on" ] && [ "$subCmd" != "" ] && [ "$_arg_subcommand_directory" == "" ] ; then
+	_arg_subcommand_directory="$(eval "$SCRIPT_ROOT_DIR/pos/get-subcmd-directory $subCmd")";
+fi
+
 if [ "$subCmd" != "" ] && [ "$_arg_subcommand_directory" != "" ] && [ -d "$_arg_subcommand_directory" ]; then
 	_oneofs_scmd=();
 	parsearger_get_one_ofs _oneofs_scmd "$subCmd";
 	for _scmd in "${_oneofs_scmd[@]}"; do
 		if [ -f "${_arg_subcommand_directory}/${_scmd}" ]; then
-			outStr+="$("$0" "${_arg_command_name} ${_scmd}" "${_arg_subcommand_directory}/${_scmd}" "--no-run-completely")\n";
+			outStr+="$("$0" "${_arg_command_name} ${_scmd}" "${_arg_subcommand_directory}/${_scmd}" "--no-run-completely" "--discover-subcommand")\n";
 		fi
 	done
 fi
