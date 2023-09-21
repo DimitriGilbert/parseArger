@@ -327,17 +327,19 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-# TODO get script set verbose_level
-outStr="if [ \"\$_triggerSCHelp\" == \"0\" ];then
+outStr="";
+
+if [ "$_arg_subcommand_use_leftovers" != "off" ]; then
+	outStr+="${_arg_subcommand_variable}+=(\"\${_arg_leftovers[@]}\");\n";
+fi
+
+outStr+="if [ \"\$_triggerSCHelp\" == \"0\" ];then
 	__subcommand+=(\"--help\");
 fi
 if [ \"\$_verbose_level\" -ne \"0\" ];then
 	__subcommand+=(\"--verbose\" \"\$_verbose_level\");
 fi
 ";
-if [ "$_arg_subcommand_use_leftovers" != "off" ]; then
-	outStr+="${_arg_subcommand_variable}+=(\"\${_arg_leftovers[@]}\");";
-fi
 if [ "$_arg_subcommand_run" != "off" ]; then
 	outStr+="\"\${${_arg_subcommand_variable}[@]}\";";
 fi

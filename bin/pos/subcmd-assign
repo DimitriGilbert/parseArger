@@ -326,11 +326,21 @@ trap on_interrupt INT;
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
-
 _tgtdir="";
 if [ "${_arg_subcommand_directory}" != "" ];then
 	_tgtdir="${_arg_subcommand_directory}";
 	[[ $_tgtdir != */ ]] && _tgtdir+="/";
 fi
 
-echo -e "${_arg_subcommand_variable}+=(\"\$_SCRIPT_DIR/$_tgtdir\${1}\");";
+echo -e "
+			if [ \"\$_arg_subcommand_arg\" == \"\$_positional_name\" ];then
+				if [ -d \"\$_SCRIPT_DIR/$_tgtdir\${1}\" ];then
+					${_arg_subcommand_variable}+=(\"\$_SCRIPT_DIR/$_tgtdir\${1}\");
+				elif [[ \"$_tgtdir\" == \$(basename \"\$_SCRIPT_DIR\")* ]];then
+					cmdToSub=\"\$(basename \"\$_SCRIPT_DIR\")\";
+					cmdsubDir=\"$_tgtdir\";
+					${_arg_subcommand_variable}+=(\"\$_SCRIPT_DIR\${cmdsubDir#\"\${cmdToSub}\"}\${1}\");
+				else
+					${_arg_subcommand_variable}+=(\"\$_SCRIPT_DIR/$_tgtdir\${1}\");
+				fi
+			fi";
