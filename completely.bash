@@ -97,7 +97,7 @@ _parseArger_completions() {
       ;;
 
     'completely'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --version-opt-name --version-short-option --verbose-opt-name --subcommand-directory --subcmd-dir --completely-cmd --cmpcmd --extra-file --yaml-file --completion-file --version-opt --no-version-opt --use-verbose --no-use-verbose --run-completely --no-run-completely --no-run")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --version-opt-name --version-short-option --verbose-opt-name --subcommand-directory --subcmd-dir --completely-cmd --cmpcmd --extra-file --yaml-file --completion-file --version-opt --no-version-opt --use-verbose --no-use-verbose --run-completely --no-run-completely --no-run --discover-subcommand --no-discover-subcommand")" -- "$cur" )
       ;;
 
     'html-form'*)
@@ -117,7 +117,7 @@ _parseArger_completions() {
       ;;
 
     'project'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--description --project-help --directory --dir -d --subcommand-dir --subcommand-directory --subcommand --completely --document --html-form --cp --readme --no-readme --git --no-git")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--description --project-help --directory --dir -d --subcommand-dir --subcommand-directory --subcommand --completely --document --html-form --cp --installer-git-service --git-provider --installer-git-repo --git-repo --readme --no-readme --git --no-git")" -- "$cur" )
       ;;
 
     'parse'*)

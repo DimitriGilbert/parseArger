@@ -60,6 +60,8 @@ parseArger completely:
 - --run-completely
 - --no-run-completely
 - --no-run
+- --discover-subcommand
+- --no-discover-subcommand
 
 
 
@@ -194,6 +196,10 @@ parseArger project:
 - --document
 - --html-form
 - --cp
+- --installer-git-service
+- --git-provider
+- --installer-git-repo
+- --git-repo
 - --readme
 - --no-readme
 - --git
@@ -214,6 +220,5 @@ parseArger project*--cp:
 - <directory>
 parseArger*--output:
 - <file>
-
 
 
