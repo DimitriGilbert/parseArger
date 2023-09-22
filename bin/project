@@ -5,16 +5,19 @@
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
 # @parseArger pos name "project name"
+# @parseArger pos target "specific stuff on a project" --optional --subcommand-directory "bin/_project" --subcommand --one-of "git-init" --one-of "installer" --one-of "" --one-of "" --one-of "git-init" --one-of ""
 # @parseArger opt description "project description" --alias project-help
 # @parseArger opt directory "output directory, ./<project_name> by default" --short d --alias dir --complete "directory"
-# @parseArger opt subcommand-dir "subcommand script directory" --default-value "bin" --alias subcommand-directory
-# @parseArger opt subcommand "project subcommand, forces has-subcommand" --repeat
+# @parseArger opt project-subcommand-dir "subcommand script directory" --default-value "bin" --alias subcommand-directory
+# @parseArger opt project-subcommand "project subcommand, forces has-subcommand" --repeat
 # @parseArger opt completely "generate bash completion, filenames (.yaml and .bash) if value is specified"
 # @parseArger opt document "generate documentation, filename (.md) if value is specified" --default-value "on"
 # @parseArger opt html-form "generate html-form, filename (.html) if value is specified" --default-value "on"
 # @parseArger opt cp "file or directory to copy to the project directory" --repeat --complete "file" --complete "directory"
 # @parseArger opt installer-git-service "git service" --default-value "github.com" --alias git-provider
 # @parseArger opt installer-git-repo "git repo eg DimitriGilbert/parseArger" --alias git-repo
+# @parseArger opt git-add "stuff to add to git" --repeat
+# @parseArger opt git-commit "commit, force --git-add" --alias commit
 # @parseArger flag readme "create a basic readme" --on
 # @parseArger flag git "git init" --on
 # @parseArger-declarations-end
@@ -43,18 +46,26 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
 _arg_name="";
+_arg_target="";
+_one_of_arg_target=("git-init" "installer" "" "" "git-init" "git-init" );
+_optional_positionals+=("_arg_target");
+_arg_subcommand_arg="_arg_target";
+__subcommand=();
 # OPTIONALS ARGUMENTS
 _arg_description=
 _arg_directory=
-_arg_subcommand_dir="bin"
-_arg_subcommand=()
-_arg_completely="on"
+_arg_project_subcommand_dir="bin"
+_arg_project_subcommand=()
+_arg_completely=
 _arg_document="on"
 _arg_html_form="on"
 _arg_cp=()
 _arg_installer_git_service="github.com"
 _arg_installer_git_repo=
+_arg_git_add=()
+_arg_git_commit=
 # FLAGS
 _arg_readme="on"
 _arg_git="on"
@@ -68,25 +79,38 @@ print_help()
 {
 	_triggerSCHelp=1;
 
+	if [ "${#_positionals[@]}" -ge 1 ]; then
+		echo "$0 sub command help
+	"
+		_triggerSCHelp=0;
+	else
+	
+
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
 		echo -e "generate or parse a project:"
 	echo -e "	name: project name"
+	echo -e "	target: specific stuff on a project, optional [one of 'git-init' 'installer' '' '' 'git-init' 'git-init']"
 	echo -e "	--description|--project-help <description>: project description"
 	echo -e "	-d, --directory|--dir <directory>: output directory, ./<project_name> by default"
-	echo -e "	--subcommand-dir|--subcommand-directory <subcommand-dir>: subcommand script directory [default: ' bin ']"
-	echo -e "	--subcommand <subcommand>: project subcommand, forces has-subcommand, repeatable"
-	echo -e "	--completely <completely>: generate bash completion, filename (.yaml and .bash) if value is specified [default: ' on ']"
+	echo -e "	--project-subcommand-dir|--subcommand-directory <project-subcommand-dir>: subcommand script directory [default: ' bin ']"
+	echo -e "	--project-subcommand <project-subcommand>: project subcommand, forces has-subcommand, repeatable"
+	echo -e "	--completely <completely>: generate bash completion, filenames (.yaml and .bash) if value is specified"
 	echo -e "	--document <document>: generate documentation, filename (.md) if value is specified [default: ' on ']"
 	echo -e "	--html-form <html-form>: generate html-form, filename (.html) if value is specified [default: ' on ']"
 	echo -e "	--cp <cp>: file or directory to copy to the project directory, repeatable"
 	echo -e "	--installer-git-service|--git-provider <installer-git-service>: git service [default: ' github.com ']"
 	echo -e "	--installer-git-repo|--git-repo <installer-git-repo>: git repo eg DimitriGilbert/parseArger"
+	echo -e "	--git-add <git-add>: stuff to add to git, repeatable"
+	echo -e "	--git-commit|--commit <git-commit>: commit, force --git-add"
 	echo -e "	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)"
 	echo -e "	--git|--no-git: git init, on by default (use --no-git to turn it off)"
 	echo -e "Usage :
-	$0 <name> [--description <value>] [--directory <value>] [--subcommand-dir <value>] [--subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--[no-]readme] [--[no-]git]";
+	$0 <name> [target] [--description <value>] [--directory <value>] [--project-subcommand-dir <value>] [--project-subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--git-add <value>] [--git-commit <value>] [--[no-]readme] [--[no-]git]";
 	fi
+
+	fi
+	
 
 }
 
@@ -155,25 +179,25 @@ parse_commandline()
 				_arg_directory="${_key##-d}"
 				;;
 			
-			--subcommand-directory|--subcommand-dir)
+			--subcommand-directory|--project-subcommand-dir)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_subcommand_dir="$2"
+				_arg_project_subcommand_dir="$2"
 				shift
 				;;
-			--subcommand-dir=*)
-				_arg_subcommand_dir="${_key##--subcommand-dir=}"
+			--project-subcommand-dir=*)
+				_arg_project_subcommand_dir="${_key##--project-subcommand-dir=}"
 				;;
 			--subcommand-directory=*)
-				_arg_subcommand_dir="${_key##--subcommand-directory=}"
+				_arg_project_subcommand_dir="${_key##--subcommand-directory=}"
 				;;
 			
-			--subcommand)
+			--project-subcommand)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_subcommand+=("$2")
+				_arg_project_subcommand+=("$2")
 				shift
 				;;
-			--subcommand=*)
-				_arg_subcommand+=("${_key##--subcommand=}")
+			--project-subcommand=*)
+				_arg_project_subcommand+=("${_key##--project-subcommand=}")
 				;;
 			
 			--completely)
@@ -236,6 +260,27 @@ parse_commandline()
 				_arg_installer_git_repo="${_key##--git-repo=}"
 				;;
 			
+			--git-add)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_git_add+=("$2")
+				shift
+				;;
+			--git-add=*)
+				_arg_git_add+=("${_key##--git-add=}")
+				;;
+			
+			--commit|--git-commit)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_git_commit="$2"
+				shift
+				;;
+			--git-commit=*)
+				_arg_git_commit="${_key##--git-commit=}"
+				;;
+			--commit=*)
+				_arg_git_commit="${_key##--commit=}"
+				;;
+			
 			--readme)
 				_arg_readme="on"
 				;;
@@ -250,11 +295,9 @@ parse_commandline()
 				;;
 			-h|--help)
 				print_help;
-				exit 0;
 				;;
 			-h*)
 				print_help;
-				exit 0;
 				;;
 			-v|--version)
 				print_version;
@@ -305,8 +348,8 @@ handle_passed_args_count()
 assign_positional_args()
 {
 	local _positional_name _shift_for=$1;
-	_positional_names="_arg_name ";
-	_leftovers_count=$((${#_positionals[@]} - 1))
+	_positional_names="_arg_name _arg_target ";
+	_leftovers_count=$((${#_positionals[@]} - 2))
 	for ((ii = 0; ii < _leftovers_count; ii++));do
 		_positional_names="$_positional_names _arg_leftovers[$((ii + 0))]";
 	done
@@ -315,7 +358,19 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		if ! [[ "$_positional_name" =~ "_arg_leftovers" ]];then
-			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \" \${_one_of${_positional_name}[*]} \" =~ \" \${1} \" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+			
+			if [ "$_arg_subcommand_arg" == "$_positional_name" ];then
+				if [ -d "$_SCRIPT_DIR/${1}" ];then
+					__subcommand+=("$_SCRIPT_DIR/${1}");
+				elif [[ "bin/_project" == $(basename "$_SCRIPT_DIR")* ]];then
+					cmdToSub="$(basename "$_SCRIPT_DIR")";
+					cmdsubDir="bin/_project";
+					__subcommand+=("$_SCRIPT_DIR${cmdsubDir#"${cmdToSub}"}${1}");
+				else
+					__subcommand+=("$_SCRIPT_DIR/${1}");
+				fi
+			fi
 		fi
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
@@ -329,16 +384,19 @@ print_debug()
 	echo "DEBUG: $0 $@";
 	
 	echo -e "\tname: ${_arg_name}";
+	echo -e "\ttarget: ${_arg_target}";
 	echo -e "\tdescription: ${_arg_description}";
 	echo -e "\tdirectory: ${_arg_directory}";
-	echo -e "\tsubcommand-dir: ${_arg_subcommand_dir}";
-	echo -e "\tsubcommand: ${_arg_subcommand[*]}";
+	echo -e "\tproject-subcommand-dir: ${_arg_project_subcommand_dir}";
+	echo -e "\tproject-subcommand: ${_arg_project_subcommand[*]}";
 	echo -e "\tcompletely: ${_arg_completely}";
 	echo -e "\tdocument: ${_arg_document}";
 	echo -e "\thtml-form: ${_arg_html_form}";
 	echo -e "\tcp: ${_arg_cp[*]}";
 	echo -e "\tinstaller-git-service: ${_arg_installer_git_service}";
 	echo -e "\tinstaller-git-repo: ${_arg_installer_git_repo}";
+	echo -e "\tgit-add: ${_arg_git_add[*]}";
+	echo -e "\tgit-commit: ${_arg_git_commit}";
 	echo -e "\treadme: ${_arg_readme}";
 	echo -e "\tgit: ${_arg_git}";
 	echo -e "\tleftovers: ${_arg_leftovers[*]}";
@@ -360,193 +418,162 @@ assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
 
 
+if [ "$_triggerSCHelp" == "0" ];then
+	__subcommand+=("--help");
+fi
+if [ "$_verbose_level" -ne "0" ];then
+	__subcommand+=("--verbose" "$_verbose_level");
+fi
 
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
 source "$_SCRIPT_DIR/utils";
 
-if [ "$_arg_directory" == "" ]; then
-	log "No directory specified" 3;
-	_arg_directory="$(pwd)/$_arg_name";
-fi
-
-if [ "$_arg_description" == "" ]; then
-	log "No description specified" 3;
-	_arg_description="$_arg_name, a ParseArger project";
-fi
-
-if [ ! -d "$_arg_directory" ]; then
-	log "Creating $_arg_directory" 2;
-	mkdir -p "$_arg_directory";
-fi
-
-cd "$_arg_directory";
-
-paBin="$_SCRIPT_DIR/../parseArger";
-
-mainBin="$_arg_name"
-genMainCmd=("$paBin" generate --help-message "$_arg_description" --output "$mainBin");
-
-if [ "${#_arg_subcommand[@]}" -gt 0 ]; then
-	log "Generating subcommands" 4;
-	
-	if [ ! -d "./${_arg_subcommand_dir}" ]; then
-		log "Creating ./${_arg_subcommand_dir}" 2;
-		mkdir -p "./${_arg_subcommand_dir}";
+if [ "$_arg_target" != "" ]; then
+	log "${__subcommand[*]}" 2;
+	"${__subcommand[@]}";
+else
+	if [ "$_arg_directory" == "" ]; then
+		log "No directory specified" 3;
+		_arg_directory="$(pwd)/$_arg_name";
 	fi
-	
-	genMainCmd+=(--leftovers --pos "target '$_arg_name subcommand' --subcommand-use-leftovers --subcommand-run --subcommand-directory './${_arg_subcommand_dir}'");
-	
-	for sbcmd in "${_arg_subcommand[@]}"; do
-		if [ ! -f "./${_arg_subcommand_dir}/$sbcmd" ]; then
-			log "Generating ./${_arg_subcommand_dir}/$sbcmd" 1;
-			"$paBin" generate --help-message "$_arg_name $sbcmd command" --output "./${_arg_subcommand_dir}/$sbcmd";
-		else 
-			log "Parsing ./${_arg_subcommand_dir}/$sbcmd" 1;
-			"$paBin" parse -i "./${_arg_subcommand_dir}/$sbcmd";
-		fi
-	done
 
-fi
-
-if [ "${#_arg_cp[@]}" -gt 0 ]; then
-	log "Copying files and directories" 4;
-	for cp in "${_arg_cp[@]}"; do
-		if [ -d "$cp" ]; then
-			log "copying directory $cp" 2;
-			cp -r "$cp" "./";
-		elif [ -f "$cp" ]; then
-			log "copying $cp" 2;
-			cp "$cp" "./"
-		else
-			log "No such file or directory :\n$cp" -1;
-		fi
-	done
-fi
-
-if [ ! -f "$mainBin" ]; then
-	log "Generating main command" 4;
-	log "${genMainCmd[*]}" 1;
-	"${genMainCmd[@]}";
-else 
-	log "Parsing main command" 4;
-	"$paBin" parse -i "$mainBin";
-fi
-
-if [ "$_arg_completely" != "" ]; then
-	log "Generating completions" 4;
-	pacCmd=("$paBin" completely "$_arg_name" "$mainBin");
-	if [ "$_arg_completely" != "on" ]; then
-		pacCmd+=(--yaml-file  "${_arg_completely}.yaml" --completion-file "${_arg_completely}.bash");
+	if [ "$_arg_description" == "" ]; then
+		log "No description specified" 3;
+		_arg_description="$_arg_name, a ParseArger project";
 	fi
-	log "${pacCmd[*]}" 1;
-	"${pacCmd[@]}";
-fi
 
-if [ "$_arg_document" != "" ]; then
-	log "Generating documentation" 4;
-	if [ "$_arg_document" == "on" ]; then
-		_arg_document="documentation";
+	if [ ! -d "$_arg_directory" ]; then
+		log "Creating $_arg_directory" 2;
+		mkdir -p "$_arg_directory";
 	fi
-	
-	if [ ! -f "${_arg_document}.md" ]; then
-		padCmd=("$paBin" document --file "./$mainBin" --out "${_arg_document}.md");
 
-		log "${padCmd[*]}" 1;
-		"${padCmd[@]}";
-	else
-		log "documentation already exists" -1;
-	fi
-fi
+	cd "$_arg_directory";
 
-if [ "$_arg_html_form" != "" ]; then
-	log "Generating html form" 4;
-	if [ "$_arg_html_form" == "on" ]; then
-		_arg_html_form="form";
-	fi
-	
-	if [ ! -f "${_arg_html_form}.html" ]; then
+	paBin="$_SCRIPT_DIR/../parseArger";
+
+	mainBin="$_arg_name"
+	genMainCmd=("$paBin" generate --help-message "$_arg_description" --output "$mainBin");
+
+	if [ "${#_arg_project_subcommand[@]}" -gt 0 ]; then
+		log "Generating subcommands" 4;
 		
-		pahCmd=("$paBin" html-form "$mainBin" --output "${_arg_html_form}.html");
+		if [ ! -d "./${_arg_project_subcommand_dir}" ]; then
+			log "Creating ./${_arg_project_subcommand_dir}" 2;
+			mkdir -p "./${_arg_project_subcommand_dir}";
+		fi
+		
+		genMainCmd+=(--leftovers 
+			--pos "target '$_arg_name subcommand' --subcommand-use-leftovers --subcommand-run --subcommand-directory '${_arg_project_subcommand_dir}'"
+		);
+		
+		for sbcmd in "${_arg_project_subcommand[@]}"; do
+			if [ ! -f "./${_arg_project_subcommand_dir}/$sbcmd" ]; then
+				log "Generating ./${_arg_project_subcommand_dir}/$sbcmd" 1;
+				"$paBin" generate --help-message "$_arg_name $sbcmd command" --output "./${_arg_project_subcommand_dir}/$sbcmd";
+			else 
+				log "Parsing ./${_arg_project_subcommand_dir}/$sbcmd" 1;
+				"$paBin" parse -i "./${_arg_project_subcommand_dir}/$sbcmd";
+			fi
+		done
 
-		log "${pahCmd[*]}" 1;
-		"${pahCmd[@]}";
-	else
-		log "html form already exists" -1;
-	fi
-fi
-
-if [ "$_arg_readme" != "off" ]; then
-	log "Generating readme" 4;
-	
-	if [ ! -f "${_arg_readme}" ]; then
-		echo -e "# $_arg_name\n\n$_arg_description\n" > readme.md;
-	else
-		log "readme already exists" -1;
-	fi
-fi
-
-if [ "$_arg_git" != "off" ]; then
-	log "Initializing git" 4;
-	
-	if [ ! -d ".git" ]; then
-		git init;
-		# git add .;
-		# git commit -m "Initial commit";
-	else
-		log "git already initialized" -1;
-	fi
-fi
-
-if [ "$_arg_installer_git_repo" != "" ]; then
-	log "Generating installer" 4;
-	sshurl="git@${_arg_installer_git_service}:${_arg_installer_git_repo}.git";
-	httpsurl="https://${_arg_installer_git_service}/${_arg_installer_git_repo}.git";
-	zipurl="https://${_arg_installer_git_service}/${_arg_installer_git_repo}/archive/refs/heads/\${_arg_branch}.zip";
-	
-	if [ ! -d "utils" ]; then
-		log "Creating utils directory" 4;
-		mkdir -p "utils";
 	fi
 
-	if [ ! -f "utils/get_${_arg_name}" ]; then
-		genget_=("$paBin" generate --help-message "Get $_arg_name installer" --output "utils/get_${_arg_name}");
-		genget_+=(--opt 'branch "version to install" --short b --alias tag --alias install-version');
-		genget_+=(--opt 'install-directory "where to install" --complete "directory"');
-		genget_+=(--opt 'install-file "rc files to install to, forces install" --repeat');
-		genget_+=(--flag 'install "install in bashrc" --short i');
-		genget_+=(--flag 'remove-installer "remove install script itself" --alias rm');
-		genget_+=(--flag 'ssh "clone using ssh"');
-		genget_+=(--flag 'zip "install using zip archive, not recommended"');
-		log "generating gette script" 4;
-		log "${genget_[*]}" 1;
-		"${genget_[@]}";
-
-		sed "${_SCRIPT_DIR}/../templates/utils/get_" \
-			-e "s|__git_ssh_url__|$sshurl|g" \
-			-e "s|__git_https_url__|$httpsurl|g" \
-			-e "s|__zip_url__|$zipurl|g" \
-			-e "s|__program_name__|$_arg_name|g" >> "utils/get_${_arg_name}";
+	if [ "${#_arg_cp[@]}" -gt 0 ]; then
+		log "Copying files and directories" 4;
+		for cp in "${_arg_cp[@]}"; do
+			if [ -d "$cp" ]; then
+				log "copying directory $cp" 2;
+				cp -r "$cp" "./";
+			elif [ -f "$cp" ]; then
+				log "copying $cp" 2;
+				cp "$cp" "./"
+			else
+				log "No such file or directory :\n$cp" -1;
+			fi
+		done
 	fi
 
-	if [ ! -f "utils/install" ]; then
-		geninst_=("$paBin" generate --help-message "Install $_arg_name" --output "utils/install");
-		geninst_+=(--opt 'shell-rc-file "where to put the source directive" --default-value "\$HOME/.bashrc" --repeat --alias install-file');
-		geninst_+=(--flag 'comment "add parsearger comment" --on');
-		log "generating install script" 4;
-		log "${geninst_[*]}" 1;
-		"${geninst_[@]}";
-
-		sed "${_SCRIPT_DIR}/../templates/utils/install" \
-			-e "s|__program_name__|$_arg_name|g" \
-			-e "s|__program_name_upper__|${_arg_name^^}|g" >> "utils/install";
+	if [ ! -f "$mainBin" ]; then
+		log "Generating main command" 4;
+		log "${genMainCmd[*]}" 1;
+		"${genMainCmd[@]}";
+	else 
+		log "Parsing main command" 4;
+		"$paBin" parse -i "$mainBin";
 	fi
 
-	if [ -f "readme.md" ]; then
-		log "Adding install instruction to readme" 4;
-		sed "${_SCRIPT_DIR}/../templates/install.md" \
-			-e "s|__program_name__|$_arg_name|g" \
-			-e "s|__git_repo__|${_arg_installer_git_repo}|g" >> "readme.md";
+	if [ "$_arg_completely" != "" ]; then
+		log "Generating completions" 4;
+		pacCmd=("$paBin" completely "$_arg_name" "$mainBin");
+		if [ "$_arg_completely" != "on" ]; then
+			pacCmd+=(--yaml-file  "${_arg_completely}.yaml" --completion-file "${_arg_completely}.bash");
+		fi
+		log "${pacCmd[*]}" 1;
+		"${pacCmd[@]}";
+	fi
+
+	if [ "$_arg_document" != "" ]; then
+		log "Generating documentation" 4;
+		if [ "$_arg_document" == "on" ]; then
+			_arg_document="documentation";
+		fi
+		
+		if [ ! -f "${_arg_document}.md" ]; then
+			padCmd=("$paBin" document --file "./$mainBin" --out "${_arg_document}.md");
+
+			log "${padCmd[*]}" 1;
+			"${padCmd[@]}";
+		else
+			log "documentation already exists" -1;
+		fi
+	fi
+
+	if [ "$_arg_html_form" != "" ]; then
+		log "Generating html form" 4;
+		if [ "$_arg_html_form" == "on" ]; then
+			_arg_html_form="form";
+		fi
+		
+		if [ ! -f "${_arg_html_form}.html" ]; then
+			
+			pahCmd=("$paBin" html-form "$mainBin" --output "${_arg_html_form}.html");
+
+			log "${pahCmd[*]}" 1;
+			"${pahCmd[@]}";
+		else
+			log "html form already exists" -1;
+		fi
+	fi
+
+	if [ "$_arg_readme" != "off" ]; then
+		log "Generating readme" 4;
+		
+		if [ ! -f "${_arg_readme}" ]; then
+			echo -e "# $_arg_name\n\n$_arg_description\n" > readme.md;
+		else
+			log "readme already exists" -1;
+		fi
+	fi
+
+	if [ "$_arg_git" != "off" ] || [ "${#_arg_git_add[@]}" -gt 0 ] || [ "$_arg_git_commit" != "" ]; then
+		log "Initializing git" 4;
+		gitInc=("$_SCRIPT_DIR/_project/git-init");
+		if [ "${#_arg_git_add[@]}" -gt 0 ]; then
+			for add in "${_arg_git_add[@]}"; do
+				gitInc+=(--add "$add");
+			done
+		fi
+		if [ "$_arg_git_commit" != "" ]; then
+			gitInc+=(--commit "'$_arg_git_commit'");
+		fi
+		"${gitInc[@]}";
+	fi
+
+	if [ "$_arg_installer_git_repo" != "" ]; then
+		log "Generating installer" 4;
+		genIns=("$_SCRIPT_DIR/_project/installer" "$_arg_name" --git-service "$_arg_installer_git_service" --git-repo "$_arg_installer_git_repo" --parsearger "$paBin");
+		"${genIns[@]}";
 	fi
 fi

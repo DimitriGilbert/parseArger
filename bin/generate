@@ -609,7 +609,8 @@ begins_with_short_option()
 }
 
 # POSITIONALS ARGUMENTS
-_positionals=();"
+_positionals=();
+_optional_positionals=();"
 
 # variable initialisation
 for pos in "${_arg_pos[@]}"; do

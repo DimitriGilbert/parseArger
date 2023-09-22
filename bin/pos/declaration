@@ -367,7 +367,7 @@ if [ "$_arg_subcommand_directory" != "" ]; then
 		# TODO: do something to fix subcommand directory (if not in root dir, not working...)
 		for file in "$_arg_subcommand_directory/"*; do
 			tname="$(basename "$file")";
-			if ! [[ "${_arg_one_of[*]}" =~ " $tname " ]] && [ -f "$file" ] && parsearger_is_pa_file "$file"; then
+			if ! [[ " ${_arg_one_of[*]} " =~ " $tname " ]] && [ -f "$file" ] && parsearger_is_pa_file "$file"; then
 				_arg_one_of+=("$tname");
 			fi
 		done

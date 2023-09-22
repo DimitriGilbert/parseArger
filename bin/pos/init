@@ -357,6 +357,10 @@ if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	initStr+=");";
 fi
 
+if [ "$_arg_optional" == "on" ]; then
+	initStr+="\n_optional_positionals+=(\"_arg_${_arg_arg_name//-/_}\");";
+fi
+
 if [ "$_arg_subcommand_run" != "off" ]; then
 	_arg_subcommand="on";
 fi

@@ -1,0 +1,279 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "generate the get_<myscript> docwloader and installer" --option "help" --short-option "h"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+# @parseArger-declarations
+# @parseArger pos name "project name"
+# @parseArger opt git-repo "git repository name"
+# @parseArger opt git-service "git service" --default-value "github"
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_arg_name="";
+# OPTIONALS ARGUMENTS
+_arg_git_repo=
+_arg_git_service="github"
+_arg_parsearger=()
+# FLAGS
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "generate the get_<myscript> docwloader and installer:"
+	echo -e "	name: project name"
+	echo -e "	--git-repo <git-repo>: git repository name"
+	echo -e "	--git-service <git-service>: git service [default: ' github ']"
+	echo -e "	--parsearger <parsearger>: parseArger path, repeatable"
+	echo -e "Usage :
+	$0 <name> [--git-repo <value>] [--git-service <value>] [--parsearger <value>]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			--git-repo)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_git_repo="$2"
+				shift
+				;;
+			--git-repo=*)
+				_arg_git_repo="${_key##--git-repo=}"
+				;;
+			
+			--git-service)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_git_service="$2"
+				shift
+				;;
+			--git-service=*)
+				_arg_git_service="${_key##--git-service=}"
+				;;
+			
+			--parsearger)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_parsearger+=("$2")
+				shift
+				;;
+			--parsearger=*)
+				_arg_parsearger+=("${_key##--parsearger=}")
+				;;
+			
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			--verbose)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string="name"
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_name ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\tname: ${_arg_name}";
+	echo -e "\tgit-repo: ${_arg_git_repo}";
+	echo -e "\tgit-service: ${_arg_git_service}";
+	echo -e "\tparsearger: ${_arg_parsearger[*]}";
+
+}
+
+print_version()
+{
+	echo "";
+}
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+sshurl="git@${_arg_git_service}:${_arg_git_repo}.git";
+httpsurl="https://${_arg_git_service}/${_arg_git_repo}.git";
+zipurl="https://${_arg_git_service}/${_arg_git_repo}/archive/refs/heads/\${_arg_branch}.zip";
+
+if [ ! -d "utils" ]; then
+	log "Creating utils directory" 4;
+	mkdir -p "utils";
+fi
+
+paBin="$_SCRIPT_DIR/../../parseArger";
+
+if [ ! -f "utils/get_${_arg_name}" ]; then
+	genget_=("$paBin" generate --help-message "Get $_arg_name installer" --output "utils/get_${_arg_name}");
+	genget_+=(--opt 'branch "version to install" --short b --alias tag --alias install-version');
+	genget_+=(--opt 'install-directory "where to install" --complete "directory"');
+	genget_+=(--opt 'install-file "rc files to install to, forces install" --repeat');
+	genget_+=(--flag 'install "install in bashrc" --short i');
+	genget_+=(--flag 'remove-installer "remove install script itself" --alias rm');
+	genget_+=(--flag 'ssh "clone using ssh"');
+	genget_+=(--flag 'zip "install using zip archive, not recommended"');
+	log "generating gette script" 4;
+	log "${genget_[*]}" 1;
+	"${genget_[@]}";
+
+	sed "${_SCRIPT_DIR}/../../templates/utils/get_" \
+		-e "s|__git_ssh_url__|$sshurl|g" \
+		-e "s|__git_https_url__|$httpsurl|g" \
+		-e "s|__zip_url__|$zipurl|g" \
+		-e "s|__program_name__|$_arg_name|g" >> "utils/get_${_arg_name}";
+fi
+
+if [ ! -f "utils/install" ]; then
+	geninst_=("$paBin" generate --help-message "Install $_arg_name" --output "utils/install");
+	geninst_+=(--opt 'shell-rc-file "where to put the source directive" --default-value "\$HOME/.bashrc" --repeat --alias install-file');
+	geninst_+=(--flag 'comment "add parsearger comment" --on');
+	log "generating install script" 4;
+	log "${geninst_[*]}" 1;
+	"${geninst_[@]}";
+
+	sed "${_SCRIPT_DIR}/../../templates/utils/install" \
+		-e "s|__program_name__|$_arg_name|g" \
+		-e "s|__program_name_upper__|${_arg_name^^}|g" >> "utils/install";
+fi
+
+if [ -f "readme.md" ]; then
+	log "Adding install instruction to readme" 4;
+	sed "${_SCRIPT_DIR}/../../templates/install.md" \
+		-e "s|__program_name__|$_arg_name|g" \
+		-e "s|__git_repo__|${_arg_git_repo}|g" >> "readme.md";
+fi
