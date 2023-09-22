@@ -363,9 +363,9 @@ assign_positional_args()
 			if [ "$_arg_subcommand_arg" == "$_positional_name" ];then
 				if [ -d "$_SCRIPT_DIR/${1}" ];then
 					__subcommand+=("$_SCRIPT_DIR/${1}");
-				elif [[ "bin/_project" == $(basename "$_SCRIPT_DIR")* ]];then
+				elif [[ "bin/_project/" == $(basename "$_SCRIPT_DIR")* ]];then
 					cmdToSub="$(basename "$_SCRIPT_DIR")";
-					cmdsubDir="bin/_project";
+					cmdsubDir="bin/_project/";
 					__subcommand+=("$_SCRIPT_DIR${cmdsubDir#"${cmdToSub}"}${1}");
 				else
 					__subcommand+=("$_SCRIPT_DIR/${1}");
@@ -431,6 +431,7 @@ fi
 source "$_SCRIPT_DIR/utils";
 
 if [ "$_arg_target" != "" ]; then
+	__subcommand+=("$_arg_name");
 	log "${__subcommand[*]}" 2;
 	"${__subcommand[@]}";
 else

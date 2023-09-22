@@ -18,12 +18,10 @@ parseArger bulk-parse:
 - -d
 - --sub-directory
 - --no-sub-directory
-
 parseArger bulk-parse*--file:
 - <file>
 parseArger bulk-parse*--directory:
 - <directory>
-
 parseArger bulk-parse*--folder:
 - <directory>
 parseArger completely:
@@ -62,25 +60,12 @@ parseArger completely:
 - --no-run
 - --discover-subcommand
 - --no-discover-subcommand
-
-
-
-
 parseArger completely*--source:
 - <file>
-
-
-
-
-
-
-
 parseArger completely*--subcommand-directory:
 - <directory>
-
 parseArger completely*--subcmd-dir:
 - <directory>
-
 parseArger completely*--extra-file:
 - <file>
 parseArger completely*--yaml-file:
@@ -107,7 +92,6 @@ parseArger document*--file:
 - <file>
 parseArger document*--directory:
 - <directory>
-
 parseArger document*--folder:
 - <directory>
 parseArger document*--out:
@@ -184,14 +168,17 @@ parseArger parse:
 - --no-inplace
 - -i
 parseArger project:
+- git-init
+- installer
+- git-init
 - --description
 - --project-help
 - --directory
 - --dir
 - -d
-- --subcommand-dir
+- --project-subcommand-dir
 - --subcommand-directory
-- --subcommand
+- --project-subcommand
 - --completely
 - --document
 - --html-form
@@ -200,25 +187,28 @@ parseArger project:
 - --git-provider
 - --installer-git-repo
 - --git-repo
+- --git-add
+- --git-commit
+- --commit
 - --readme
 - --no-readme
 - --git
 - --no-git
-
+parseArger project git-init:
+- --add
+- --commit
+parseArger project installer:
+- --git-repo
+- --git-service
+parseArger project git-init:
+- --add
+- --commit
 parseArger project*--directory:
 - <directory>
-
 parseArger project*--dir:
 - <directory>
-
-
-
-
-
 parseArger project*--cp:
 - <file>
 - <directory>
 parseArger*--output:
 - <file>
-
-

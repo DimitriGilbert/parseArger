@@ -76,6 +76,14 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -- "$cur" )
       ;;
 
+    'project installer'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--git-repo --git-service")" -- "$cur" )
+      ;;
+
+    'project git-init'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--add --commit")" -- "$cur" )
+      ;;
+
     'document'*'--file')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -- "$cur" )
       ;;
@@ -117,7 +125,7 @@ _parseArger_completions() {
       ;;
 
     'project'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--description --project-help --directory --dir -d --subcommand-dir --subcommand-directory --subcommand --completely --document --html-form --cp --installer-git-service --git-provider --installer-git-repo --git-repo --readme --no-readme --git --no-git")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "git-init installer git-init --description --project-help --directory --dir -d --project-subcommand-dir --subcommand-directory --project-subcommand --completely --document --html-form --cp --installer-git-service --git-provider --installer-git-repo --git-repo --git-add --git-commit --commit --readme --no-readme --git --no-git")" -- "$cur" )
       ;;
 
     'parse'*)

@@ -275,5 +275,5 @@ if [ -f "readme.md" ]; then
 	log "Adding install instruction to readme" 4;
 	sed "${_SCRIPT_DIR}/../../templates/install.md" \
 		-e "s|__program_name__|$_arg_name|g" \
-		-e "s|__git_repo__|${_arg_git_repo}|g" >> "readme.md";
+		-e "s|__git_repo__|$_arg_git_repo|g" >> "readme.md";
 fi
