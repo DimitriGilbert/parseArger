@@ -235,7 +235,7 @@ trap on_interrupt INT;
 
 outStr="${_arg_log_fn_name}() {
 	local _arg_msg=\"\${1}\";
-	local _arg_level=\"\${2:\"$_arg_level\"}\";
+	local _arg_level=\"\${2:-'$_arg_level'}\";
 	if [ \"\${_arg_level}\" -le \"\${_verbose_level}\" ]; then
 		case \"\$_arg_level\" in
 			-3)

@@ -433,6 +433,10 @@ source "$_SCRIPT_DIR/utils";
 if [ "$_arg_target" != "" ]; then
 	__subcommand+=("$_arg_name");
 	log "${__subcommand[*]}" 2;
+	__subcommand+=("${_arg_leftovers[@]}");
+	if [ "$_arg_installer_git_repo" != "" ]; then
+		__subcommand+=("--git-repo" "$_arg_installer_git_repo");
+	fi
 	"${__subcommand[@]}";
 else
 	if [ "$_arg_directory" == "" ]; then
