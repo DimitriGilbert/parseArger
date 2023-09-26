@@ -5,7 +5,7 @@
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
 # @parseArger pos name "project name"
-# @parseArger pos target "specific stuff on a project" --optional --subcommand-directory "bin/_project" --subcommand --one-of "git-init" --one-of "installer" --one-of "" --one-of "" --one-of "git-init" --one-of ""
+# @parseArger pos target "specific stuff on a project" --optional --subcommand-directory "bin/_project" --subcommand --one-of "git-init" --one-of "installer" --one-of "git-init" --one-of "mkfile"
 # @parseArger opt description "project description" --alias project-help
 # @parseArger opt directory "output directory, ./<project_name> by default" --short d --alias dir --complete "directory"
 # @parseArger opt project-subcommand-dir "subcommand script directory" --default-value "bin" --alias subcommand-directory
@@ -49,7 +49,7 @@ _positionals=();
 _optional_positionals=();
 _arg_name="";
 _arg_target="";
-_one_of_arg_target=("git-init" "installer" "" "" "git-init" "git-init" );
+_one_of_arg_target=("git-init" "installer" "git-init" "mkfile" "mkfile" );
 _optional_positionals+=("_arg_target");
 _arg_subcommand_arg="_arg_target";
 __subcommand=();
@@ -90,7 +90,7 @@ print_help()
 		_helpHasBeenPrinted=0;
 		echo -e "generate or parse a project:"
 	echo -e "	name: project name"
-	echo -e "	target: specific stuff on a project, optional [one of 'git-init' 'installer' '' '' 'git-init' 'git-init']"
+	echo -e "	target: specific stuff on a project, optional [one of 'git-init' 'installer' 'git-init' 'mkfile' 'mkfile']"
 	echo -e "	--description|--project-help <description>: project description"
 	echo -e "	-d, --directory|--dir <directory>: output directory, ./<project_name> by default"
 	echo -e "	--project-subcommand-dir|--subcommand-directory <project-subcommand-dir>: subcommand script directory [default: ' bin ']"
@@ -116,7 +116,7 @@ print_help()
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:"0"}";
+	local _arg_level="${2:-'0'}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -358,7 +358,7 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		if ! [[ "$_positional_name" =~ "_arg_leftovers" ]];then
-			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \" \${_one_of${_positional_name}[*]} \" =~ \" \${1} \" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
 			
 			if [ "$_arg_subcommand_arg" == "$_positional_name" ];then
 				if [ -d "$_SCRIPT_DIR/${1}" ];then
@@ -574,6 +574,11 @@ else
 			gitInc+=(--commit "'$_arg_git_commit'");
 		fi
 		"${gitInc[@]}";
+
+		if [ "$_arg_installer_git_repo" != "" ]; then
+			log "Adding remote origin" 4;
+			git remote add origin "git@${_arg_installer_git_service}:${_arg_installer_git_repo}.git"
+		fi
 	fi
 
 	if [ "$_arg_installer_git_repo" != "" ]; then

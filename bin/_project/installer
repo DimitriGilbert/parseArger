@@ -5,7 +5,7 @@
 # @parseArger-declarations
 # @parseArger pos name "project name"
 # @parseArger opt git-repo "git repository name"
-# @parseArger opt git-service "git service" --default-value "github"
+# @parseArger opt git-service "git service" --default-value "github.com"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -35,7 +35,7 @@ _positionals=();
 _arg_name="";
 # OPTIONALS ARGUMENTS
 _arg_git_repo=
-_arg_git_service="github"
+_arg_git_service="github.com"
 _arg_parsearger=()
 # FLAGS
 _verbose_level="0";
@@ -51,7 +51,7 @@ print_help()
 		echo -e "generate the get_<myscript> docwloader and installer:"
 	echo -e "	name: project name"
 	echo -e "	--git-repo <git-repo>: git repository name"
-	echo -e "	--git-service <git-service>: git service [default: ' github ']"
+	echo -e "	--git-service <git-service>: git service [default: ' github.com ']"
 	echo -e "	--parsearger <parsearger>: parseArger path, repeatable"
 	echo -e "Usage :
 	$0 <name> [--git-repo <value>] [--git-service <value>] [--parsearger <value>]";
