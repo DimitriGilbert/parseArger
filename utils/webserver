@@ -1,0 +1,343 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "parsearger web server" --option "help" --short-option "h"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+# @parseArger-declarations
+# @parseArger opt port "tcp port" --default-value "42069"
+# @parseArger opt response-file "which file to use for the response FIFO, mktemp if empty"
+# @parseArger opt index-file "index file" --default-value "index.html"
+# @parseArger opt form-file "html form file" --default-value "form.html"
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_optional_positionals=();
+# OPTIONALS ARGUMENTS
+_arg_port="42069"
+_arg_response_file=
+_arg_index_file="index.html"
+_arg_form_file="form.html"
+# FLAGS
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "parsearger web server:"
+	echo -e "	--port <port>: tcp port [default: ' 42069 ']"
+	echo -e "	--response-file <response-file>: which file to use for the response FIFO, mktemp if empty"
+	echo -e "	--index-file <index-file>: index file [default: ' index.html ']"
+	echo -e "	--form-file <form-file>: html form file [default: ' form.html ']"
+	echo -e "Usage :
+	$0 [--port <value>] [--response-file <value>] [--index-file <value>] [--form-file <value>]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:-'0'}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			--port)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_port="$2"
+				shift
+				;;
+			--port=*)
+				_arg_port="${_key##--port=}"
+				;;
+			
+			--response-file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_response_file="$2"
+				shift
+				;;
+			--response-file=*)
+				_arg_response_file="${_key##--response-file=}"
+				;;
+			
+			--index-file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_index_file="$2"
+				shift
+				;;
+			--index-file=*)
+				_arg_index_file="${_key##--index-file=}"
+				;;
+			
+			--form-file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_form_file="$2"
+				shift
+				;;
+			--form-file=*)
+				_arg_form_file="${_key##--form-file=}"
+				;;
+			
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			--verbose)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+			*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\tport: ${_arg_port}";
+	echo -e "\tresponse-file: ${_arg_response_file}";
+	echo -e "\tindex-file: ${_arg_index_file}";
+	echo -e "\tform-file: ${_arg_form_file}";
+
+}
+
+print_version()
+{
+	echo "";
+}
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+function handle_request () {
+	local request;
+	local method;
+	local url;
+	local content_type;
+	local content_length;
+	local body;
+	while read -r line; do
+		__line=$(echo "$line" | tr -d '\r\n');
+		[ -z "$__line" ] && break;
+		# parsing request
+		rqre='(.*?)\s(.*?)\sHTTP.*?';
+		hdre='^[A-Za-z0-9-]+:[[:space:]]';
+    if [[ "$__line" =~ $rqre ]];then
+      request=$(echo "$__line" | sed -E "s/$rqre/\1 \2/");
+			# parsing method from request
+			method=$(echo "$request" | awk '{print $1}');
+			# parsing url from request
+			url=$(echo "$request" | awk '{print $2}');
+		elif [[ "$__line" =~ $hdre ]];then
+			# parsing header name
+			header_name=$(echo "$__line" | awk '{print $1}');
+			# parsing header value
+			header_value=$(echo "$__line" | awk '{print $2}');
+			# parsing content type
+			case "${header_name}" in
+				"Content-Type:")
+					content_type="$header_value"
+				;;
+				"Content-Length:")
+					content_length="$header_value"
+				;;
+				*)
+					true
+				;;
+			esac
+		else
+			echo "body";
+		fi
+		__line=$(echo "$__line" | tr -d '\r\n');
+		[ -z "$__line" ] && break;
+	done
+
+	# body
+  if [ "$content_length" != "" ]; then
+    bdre='(.*?)=(.*?)'
+    while read -r -n$content_length -t1 line; do
+      __line=$(echo "$line" | tr -d '[\r\n]')
+
+      [ -z "$__line" ] && break
+
+      read -r -a body <<< "$(echo "$__line" | sed -E "s/$bdre/\1 \2/")"
+    done
+  fi
+
+	if [ "$request" != "" ]; then
+		log "$request" 2;
+		if [ "$method" != "" ] && [ "$url" != "" ]; then
+			log "Handling request: " 3;
+			log "$(date +%FT%T%z) $method $url" 0;
+			case "$method $url" in
+				"GET /index"|"GET /"|"GET ")
+					content=$(cat index.html)
+				log "\t\tcontent length $content_length" 2;
+					content_length=$(echo -n "$content" | wc -c)
+					echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file"
+					;;
+				"GET /form")
+					content=$(cat form.html)
+					content_length=$(echo -n "$content" | wc -c)
+					log "\t\tcontent length $content_length" 2;
+					echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file"
+					;;
+				"POST /form")
+					echo "${body[*]}";
+					paCmd=("$(realpath "$_SCRIPT_DIR/../parseArger")" "${body[@]}");
+					log "Running: " 2;
+					log "\t${paCmd[*]}" 0;
+					__output=$("${paCmd[@]}" 2>&1);
+					echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n$__output" > "$_arg_response_file";
+					;;
+				*)
+					log "\t404" -1;
+					echo -e "HTTP/1.1 404 NOTFOUND\r\nContent-Type: text/plain\r\n\r\n404 Not Found" > "$_arg_response_file"
+					;;
+			esac
+		fi
+	fi
+}
+
+if [ "$_arg_response_file" == "" ]; then
+	_arg_response_file="$(mktemp)";
+fi
+
+if [ -f "$_arg_response_file" ]; then
+	rm -f "$_arg_response_file";
+fi
+log "Creating response file: $_arg_response_file" 1;
+mkfifo "$_arg_response_file";
+
+while true; do
+	cat "$_arg_response_file" | nc -l "$_arg_port" | handle_request;
+done

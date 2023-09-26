@@ -5,7 +5,7 @@
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
 # @parseArger pos name "project name"
-# @parseArger pos target "specific stuff on a project" --optional --subcommand-directory "bin/_project" --subcommand --one-of "git-init" --one-of "installer" --one-of "git-init" --one-of "mkfile"
+# @parseArger pos target "specific stuff on a project" --optional --subcommand-directory "bin/_project" --subcommand --one-of "git-init" --one-of "installer" --one-of "git-init" --one-of "mkfile" --one-of "webserver"
 # @parseArger opt description "project description" --alias project-help
 # @parseArger opt directory "output directory, ./<project_name> by default" --short d --alias dir --complete "directory"
 # @parseArger opt project-subcommand-dir "subcommand script directory" --default-value "bin" --alias subcommand-directory
@@ -21,6 +21,7 @@
 # @parseArger flag readme "create a basic readme" --on
 # @parseArger flag git "git init" --on
 # @parseArger flag makefile "generate a makefile" --on
+# @parseArger flag web-server "add web server" --on
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -50,7 +51,7 @@ _positionals=();
 _optional_positionals=();
 _arg_name="";
 _arg_target="";
-_one_of_arg_target=("git-init" "installer" "git-init" "mkfile" "mkfile" );
+_one_of_arg_target=("git-init" "installer" "git-init" "mkfile" "webserver" "webserver" );
 _optional_positionals+=("_arg_target");
 _arg_subcommand_arg="_arg_target";
 __subcommand=();
@@ -71,6 +72,7 @@ _arg_git_commit=
 _arg_readme="on"
 _arg_git="on"
 _arg_makefile="on"
+_arg_web_server="on"
 # LEFTOVERS
 _arg_leftovers=()
 _verbose_level="0";
@@ -92,7 +94,7 @@ print_help()
 		_helpHasBeenPrinted=0;
 		echo -e "generate or parse a project:"
 	echo -e "	name: project name"
-	echo -e "	target: specific stuff on a project, optional [one of 'git-init' 'installer' 'git-init' 'mkfile' 'mkfile']"
+	echo -e "	target: specific stuff on a project, optional [one of 'git-init' 'installer' 'git-init' 'mkfile' 'webserver' 'webserver']"
 	echo -e "	--description|--project-help <description>: project description"
 	echo -e "	-d, --directory|--dir <directory>: output directory, ./<project_name> by default"
 	echo -e "	--project-subcommand-dir|--subcommand-directory <project-subcommand-dir>: subcommand script directory [default: ' bin ']"
@@ -108,8 +110,9 @@ print_help()
 	echo -e "	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)"
 	echo -e "	--git|--no-git: git init, on by default (use --no-git to turn it off)"
 	echo -e "	--makefile|--no-makefile: generate a makefile, on by default (use --no-makefile to turn it off)"
+	echo -e "	--web-server|--no-web-server: add web server, on by default (use --no-web-server to turn it off)"
 	echo -e "Usage :
-	$0 <name> [target] [--description <value>] [--directory <value>] [--project-subcommand-dir <value>] [--project-subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--git-add <value>] [--git-commit <value>] [--[no-]readme] [--[no-]git] [--[no-]makefile]";
+	$0 <name> [target] [--description <value>] [--directory <value>] [--project-subcommand-dir <value>] [--project-subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--git-add <value>] [--git-commit <value>] [--[no-]readme] [--[no-]git] [--[no-]makefile] [--[no-]web-server]";
 	fi
 
 	fi
@@ -302,6 +305,12 @@ parse_commandline()
 			--no-makefile)
 				_arg_makefile="off"
 				;;
+			--web-server)
+				_arg_web_server="on"
+				;;
+			--no-web-server)
+				_arg_web_server="off"
+				;;
 			-h|--help)
 				print_help;
 				;;
@@ -409,6 +418,7 @@ print_debug()
 	echo -e "\treadme: ${_arg_readme}";
 	echo -e "\tgit: ${_arg_git}";
 	echo -e "\tmakefile: ${_arg_makefile}";
+	echo -e "\tweb-server: ${_arg_web_server}";
 	echo -e "\tleftovers: ${_arg_leftovers[*]}";
 
 }
@@ -605,5 +615,10 @@ else
 		else
 			log "makefile already exists" -1;
 		fi
+	fi
+
+	if [ "$_arg_web_server" == "on" ]; then
+		log "Generating web server" 4;
+		"$_SCRIPT_DIR/_project/webserver";
 	fi
 fi
