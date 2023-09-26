@@ -20,6 +20,7 @@
 # @parseArger opt git-commit "commit, force --git-add" --alias commit
 # @parseArger flag readme "create a basic readme" --on
 # @parseArger flag git "git init" --on
+# @parseArger flag makefile "generate a makefile" --on
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -69,6 +70,7 @@ _arg_git_commit=
 # FLAGS
 _arg_readme="on"
 _arg_git="on"
+_arg_makefile="on"
 # LEFTOVERS
 _arg_leftovers=()
 _verbose_level="0";
@@ -105,8 +107,9 @@ print_help()
 	echo -e "	--git-commit|--commit <git-commit>: commit, force --git-add"
 	echo -e "	--readme|--no-readme: create a basic readme, on by default (use --no-readme to turn it off)"
 	echo -e "	--git|--no-git: git init, on by default (use --no-git to turn it off)"
+	echo -e "	--makefile|--no-makefile: generate a makefile, on by default (use --no-makefile to turn it off)"
 	echo -e "Usage :
-	$0 <name> [target] [--description <value>] [--directory <value>] [--project-subcommand-dir <value>] [--project-subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--git-add <value>] [--git-commit <value>] [--[no-]readme] [--[no-]git]";
+	$0 <name> [target] [--description <value>] [--directory <value>] [--project-subcommand-dir <value>] [--project-subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--git-add <value>] [--git-commit <value>] [--[no-]readme] [--[no-]git] [--[no-]makefile]";
 	fi
 
 	fi
@@ -293,6 +296,12 @@ parse_commandline()
 			--no-git)
 				_arg_git="off"
 				;;
+			--makefile)
+				_arg_makefile="on"
+				;;
+			--no-makefile)
+				_arg_makefile="off"
+				;;
 			-h|--help)
 				print_help;
 				;;
@@ -363,9 +372,9 @@ assign_positional_args()
 			if [ "$_arg_subcommand_arg" == "$_positional_name" ];then
 				if [ -d "$_SCRIPT_DIR/${1}" ];then
 					__subcommand+=("$_SCRIPT_DIR/${1}");
-				elif [[ "bin/_project/" == $(basename "$_SCRIPT_DIR")* ]];then
+				elif [[ "" == $(basename "$_SCRIPT_DIR")* ]];then
 					cmdToSub="$(basename "$_SCRIPT_DIR")";
-					cmdsubDir="bin/_project/";
+					cmdsubDir="";
 					__subcommand+=("$_SCRIPT_DIR${cmdsubDir#"${cmdToSub}"}${1}");
 				else
 					__subcommand+=("$_SCRIPT_DIR/${1}");
@@ -399,6 +408,7 @@ print_debug()
 	echo -e "\tgit-commit: ${_arg_git_commit}";
 	echo -e "\treadme: ${_arg_readme}";
 	echo -e "\tgit: ${_arg_git}";
+	echo -e "\tmakefile: ${_arg_makefile}";
 	echo -e "\tleftovers: ${_arg_leftovers[*]}";
 
 }
@@ -585,5 +595,15 @@ else
 		log "Generating installer" 4;
 		genIns=("$_SCRIPT_DIR/_project/installer" "$_arg_name" --git-service "$_arg_installer_git_service" --git-repo "$_arg_installer_git_repo" --parsearger "$paBin");
 		"${genIns[@]}";
+	fi
+
+	if [ "$_arg_makefile" == "on" ]; then
+		log "Generating makefile" 4;
+		if [ ! -f "makefile" ]; then
+			genMkf=("$_SCRIPT_DIR/_project/mkfile" "$_arg_name" --parsearger "$paBin");
+			"${genMkf[@]}";
+		else
+			log "makefile already exists" -1;
+		fi
 	fi
 fi
