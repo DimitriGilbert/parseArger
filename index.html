@@ -317,6 +317,7 @@ parseArger html-form /path/to/script > /path/to/output/file.html
             pa-type="flag" />
         </div><button id="parseArger_parse_btn">Parse</button>
         <pre id="parseArger_result"></pre>
+        <pre id="parseArger_server_response"></pre>
       </form>
       <div id="_subcommands">
         <h3>Subcommand forms</h3>
@@ -381,11 +382,28 @@ parseArger html-form /path/to/script > /path/to/output/file.html
               out = document.getElementById('parseArger_result').innerHTML + out;
 
               document.getElementById('bin_bulk_parse_result').innerHTML = out;
+              document.getElementById('parseArger_result').innerHTML = out;
             }
             document.getElementById('bin_bulk_parse').addEventListener('submit', function (e) {
               e.preventDefault();
               e.target.checkValidity();
               bin_bulk_parse_parse(e.target);
+              if ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+              && (window.location.protocol === "http:" || window.location.protocol === "https:")
+              && (window.location.port !== "80" && window.location.port !== "443")) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:' + window.location.port + '/form', true);
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.onreadystatechange = function() {
+                  if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    document.getElementById('parseArger_server_response').innerHTML = this.responseText;
+                  }
+                };
+                xhr.onerror = function() {
+                  document.getElementById('parseArger_server_response').innerHTML = 'Error: ' + this.responseText;
+                };
+                xhr.send(document.getElementById('parseArger_result').innerHTML.replace(/parseArger /g, ''));
+              }
             });
           </script>
         </div>
@@ -551,11 +569,25 @@ parseArger html-form /path/to/script > /path/to/output/file.html
               out = document.getElementById('parseArger_result').innerHTML + out;
 
               document.getElementById('bin_completely_result').innerHTML = out;
+              document.getElementById('parseArger_result').innerHTML = out;
             }
             document.getElementById('bin_completely').addEventListener('submit', function (e) {
               e.preventDefault();
               e.target.checkValidity();
               bin_completely_parse(e.target);
+              if ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+              && (window.location.protocol === "http:" || window.location.protocol === "https:")
+              && (window.location.port !== "80" && window.location.port !== "443")) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:' + window.location.port + '/form', true);
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.onreadystatechange = function() {
+                  if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    document.getElementById('parseArger_server_response').innerHTML = this.responseText;
+                  }
+                };
+                xhr.send(document.getElementById('parseArger_result').innerHTML.replace(/parseArger /g, ''));
+              }
             });
           </script>
         </div>
@@ -647,11 +679,25 @@ parseArger html-form /path/to/script > /path/to/output/file.html
               out = document.getElementById('parseArger_result').innerHTML + out;
 
               document.getElementById('bin_document_result').innerHTML = out;
+              document.getElementById('parseArger_result').innerHTML = out;
             }
             document.getElementById('bin_document').addEventListener('submit', function (e) {
               e.preventDefault();
               e.target.checkValidity();
               bin_document_parse(e.target);
+              if ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+              && (window.location.protocol === "http:" || window.location.protocol === "https:")
+              && (window.location.port !== "80" && window.location.port !== "443")) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:' + window.location.port + '/form', true);
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.onreadystatechange = function() {
+                  if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    document.getElementById('parseArger_server_response').innerHTML = this.responseText;
+                  }
+                };
+                xhr.send(document.getElementById('parseArger_result').innerHTML.replace(/parseArger /g, ''));
+              }
             });
           </script>
         </div>
@@ -809,11 +855,25 @@ parseArger html-form /path/to/script > /path/to/output/file.html
               out = document.getElementById('parseArger_result').innerHTML + out;
 
               document.getElementById('bin_generate_result').innerHTML = out;
+              document.getElementById('parseArger_result').innerHTML = out;
             }
             document.getElementById('bin_generate').addEventListener('submit', function (e) {
               e.preventDefault();
               e.target.checkValidity();
               bin_generate_parse(e.target);
+              if ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+              && (window.location.protocol === "http:" || window.location.protocol === "https:")
+              && (window.location.port !== "80" && window.location.port !== "443")) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:' + window.location.port + '/form', true);
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.onreadystatechange = function() {
+                  if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    document.getElementById('parseArger_server_response').innerHTML = this.responseText;
+                  }
+                };
+                xhr.send(document.getElementById('parseArger_result').innerHTML.replace(/parseArger /g, ''));
+              }
             });
           </script>
         </div>
@@ -947,11 +1007,25 @@ parseArger html-form /path/to/script > /path/to/output/file.html
               out = document.getElementById('parseArger_result').innerHTML + out;
 
               document.getElementById('bin_html_form_result').innerHTML = out;
+              document.getElementById('parseArger_result').innerHTML = out;
             }
             document.getElementById('bin_html_form').addEventListener('submit', function (e) {
               e.preventDefault();
               e.target.checkValidity();
               bin_html_form_parse(e.target);
+              if ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+              && (window.location.protocol === "http:" || window.location.protocol === "https:")
+              && (window.location.port !== "80" && window.location.port !== "443")) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:' + window.location.port + '/form', true);
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.onreadystatechange = function() {
+                  if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    document.getElementById('parseArger_server_response').innerHTML = this.responseText;
+                  }
+                };
+                xhr.send(document.getElementById('parseArger_result').innerHTML.replace(/parseArger /g, ''));
+              }
             });
           </script>
         </div>
@@ -1035,11 +1109,25 @@ parseArger html-form /path/to/script > /path/to/output/file.html
               out = document.getElementById('parseArger_result').innerHTML + out;
 
               document.getElementById('bin_parse_result').innerHTML = out;
+              document.getElementById('parseArger_result').innerHTML = out;
             }
             document.getElementById('bin_parse').addEventListener('submit', function (e) {
               e.preventDefault();
               e.target.checkValidity();
               bin_parse_parse(e.target);
+              if ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+              && (window.location.protocol === "http:" || window.location.protocol === "https:")
+              && (window.location.port !== "80" && window.location.port !== "443")) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:' + window.location.port + '/form', true);
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.onreadystatechange = function() {
+                  if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    document.getElementById('parseArger_server_response').innerHTML = this.responseText;
+                  }
+                };
+                xhr.send(document.getElementById('parseArger_result').innerHTML.replace(/parseArger /g, ''));
+              }
             });
           </script>
         </div>
@@ -1062,7 +1150,11 @@ parseArger html-form /path/to/script > /path/to/output/file.html
           const ielt = document.getElementById(inp);
           switch (ielt.getAttribute('pa-type')) {
             case 'pos':
-              out += ' "' + parseArger_frm.get(inp) + '"';
+              if (/[\s!@#$%^&*()_+=[\]{};':"\\|,.<>/?]/.test(parseArger_frm.get(inp))) {
+                out += ' "' + parseArger_frm.get(inp) + '"';
+              } else {
+                out += ' ' + parseArger_frm.get(inp);
+              }
               break;
             case 'opt':
               if (parseArger_frm.get(inp) !== '') {
