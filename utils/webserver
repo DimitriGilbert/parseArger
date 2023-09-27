@@ -7,6 +7,8 @@
 # @parseArger opt response-file "which file to use for the response FIFO, mktemp if empty"
 # @parseArger opt index-file "index file" --default-value "index.html"
 # @parseArger opt form-file "html form file" --default-value "form.html"
+# @parseArger opt form-url "url to view form" --default-value "form"
+# @parseArger opt submit-url "form submit url" --default-value "form"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -39,6 +41,8 @@ _arg_port="42069"
 _arg_response_file=
 _arg_index_file="index.html"
 _arg_form_file="form.html"
+_arg_form_url="form"
+_arg_submit_url="form"
 # FLAGS
 _verbose_level="0";
 
@@ -55,8 +59,10 @@ print_help()
 	echo -e "	--response-file <response-file>: which file to use for the response FIFO, mktemp if empty"
 	echo -e "	--index-file <index-file>: index file [default: ' index.html ']"
 	echo -e "	--form-file <form-file>: html form file [default: ' form.html ']"
+	echo -e "	--form-url <form-url>: url to view form [default: ' form ']"
+	echo -e "	--submit-url <submit-url>: form submit url [default: ' form ']"
 	echo -e "Usage :
-	$0 [--port <value>] [--response-file <value>] [--index-file <value>] [--form-file <value>]";
+	$0 [--port <value>] [--response-file <value>] [--index-file <value>] [--form-file <value>] [--form-url <value>] [--submit-url <value>]";
 	fi
 
 }
@@ -133,6 +139,24 @@ parse_commandline()
 				;;
 			--form-file=*)
 				_arg_form_file="${_key##--form-file=}"
+				;;
+			
+			--form-url)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_form_url="$2"
+				shift
+				;;
+			--form-url=*)
+				_arg_form_url="${_key##--form-url=}"
+				;;
+			
+			--submit-url)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_submit_url="$2"
+				shift
+				;;
+			--submit-url=*)
+				_arg_submit_url="${_key##--submit-url=}"
 				;;
 			
 			-h|--help)
@@ -215,6 +239,8 @@ print_debug()
 	echo -e "\tresponse-file: ${_arg_response_file}";
 	echo -e "\tindex-file: ${_arg_index_file}";
 	echo -e "\tform-file: ${_arg_form_file}";
+	echo -e "\tform-url: ${_arg_form_url}";
+	echo -e "\tsubmit-url: ${_arg_submit_url}";
 
 }
 
@@ -237,6 +263,10 @@ trap on_interrupt INT;
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
+
+function send404 () {
+	echo -e "HTTP/1.1 404 NOTFOUND\r\nContent-Type: text/plain\r\n\r\n404 Not Found" > "$_arg_response_file"
+}
 
 function handle_request () {
 	local request;
@@ -300,18 +330,26 @@ function handle_request () {
 			log "$(date +%FT%T%z) $method $url" 0;
 			case "$method $url" in
 				"GET /index"|"GET /"|"GET ")
-					content=$(cat index.html)
-				log "\t\tcontent length $content_length" 2;
-					content_length=$(echo -n "$content" | wc -c)
-					echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file"
+					if [ -f "$_arg_index_file" ]; then
+						content=$(cat "$_arg_index_file");
+						log "\t\tcontent length $content_length" 2;
+						content_length=$(echo -n "$content" | wc -c)
+						echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file";
+					else
+						send404;
+					fi
 					;;
-				"GET /form")
-					content=$(cat form.html)
-					content_length=$(echo -n "$content" | wc -c)
-					log "\t\tcontent length $content_length" 2;
-					echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file"
+				"GET /$_arg_form_url")
+					if [ -f "$_arg_form_file" ]; then
+						content=$(cat "$_arg_form_file")
+						content_length=$(echo -n "$content" | wc -c)
+						log "\t\tcontent length $content_length" 2;
+						echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file";
+					else
+						send404;
+					fi
 					;;
-				"POST /form")
+				"POST /$_arg_submit_url")
 					echo "${body[*]}";
 					paCmd=("$(realpath "$_SCRIPT_DIR/../parseArger")" "${body[@]}");
 					log "Running: " 2;
@@ -321,7 +359,7 @@ function handle_request () {
 					;;
 				*)
 					log "\t404" -1;
-					echo -e "HTTP/1.1 404 NOTFOUND\r\nContent-Type: text/plain\r\n\r\n404 Not Found" > "$_arg_response_file"
+					send404;
 					;;
 			esac
 		fi
