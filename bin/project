@@ -619,6 +619,6 @@ else
 
 	if [ "$_arg_web_server" == "on" ]; then
 		log "Generating web server" 4;
-		"$_SCRIPT_DIR/_project/webserver";
+		"$_SCRIPT_DIR/_project/webserver" "$_arg_name";
 	fi
 fi
