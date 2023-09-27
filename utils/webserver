@@ -250,6 +250,8 @@ print_version()
 }
 
 on_interrupt() {
+log "Removing response file: $_arg_response_file" 1;
+	rm -f "$_arg_response_file";
 	die Process aborted! 130;
 }
 
@@ -264,9 +266,63 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-function send404 () {
-	echo -e "HTTP/1.1 404 NOTFOUND\r\nContent-Type: text/plain\r\n\r\n404 Not Found" > "$_arg_response_file"
+function sendResponse () {
+	local rcode="${4:-"200"}";
+	local __rc=$rcode;
+	case "${rcode}" in
+		"20"*)
+			rcode+=" OK";
+		;;
+		"30"*)
+			rcode="$rcode Redirect";
+		;;
+		"401")
+			rcode+=" Unauthorized";
+		;;
+		"403")
+			rcode+=" Forbidden";
+		;;
+		"404")
+			rcode+=" Not Found";
+		;;
+		"405")
+			rcode+=" Method Not Allowed";
+		;;
+		"40"*)
+			rcode="$rcode Client Error";
+		;;
+		"50"*)
+			rcode="$rcode Server Error";
+		;;
+		*)
+			rcode="500 Internal Server Error";
+		;;
+	esac
+	
+	local content_length=$(echo -n "$1" | wc -c)
+	log "\t\tcontent length $content_length" 3;
+	if [ "$__rc" -ge 400 ]; then
+		log "\tERROR $__rc" -1;
+	fi
+	echo -e "HTTP/1.1 ${rcode}\r\nContent-Type: ${3:-"text"}/${2:-"plain"}\r\n\r\n$1" > "$_arg_response_file"
 }
+
+function send404 () {
+	log "\t$1" -1;
+	sendResponse "404 Not Found" "text" "plain" 404;
+}
+
+function send200 () {
+	sendResponse "$1" "${2:-"plain"}" "${3:-"text"}" 200;
+}
+
+# request regex
+rqre='(.*?)\s(.*?)\sHTTP.*?';
+# header regex
+hdre='^[A-Za-z0-9-]+:[[:space:]]';
+
+last_headers_name=();
+last_headers_value=();
 
 function handle_request () {
 	local request;
@@ -275,37 +331,35 @@ function handle_request () {
 	local content_type;
 	local content_length;
 	local body;
+	last_headers_name=();
+	last_headers_value=();
 	while read -r line; do
 		__line=$(echo "$line" | tr -d '\r\n');
 		[ -z "$__line" ] && break;
 		# parsing request
-		rqre='(.*?)\s(.*?)\sHTTP.*?';
-		hdre='^[A-Za-z0-9-]+:[[:space:]]';
-    if [[ "$__line" =~ $rqre ]];then
+		if [[ "$__line" =~ $rqre ]];then
       request=$(echo "$__line" | sed -E "s/$rqre/\1 \2/");
-			# parsing method from request
 			method=$(echo "$request" | awk '{print $1}');
-			# parsing url from request
 			url=$(echo "$request" | awk '{print $2}');
 		elif [[ "$__line" =~ $hdre ]];then
-			# parsing header name
 			header_name=$(echo "$__line" | awk '{print $1}');
-			# parsing header value
 			header_value=$(echo "$__line" | awk '{print $2}');
-			# parsing content type
 			case "${header_name}" in
 				"Content-Type:")
-					content_type="$header_value"
+					content_type="$header_value";
+					last_headers_name+=("$header_name");
+					last_headers_value+=("$header_value");
 				;;
 				"Content-Length:")
-					content_length="$header_value"
+					content_length="$header_value";
+					last_headers_name+=("$header_name");
+					last_headers_value+=("$header_value");
 				;;
 				*)
-					true
+					last_headers_name+=("$header_name");
+					last_headers_value+=("$header_value");
 				;;
 			esac
-		else
-			echo "body";
 		fi
 		__line=$(echo "$__line" | tr -d '\r\n');
 		[ -z "$__line" ] && break;
@@ -315,7 +369,7 @@ function handle_request () {
   if [ "$content_length" != "" ]; then
     bdre='(.*?)=(.*?)'
     while read -r -n$content_length -t1 line; do
-      __line=$(echo "$line" | tr -d '[\r\n]')
+      __line=$(echo "$line" | tr -d '\r\n')
 
       [ -z "$__line" ] && break
 
@@ -331,35 +385,31 @@ function handle_request () {
 			case "$method $url" in
 				"GET /index"|"GET /"|"GET ")
 					if [ -f "$_arg_index_file" ]; then
-						content=$(cat "$_arg_index_file");
-						log "\t\tcontent length $content_length" 2;
-						content_length=$(echo -n "$content" | wc -c)
-						echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file";
+						send200 "$(cat "$_arg_index_file")" "html";
 					else
-						send404;
+						send404 "$_arg_index_file";
 					fi
 					;;
 				"GET /$_arg_form_url")
 					if [ -f "$_arg_form_file" ]; then
-						content=$(cat "$_arg_form_file")
-						content_length=$(echo -n "$content" | wc -c)
-						log "\t\tcontent length $content_length" 2;
-						echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: $content_length\r\n\r\n$content" > "$_arg_response_file";
+						send200 "$(cat "$_arg_form_file")" "html";
 					else
-						send404;
+						send404 "$_arg_form_file";
 					fi
 					;;
 				"POST /$_arg_submit_url")
-					echo "${body[*]}";
 					paCmd=("$(realpath "$_SCRIPT_DIR/../parseArger")" "${body[@]}");
 					log "Running: " 2;
 					log "\t${paCmd[*]}" 0;
 					__output=$("${paCmd[@]}" 2>&1);
-					echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n$__output" > "$_arg_response_file";
+					if [ $? -eq 0 ]; then
+						send200 "$__output";
+					else
+						sendResponse "$__output" "plain" "text" 500;
+					fi
 					;;
 				*)
-					log "\t404" -1;
-					send404;
+					send404 "$method $url";
 					;;
 			esac
 		fi
@@ -376,6 +426,7 @@ fi
 log "Creating response file: $_arg_response_file" 1;
 mkfifo "$_arg_response_file";
 
+log "Listening on port: $_arg_port" 0;
 while true; do
 	cat "$_arg_response_file" | nc -l "$_arg_port" | handle_request;
 done
