@@ -435,6 +435,7 @@ if [ "$_arg_form" != "off" ]; then
 	fi
 	if [ "$_arg_result" != "off" ]; then
 		output+="\n\t<pre id=\"${_frmName}_result\"></pre>";
+		output+="\n\t<pre id=\"${_frmName}_server_response\"></pre>";
 	fi
 	output+="\n</form>";
 	if [ "${_subcmd}" != "" ]; then
@@ -456,7 +457,11 @@ if [ "$_arg_js" != "off" ]; then
 			const ielt = document.getElementById(inp);
 			switch(ielt.getAttribute('pa-type')) {
 				case 'pos':
-					out+=' \"'+${_frmName}_frm.get(inp)+'\"';
+					if (/[\s!@#$%^&*()_+=[\]{};':\"\\\\|,.<>/?]/.test(${_frmName}_frm.get(inp))) {
+						out+=' \"'+${_frmName}_frm.get(inp)+'\"';
+					} else {
+						out+=' '+${_frmName}_frm.get(inp);
+					}
 					break;
 				case 'opt':
 					if(${_frmName}_frm.get(inp) !== '') {
@@ -466,7 +471,7 @@ if [ "$_arg_js" != "off" ]; then
 								out+=' --'+inp+' \"'+val+'\"';
 							}
 						} else {
-							out+=' --'+inp+' '+${_frmName}_frm.get(inp);
+							out+=' --'+inp+' \"'+${_frmName}_frm.get(inp)+'\"';
 						}
 					}
 					break;
@@ -481,8 +486,10 @@ if [ "$_arg_js" != "off" ]; then
 		}";
 		if [ "$_arg_parent_form" != "" ]; then
 			output+="
-		document.getElementById('${_arg_parent_form}_parse_btn').dispatchEvent(new Event('click'));
+		// document.getElementById('${_arg_parent_form}_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('${_arg_parent_form}_parse_btn').click();
 		out=document.getElementById('${_arg_parent_form}_result').innerHTML+out;
+		document.getElementById('${_arg_parent_form}_result').innerHTML=out;
 		";
 		fi
 		output+="
@@ -493,6 +500,21 @@ if [ "$_arg_js" != "off" ]; then
 				e.preventDefault();
 				e.target.checkValidity();
 				${_frmName}_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('${_arg_parent_form}_result').innerHTML.replace(/${_arg_command} /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('${_frmName}_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('${_frmName}_server_response').innerHTML = error;
+						});
+				}
 			});";
 	fi
 	output+="\n</script>";
