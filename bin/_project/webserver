@@ -4,6 +4,8 @@
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-declarations
 # @parseArger pos name "program name"
+# @parseArger opt route "route to add" --repeat --alias url
+# @parseArger opt file "create the server file name"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -33,6 +35,8 @@ _positionals=();
 _optional_positionals=();
 _arg_name="";
 # OPTIONALS ARGUMENTS
+_arg_route=()
+_arg_file=
 # FLAGS
 _verbose_level="0";
 
@@ -46,8 +50,10 @@ print_help()
 		_helpHasBeenPrinted=0;
 		echo -e "create web server for a project:"
 	echo -e "	name: program name"
+	echo -e "	--route|--url <route>: route to add, repeatable"
+	echo -e "	--file <file>: create the server file name"
 	echo -e "Usage :
-	$0 <name>";
+	$0 <name> [--route <value>] [--file <value>]";
 	fi
 
 }
@@ -90,6 +96,27 @@ parse_commandline()
 	do
 		_key="$1"
 		case "$_key" in
+			--url|--route)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_route+=("$2")
+				shift
+				;;
+			--route=*)
+				_arg_route+=("${_key##--route=}")
+				;;
+			--url=*)
+				_arg_route+=("${_key##--url=}")
+				;;
+			
+			--file)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_file="$2"
+				shift
+				;;
+			--file=*)
+				_arg_file="${_key##--file=}"
+				;;
+			
 			-h|--help)
 				print_help;
 				exit 0;
@@ -167,6 +194,8 @@ print_debug()
 	echo "DEBUG: $0 $@";
 	
 	echo -e "\tname: ${_arg_name}";
+	echo -e "\troute: ${_arg_route[*]}";
+	echo -e "\tfile: ${_arg_file}";
 
 }
 
@@ -190,4 +219,17 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
-sed 's/\/parseArger/\/'"$_arg_name"'/g' "${_SCRIPT_DIR}/../../utils/webserver" > "utils/webserver";
+if [ "$_arg_file" == "" ]; then
+	_arg_file="utils/webserver";
+fi
+
+if [ ! -d "$(dirname "$_arg_file")" ]; then
+	mkdir -p "$(dirname "$_arg_file")";
+fi
+
+sed 's/\/parseArger/\/'"$_arg_name"'/g' "${_SCRIPT_DIR}/../../utils/webserver" > "$_arg_file";
+
+for route in "${_arg_route[@]}"; do
+	rstr="\n\t\t\t\t${route})\n\t\t\t\t\tsend200 'TODO';\n\t\t\t\t;;";
+	sed -i '/# Set your custom routes here/a '"$rstr"'' "$_arg_file"
+done

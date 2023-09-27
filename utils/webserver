@@ -408,6 +408,10 @@ function handle_request () {
 						sendResponse "$__output" "plain" "text" 500;
 					fi
 					;;
+				# Set your custom routes here
+				# "GET /my/route")
+				# 	send200 "Hello World!";
+				# 	;;
 				*)
 					send404 "$method $url";
 					;;
