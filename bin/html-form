@@ -434,7 +434,7 @@ if [ "$_arg_form" != "off" ]; then
 		output+="<button id=\"${_frmName}_parse_btn\">Parse</button>";
 	fi
 	if [ "$_arg_result" != "off" ]; then
-		output+="\n\t<pre id=\"${_frmName}_result\"></pre>";
+		output+="\n\t<pre id=\"${_frmName}_result\" contenteditable=true ></pre>";
 		output+="\n\t<pre id=\"${_frmName}_server_response\"></pre>";
 	fi
 	output+="\n</form>";
