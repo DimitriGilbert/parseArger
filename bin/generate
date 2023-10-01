@@ -2,7 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "generate a parseArger script" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-declarations
 # @parseArger opt pos "positional argument declaration" --short p --repeat
 # @parseArger opt opt "optional arg declaration" --short o --repeat
@@ -25,6 +25,7 @@
 # @parseArger flag bang "include shebang" --on
 # @parseArger flag version-opt "generate version opt handling" --on
 # @parseArger flag use-verbose "generate verbose level parser" --on
+# @parseArger flag parse-leftovers "parse leftovers, force leftovers"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -51,6 +52,7 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
 # OPTIONALS ARGUMENTS
 _arg_pos=()
 _arg_opt=()
@@ -74,6 +76,7 @@ _arg_leftovers="off"
 _arg_bang="on"
 _arg_version_opt="on"
 _arg_use_verbose="on"
+_arg_parse_leftovers="off"
 _verbose_level="0";
 
 
@@ -106,8 +109,9 @@ print_help()
 	echo -e "	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)"
 	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
 	echo -e "	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)"
+	echo -e "	--parse-leftovers|--no-parse-leftovers: parse leftovers, force leftovers"
 	echo -e "Usage :
-	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]";
+	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]parse-leftovers]";
 	fi
 
 }
@@ -345,6 +349,12 @@ parse_commandline()
 			--no-use-verbose)
 				_arg_use_verbose="off"
 				;;
+			--parse-leftovers)
+				_arg_parse_leftovers="on"
+				;;
+			--no-parse-leftovers)
+				_arg_parse_leftovers="off"
+				;;
 			-h|--help)
 				print_help;
 				exit 0;
@@ -369,6 +379,14 @@ parse_commandline()
 					shift;
 				fi
 				;;
+			--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
 			
 			*)
 				_last_positional="$1"
@@ -413,27 +431,28 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tpos: ${_arg_pos[*]}";
-	echo -e "\topt: ${_arg_opt[*]}";
-	echo -e "\tflag: ${_arg_flag[*]}";
-	echo -e "\tset: ${_arg_set[*]}";
-	echo -e "\tsource: ${_arg_source[*]}";
-	echo -e "\thelp-message: ${_arg_help_message}";
-	echo -e "\thelp-option: ${_arg_help_option}";
-	echo -e "\thelp-short-option: ${_arg_help_short_option}";
-	echo -e "\tleftovers-name: ${_arg_leftovers_name}";
-	echo -e "\tuse-shebang: ${_arg_use_shebang}";
-	echo -e "\tset-version: ${_arg_set_version}";
-	echo -e "\tversion-opt-name: ${_arg_version_opt_name}";
-	echo -e "\tversion-short-option: ${_arg_version_short_option}";
-	echo -e "\tdie-fn-name: ${_arg_die_fn_name}";
-	echo -e "\tlog-fn-name: ${_arg_log_fn_name}";
-	echo -e "\tverbose-opt-name: ${_arg_verbose_opt_name}";
-	echo -e "\tverbose-level: ${_arg_verbose_level}";
-	echo -e "\tleftovers: ${_arg_leftovers}";
-	echo -e "\tbang: ${_arg_bang}";
-	echo -e "\tversion-opt: ${_arg_version_opt}";
-	echo -e "\tuse-verbose: ${_arg_use_verbose}";
+	echo -e "	pos: ${_arg_pos[*]}";
+	echo -e "	opt: ${_arg_opt[*]}";
+	echo -e "	flag: ${_arg_flag[*]}";
+	echo -e "	set: ${_arg_set[*]}";
+	echo -e "	source: ${_arg_source[*]}";
+	echo -e "	help-message: ${_arg_help_message}";
+	echo -e "	help-option: ${_arg_help_option}";
+	echo -e "	help-short-option: ${_arg_help_short_option}";
+	echo -e "	leftovers-name: ${_arg_leftovers_name}";
+	echo -e "	use-shebang: ${_arg_use_shebang}";
+	echo -e "	set-version: ${_arg_set_version}";
+	echo -e "	version-opt-name: ${_arg_version_opt_name}";
+	echo -e "	version-short-option: ${_arg_version_short_option}";
+	echo -e "	die-fn-name: ${_arg_die_fn_name}";
+	echo -e "	log-fn-name: ${_arg_log_fn_name}";
+	echo -e "	verbose-opt-name: ${_arg_verbose_opt_name}";
+	echo -e "	verbose-level: ${_arg_verbose_level}";
+	echo -e "	leftovers: ${_arg_leftovers}";
+	echo -e "	bang: ${_arg_bang}";
+	echo -e "	version-opt: ${_arg_version_opt}";
+	echo -e "	use-verbose: ${_arg_use_verbose}";
+	echo -e "	parse-leftovers: ${_arg_parse_leftovers}";
 
 }
 
@@ -627,6 +646,10 @@ done
 if [ "$_arg_leftovers" != "off" ]; then
 	echo -e "# LEFTOVERS
 _arg_$_arg_leftovers_name=()";
+	if [ "$_arg_parse_leftovers" == "on" ]; then
+		echo -e "# LEFTOVERS
+	declare -A _arg_parsed_$_arg_leftovers_name";
+	fi
 fi
 # verbose level init
 if [ "$_arg_use_verbose" != "off" ]; then
@@ -715,8 +738,21 @@ fi
 "$SCRIPT_ROOT_DIR/help/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
 "$SCRIPT_ROOT_DIR/version/parser" "${versionDecArg[@]}" | sed -e 's/^/\t\t\t/';
 "$SCRIPT_ROOT_DIR/verbose/parser" "${verboseDecArg[@]}" | sed -e 's/^/\t\t\t/';
-
-echo -e "\t\t\t*)
+if [ "$_arg_parse_leftovers" == "on" ]; then
+	echo -e "\t\t\t\t# parsing leftovers
+				--*)
+					if [[ \"\$2\" =~ ^--([^=]+)(=(.*))?$ ]] || [ \"\$2\" = \"\" ]; then
+						_arg_parsed_${_arg_leftovers_name}[\"\${1#--}\"]=\"on\"
+					elif [[ \"\$1\" =~ ^--([^=]+)=(.*)$ ]]; then
+						_arg_parsed_${_arg_leftovers_name}[\"\${BASH_REMATCH[1]}\"]=\"\${BASH_REMATCH[2]}\";
+					else
+						_arg_parsed_${_arg_leftovers_name}[\"\${1#--}\"]=\"\${2}\";
+						shift;
+					fi
+					;;
+";
+fi
+echo -e "\t\t\t\t*)
 				_last_positional=\"\$1\"
 				_positionals+=(\"\$_last_positional\")
 				_positionals_count=\$((_positionals_count + 1))

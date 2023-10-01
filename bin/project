@@ -610,7 +610,7 @@ else
 	if [ "$_arg_makefile" == "on" ]; then
 		log "Generating makefile" 4;
 		if [ ! -f "makefile" ]; then
-			genMkf=("$_SCRIPT_DIR/_project/mkfile" "$_arg_name" --parsearger "$paBin");
+			genMkf=("$_SCRIPT_DIR/_project/mkfile" "$_arg_name");
 			"${genMkf[@]}";
 		else
 			log "makefile already exists" -1;
