@@ -582,7 +582,11 @@ fi
 
 # leftovers
 if [ "$_arg_leftovers" == "on" ]; then
-	echo -e "# ${paCmtTrgr}leftovers $_arg_leftovers_name";
+	lfDec="# ${paCmtTrgr}leftovers $_arg_leftovers_name";
+	if [ "$_arg_parse_leftovers" == "on" ]; then
+		lfDec+=" --parse";
+	fi
+	echo -e "$lfDec";
 fi
 
 hasSubCmd="1";

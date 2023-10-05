@@ -19,3 +19,8 @@ for _file in "${_arg_shell_rc_file[@]}"; do
 		log "File $_file not found" -1;
 	fi
 done
+
+# .rc
+if [ ! -f "${_dir}/__program_name__.rc" ]; then
+	echo -e "alias __program_name__=\"${_dir}/__program_name__\"\n[ -f \"${_dir}/completely.bash\" ] && source \"${_dir}/completely.bash\";" > "${_dir}/__program_name__.rc";
+fi

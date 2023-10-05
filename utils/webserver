@@ -377,6 +377,27 @@ function handle_request () {
     done
   fi
 
+	# uri segments
+	IFS='?' read -r -a uri_segments <<< "$url"
+	IFS='/' read -r -a uri_segments <<< "${uri_segments[0]}"
+
+	# query string args
+	declare -A query_args;
+	IFS='?' read -r -a tqsas <<< "$url"
+	IFS='&' read -r -a tqsas <<< "${tqsas[1]}"
+	for i in "${tqsas[@]}"; do
+		IFS='=' read -r -a query_string_arg <<< "$i"
+		local __argname="${query_string_arg[0]}";
+		local __argvalue="${query_string_arg[1]}";
+		local __existing="${query_args["$__argname"]}";
+		# bash no support for arrays in associative arrays hackfix
+		if [ "$__existing" != "" ]; then
+			query_args["$__argname"]+=" :: $__argvalue"
+		else
+			query_args["$__argname"]="$__argvalue"
+		fi
+	done
+
 	if [ "$request" != "" ]; then
 		log "$request" 2;
 		if [ "$method" != "" ] && [ "$url" != "" ]; then
@@ -398,10 +419,40 @@ function handle_request () {
 					fi
 					;;
 				"POST /$_arg_submit_url")
-					paCmd=("$(realpath "$_SCRIPT_DIR/../parseArger")" "${body[@]}");
+					apiCmd=("$(realpath "$_SCRIPT_DIR/../parseArger")" "${body[@]}");
 					log "Running: " 2;
-					log "\t${paCmd[*]}" 0;
-					__output=$("${paCmd[@]}" 2>&1);
+					log "\t${apiCmd[*]}" 0;
+					__output=$("${apiCmd[@]}" 2>&1);
+					if [ $? -eq 0 ]; then
+						send200 "$__output";
+					else
+						sendResponse "$__output" "plain" "text" 500;
+					fi
+					;;
+				"GET /$_arg_submit_url/"*)
+					apiCmd=("$_SCRIPT_DIR/../parseArger");
+					
+					if [ "${#uri_segments[@]}" -gt 2 ]; then
+						for i in "${!uri_segments[@]}"; do
+							if [ "$i" -gt 1 ] && [ "$i" -lt "${#uri_segments[@]}" ]; then
+								apiCmd+=( "${uri_segments[$i]}" );
+							fi
+						done
+					fi
+
+					for i in "${!query_args[@]}"; do
+						IFS=" :: " read -r -a tmpi <<< "${query_args[$i]}";
+						if [ "${#tmpi[@]}" -gt 1 ]; then
+							for _ti in "${tmpi[@]}"; do
+								[ "$_ti" != "" ] && apiCmd+=( "--$(printf '%b' "${i//%/\\x}")" "$(printf '%b' "${_ti//%/\\x}")" );
+							done
+						else
+							apiCmd+=( "--$(printf '%b' "${i//%/\\x}")" "$(printf '%b' "${query_args[$i]//%/\\x}")" );
+						fi
+					done
+					
+					log "${apiCmd[*]}" 0;
+					__output=$("${apiCmd[@]}" 2>&1);
 					if [ $? -eq 0 ]; then
 						send200 "$__output";
 					else
@@ -410,6 +461,19 @@ function handle_request () {
 					;;
 				# Set your custom routes here
 				# "GET /my/route")
+				# 	send200 "Hello World!";
+				# 	;;
+				# serve content statically
+				# "GET /my/route")
+				#		# remove /my/route/ from url to match file path
+				#		trm="/my/route/";
+				#		local file_path="/path/to/static/folder/${url//$trm/}";
+				#		if [ -f "$file_path" ]; then
+				#			local ext="${file_path##*.}";
+				#			send200 "$(cat "$file_path")" "$ext";
+				#		else
+				#			send404 "$method $url";
+				#		fi
 				# 	send200 "Hello World!";
 				# 	;;
 				*)

@@ -2,7 +2,7 @@
 # @parseArger-begin
 # @parseArger-help "parse an existing parseArger file" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-declarations
 # @parseArger pos file "file to parse" --complete "file"
 # @parseArger opt pos "add positional argument declaration" --short p --repeat
@@ -12,6 +12,8 @@
 # @parseArger opt source "add file to source" --short l --repeat
 # @parseArger opt set-version "set version"
 # @parseArger flag inplace "replace parseArger generated content in place" --short i
+# @parseArger flag leftovers "add leftovers"
+# @parseArger flag parse-leftovers "parse leftovers"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -38,6 +40,7 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
 _arg_file="";
 # OPTIONALS ARGUMENTS
 _arg_pos=()
@@ -48,6 +51,8 @@ _arg_source=()
 _arg_set_version=
 # FLAGS
 _arg_inplace="off"
+_arg_leftovers="off"
+_arg_parse_leftovers="off"
 _verbose_level="0";
 
 
@@ -67,15 +72,17 @@ print_help()
 	echo -e "	-l, --source <source>: add file to source, repeatable"
 	echo -e "	--set-version <set-version>: set version"
 	echo -e "	-i|--inplace|--no-inplace: replace parseArger generated content in place"
+	echo -e "	--leftovers|--no-leftovers: add leftovers"
+	echo -e "	--parse-leftovers|--no-parse-leftovers: parse leftovers"
 	echo -e "Usage :
-	$0 <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]";
+	$0 <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace] [--[no-]leftovers] [--[no-]parse-leftovers]";
 	fi
 
 }
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:"0"}";
+	local _arg_level="${2:-"0"}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -186,6 +193,18 @@ parse_commandline()
 			--no-inplace)
 				_arg_inplace="off"
 				;;
+			--leftovers)
+				_arg_leftovers="on"
+				;;
+			--no-leftovers)
+				_arg_leftovers="off"
+				;;
+			--parse-leftovers)
+				_arg_parse_leftovers="on"
+				;;
+			--no-parse-leftovers)
+				_arg_parse_leftovers="off"
+				;;
 			-h|--help)
 				print_help;
 				exit 0;
@@ -203,15 +222,23 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-				if [ $# -lt 2 ];then
-					_verbose_level="$((_verbose_level + 1))";
-				else
-					_verbose_level="$2";
-					shift;
-				fi
-				;;
-			
-			*)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -262,6 +289,8 @@ print_debug()
 	echo -e "\tsource: ${_arg_source[*]}";
 	echo -e "\tset-version: ${_arg_set_version}";
 	echo -e "\tinplace: ${_arg_inplace}";
+	echo -e "\tleftovers: ${_arg_leftovers}";
+	echo -e "\tparse-leftovers: ${_arg_parse_leftovers}";
 
 }
 
@@ -301,6 +330,7 @@ paStart+="Arger"
 _help="$(parsearger_get_help "$_arg_file")";
 _version="$(parsearger_get_version "$_arg_file")";
 _leftovers="$(parsearger_get_leftovers "$_arg_file")";
+_parse_leftovers="$(parsearger_get_parse_leftovers "$_arg_file")";
 _set=();
 _source=();
 _pos=();
@@ -359,8 +389,11 @@ if [[ "${#_arg_source[@]}" -gt 0 ]]; then
 	done
 fi
 
-if [ "$_leftovers" != "" ]; then
-  cmdGen+=("--leftovers" "--leftovers-name" "$_leftovers");
+if [ "$_arg_leftovers" != "off" ] || [ "$_leftovers" != "" ]; then
+  cmdGen+=("--leftovers" "--leftovers-name" "${_leftovers:-"leftovers"}");
+fi
+if [ "$_arg_parse_leftovers" != "off" ] || [ "$_parse_leftovers" != "" ]; then
+	cmdGen+=("--parse-leftovers");
 fi
 
 if [ "${_pos[*]}" != "" ] && [ "${#_pos[@]}" -gt "0" ]; then
