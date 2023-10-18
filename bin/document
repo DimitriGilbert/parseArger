@@ -328,7 +328,9 @@ if [ "${#_arg_file[@]}" -gt 0 ]; then
 					_oneofs_scmd=();
 					parsearger_get_one_ofs _oneofs_scmd "${_poss[0]}";
 					for scmd_tgt in "${_oneofs_scmd[@]}"; do
-						outStr+="${_arg_tag} ${_file} ${scmd_tgt}\n\n\`\`\`\n$("$_file" "$scmd_tgt" "--$_help_opt")\n\`\`\`\n\n";
+						# clean out from $(pwd)
+						ftmpStr=$("$_file" "$scmd_tgt" "--$_help_opt" | sed -e "s|$(pwd)||g");
+						outStr+="${_arg_tag} ${_file} ${scmd_tgt}\n\n\`\`\`\n$ftmpStr\n\`\`\`\n\n";
 					done
 				fi
 			fi
@@ -352,10 +354,14 @@ if [ "${#_arg_directory[@]}" -gt 0 ]; then
 					docCmd+=(--directory "$_file");
 				fi
 			done
-			outStr+="$("$0" "${docCmd[@]}")\n\n";
+			dtmpStr="$("$0" "${docCmd[@]}")";
+			outStr+="$(echo -e "$dtmpStr" | sed -e "s|$_directory||g")\n\n";
 		fi
 	done
 fi
+
+# clean output from ./
+outStr=$(echo -e "$outStr" | sed -e "s|\./||g");
 
 if [ "$_arg_out" == "" ]; then
 	echo -e "$outStr";
