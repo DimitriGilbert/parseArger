@@ -144,17 +144,17 @@ parseArger project my-awesome-project \
       <div class="row justify-content-between pa-answer">
         <div class="col-8">
           Heuuum, me, but in several projects of mine :
-      <ul>
-        <li><a target="_blank" href="https://github.com/DimitriGilbert/parseArger">itself</a></li>
-        <li><a target="_blank" href="https://github.com/DimitriGilbert/sshm0">sshm0</a> : An terminal based ssh server
-          manager</li>
-        <li><a target="_blank" href="https://github.com/DimitriGilbert/StationIO-Station">StationIO</a> : An arduino
-          framework, used in the utility tools (create, upload, ...)</li>
-        <li>A bunch of my scripts for various taks</li>
-      </ul>
-      ParseArger is kind of my bash script template thingy, I need a script, small & dumb ? complex & several scripts ?
-      parseArger !<br />
-      If you would like me to showcase your project, feel free to open an <a href="https://github.com/DimitriGilbert/parseArger/issues" target="_blank" rel="noopener noreferrer">issue</a>, I'll be happy to add it here !
+          <ul>
+            <li><a target="_blank" href="https://github.com/DimitriGilbert/parseArger">itself</a></li>
+            <li><a target="_blank" href="https://github.com/DimitriGilbert/sshm0">sshm0</a> : A terminal based ssh server
+              manager</li>
+            <li><a target="_blank" href="https://github.com/DimitriGilbert/StationIO-Station">StationIO</a> : An arduino
+              framework, used in the utility tools (create, upload, ...)</li>
+            <li>A bunch of my scripts for various taks</li>
+          </ul>
+          ParseArger is kind of my bash script template thingy, I need a script, small & dumb ? complex & several scripts ?
+          parseArger !<br />
+          If you would like me to showcase your project, feel free to open an <a href="https://github.com/DimitriGilbert/parseArger/issues" target="_blank" rel="noopener noreferrer">issue</a>, I'll be happy to add it here !
         </div>
         <div class="col-3">
           <img src="https://i.imgflip.com/ccv2l.jpg" alt="You made this, I made this" class="img-fluid">
@@ -162,7 +162,7 @@ parseArger project my-awesome-project \
         </div>
       </div>
       <h2>How do I install it ?</h2>
-      <p>
+      <div class="row justify-content-between pa-answer">
         Guess what ? I made a script for that ;-D !
         <code-input lang="bash"># download the script
 curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -o get_parseArger;
@@ -185,8 +185,8 @@ chmod +x get_parseArger;
 # reload your shell, change rc file accordingly
 source ~/.bashrc;
         </code-input>
-      </p>
-      <h2>How do I use it ?</h2>
+      </div>
+      <h2 class="pa-question">How do I use it ?</h2>
       In all the following, I'll consider you have parseArger installed
       <h3>Create a new script</h3>
       <p>
@@ -272,18 +272,18 @@ parseArger html-form /path/to/script
 parseArger html-form /path/to/script > /path/to/output/file.html
         </code-input>
       </p>
-      <h2>But I really don't like terminal apps, I prefer GUIs</h2>
-      <p>
+      <h2 class="pa-question">But I really don't like terminal apps, I prefer GUIs</h2>
+      <div class="row justify-content-between pa-answer">
         Suuuure, you get the <a href="#" navTo="cmdform">clicky-clik-tapy-tapotron 9001</a> right here. <br />
         You can generate your own with <i>parseArger html-form</i> and it could be a start to an electron app front for your bash scripts ( X.D ).<br/>
         And because, I know, you are lazy, you have a web server written in bash that can call you program, how, cooool, is, that, uh ?<br/>
-      </p>
-      <h2>And you have a script for thaaaaaaaat....?</h2>
-      <p>
+      </div>
+      <h2 class="pa-question">And you have a script for thaaaaaaaat....?</h2>
+      <div class="row justify-content-between pa-answer">
         Why yes sir, sure do ! <br>
         you should have a look at util/webserver ! <br>
         Am about sure you'll find what you were lookin' for (but it ain't no droids...)
-      </p>
+      </div>
     </div>
     <div id="pa-cmdform" class="pa-tab d-none">
       <form id="parseArger">
