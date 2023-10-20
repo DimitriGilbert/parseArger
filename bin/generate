@@ -21,6 +21,7 @@
 # @parseArger opt log-fn-name "log function name" --default-value "log"
 # @parseArger opt verbose-opt-name "verbose option name" --default-value "verbose"
 # @parseArger opt verbose-level "default verbose level" --default-value "0"
+# @parseArger opt nested "nested option declaration" --repeat
 # @parseArger flag leftovers "accept extra arguments"
 # @parseArger flag bang "include shebang" --on
 # @parseArger flag version-opt "generate version opt handling" --on
@@ -71,6 +72,7 @@ _arg_die_fn_name="die"
 _arg_log_fn_name="log"
 _arg_verbose_opt_name="verbose"
 _arg_verbose_level="0"
+_arg_nested=()
 # FLAGS
 _arg_leftovers="off"
 _arg_bang="on"
@@ -105,13 +107,14 @@ print_help()
 	echo -e "	--log-fn-name <log-fn-name>: log function name [default: ' log ']"
 	echo -e "	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']"
 	echo -e "	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']"
+echo -e "	--nested <nested>: nested option declaration, repeatable"
 	echo -e "	--leftovers|--no-leftovers: accept extra arguments"
 	echo -e "	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)"
 	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
 	echo -e "	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)"
 	echo -e "	--parse-leftovers|--no-parse-leftovers: parse leftovers, force leftovers"
 	echo -e "Usage :
-	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]parse-leftovers]";
+	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--nested <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]parse-leftovers]";
 	fi
 
 }
@@ -325,6 +328,15 @@ parse_commandline()
 				_arg_verbose_level="${_key##--verbose-level=}"
 				;;
 			
+--nested)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_nested+=("$2")
+				shift
+				;;
+			--nested=*)
+				_arg_nested+=("${_key##--nested=}")
+				;;
+			
 			--leftovers)
 				_arg_leftovers="on"
 				;;
@@ -448,6 +460,7 @@ print_debug()
 	echo -e "	log-fn-name: ${_arg_log_fn_name}";
 	echo -e "	verbose-opt-name: ${_arg_verbose_opt_name}";
 	echo -e "	verbose-level: ${_arg_verbose_level}";
+echo -e "	nested: ${_arg_nested[*]}";
 	echo -e "	leftovers: ${_arg_leftovers}";
 	echo -e "	bang: ${_arg_bang}";
 	echo -e "	version-opt: ${_arg_version_opt}";
@@ -522,6 +535,10 @@ done
 for flag in "${_arg_flag[@]}"; do
 	flagNames+=("$(echo "$flag" | head -n1 | cut -d " " -f1)");
 	flagArgNames+=("$(echo "$flag" | head -n1 | cut -d " " -f1 | sed 's/-/_/g')");
+done
+for nested in "${_arg_nested[@]}"; do
+	nestedNames+=("$(echo "$nested" | head -n1 | cut -d " " -f1)");
+	nestedArgNames+=("$(echo "$nested" | head -n1 | cut -d " " -f1 | sed 's/-/_/g')");
 done
 
 # generate shebang
@@ -605,6 +622,9 @@ done
 for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/declaration $flag";
 done
+for nested in "${_arg_nested[@]}"; do
+	eval "$SCRIPT_ROOT_DIR/nested/declaration $nested";
+done
 
 # generating parsing function
 echo "# ${paCmtTrgr}declarations-end
@@ -646,6 +666,10 @@ done
 echo "# FLAGS"
 for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/init $flag";
+done
+echo "# NESTED"
+for nested in "${_arg_nested[@]}"; do
+	eval "$SCRIPT_ROOT_DIR/nested/init $nested";
 done
 if [ "$_arg_leftovers" != "off" ]; then
 	echo -e "# LEFTOVERS
@@ -703,8 +727,13 @@ for flag in "${_arg_flag[@]}"; do
 	flagexample+=" [--[no-]$(echo "$flag" | head -n1 | cut -d " " -f1)]";
 	eval "$SCRIPT_ROOT_DIR/flag/help $flag";
 done
+nestedexample="";
+for nested in "${_arg_nested[@]}"; do
+	nestedexample+=" [--[no-]$(echo "$nested" | head -n1 | cut -d " " -f1)]";
+	eval "$SCRIPT_ROOT_DIR/nested/help $nested";
+done
 
-echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}\";
+echo -e "\techo -e \"Usage :\n\t\$0${posexample}${optexample}${flagexample}${nestedexample}\";
 	fi";
 if [ "$hasSubCmd" == "0" ]; then
 	echo -e "
@@ -734,6 +763,10 @@ done
 
 for flag in "${_arg_flag[@]}"; do
 	eval "$SCRIPT_ROOT_DIR/flag/parser $flag" | sed -e 's/^/\t\t\t/';
+done
+
+for nested in "${_arg_nested[@]}"; do
+	eval "$SCRIPT_ROOT_DIR/nested/parser $nested" | sed -e 's/^/\t\t\t/';
 done
 
 if [[ "$hasSubCmd" == "0" ]]; then
@@ -826,7 +859,7 @@ print_debug()
 	";
 posI=0;
 for pos in "${posArgNames[@]}"; do
-	echo "	echo -e \"\t${posNames[$posI]}: \${_arg_${pos}}\";";
+	echo -e "	echo -e \"\t${posNames[$posI]}: \${_arg_${pos}}\";";
 	posI=$((posI+1));
 done
 posI=0;
@@ -837,16 +870,22 @@ for opt in "${optArgNames[@]}"; do
 	else
 		forRepeating="";
 	fi
-	echo "	echo -e \"\t${optNames[$posI]}: \${_arg_${opt}${forRepeating}}\";";
+	echo -e "	echo -e \"\t${optNames[$posI]}: \${_arg_${opt}${forRepeating}}\";";
 	posI=$((posI+1));
 done
 posI=0;
 for flag in "${flagArgNames[@]}"; do
-	echo "	echo -e \"\t${flagNames[$posI]}: \${_arg_${flag}}\";";
+	echo -e "	echo -e \"\t${flagNames[$posI]}: \${_arg_${flag}}\";";
+	posI=$((posI+1));
+done
+for nested in "${nestedArgNames[@]}"; do
+	echo -e "\tfor _tmp_k_${nested} in \"\${!_arg_ns_${nested}[@]}\"; do
+		echo -e \"\t${nested}-\$_tmp_k_${nested}: \${_arg_ns_${nested}[\$_tmp_k_${nested}]}\";
+	done";
 	posI=$((posI+1));
 done
 if [ "$_arg_leftovers" != "off" ]; then
-	echo "	echo -e \"\t${_arg_leftovers_name}: \${_arg_${_arg_leftovers_name}[*]}\";";
+	echo -e "	echo -e \"\t${_arg_leftovers_name}: \${_arg_${_arg_leftovers_name}[*]}\";";
 fi
 echo -e "
 }
