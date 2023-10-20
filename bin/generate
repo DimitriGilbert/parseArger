@@ -879,6 +879,7 @@ for flag in "${flagArgNames[@]}"; do
 	posI=$((posI+1));
 done
 for nested in "${nestedArgNames[@]}"; do
+	echo -e "	echo -e \"\t${nested}: \${_arg_${nested}}\";";
 	echo -e "\tfor _tmp_k_${nested} in \"\${!_arg_ns_${nested}[@]}\"; do
 		echo -e \"\t${nested}-\$_tmp_k_${nested}: \${_arg_ns_${nested}[\$_tmp_k_${nested}]}\";
 	done";
