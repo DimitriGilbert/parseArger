@@ -259,6 +259,19 @@ parseArger generate --flag 'my-flag "my flag description"' --flag 'my-other-flag
 # ...
 ```
 
+#### nested
+
+Repeated option. String representing arguments for [bin/nested/*](bin/nested/) scripts.
+
+```bash
+bin/nested/parser <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: TODO accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+```
+
 ### parse
 
 parse an existing parseArger script and add arguments, options, flag, etc...

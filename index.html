@@ -191,8 +191,9 @@ source ~/.bashrc;
       <h3>Create a new script</h3>
       <p>
         More information for <a href="https://github.com/DimitriGilbert/parseArger#pos" target="_blank">--pos</a>,
-        <a href="https://github.com/DimitriGilbert/parseArger#opt" target="_blank">--opt</a> and
-        <a href="https://github.com/DimitriGilbert/parseArger#flag" target="_blank">--flag</a>
+        <a href="https://github.com/DimitriGilbert/parseArger#opt" target="_blank">--opt</a>,
+        <a href="https://github.com/DimitriGilbert/parseArger#flag" target="_blank">--flag</a> and
+        <a href="https://github.com/DimitriGilbert/parseArger#nested" target="_blank">--nested</a>
         <code-input lang="bash"># output to stdout
 parseArger generate [...]
 
@@ -205,15 +206,19 @@ parseArger generate --output /path/to/script --pos 'my-argument "my argument des
 # add an option
 parseArger generate --output /path/to/script --opt 'my-option "my option description"'
 
-# add an flag
+# add a flag
 parseArger generate --output /path/to/script --flag 'my-flag "my flag description"'
 
-# add an argument, 2 options and a flag
+# add a nested option
+parseArger generate --output /path/to/script --nested 'my-nested-opt "my nested option description"'
+
+# add an argument, 2 options, a flag and a nested option
 parseArger generate --output /path/to/script \
   --pos 'my-argument "my argument description"' \
   --opt 'my-option "my option description"' \
   --opt 'my-other-option "my other option description"' \
-  --flag 'my-flag "my flag description"'
+  --flag 'my-flag "my flag description"' \
+  --nested 'my-nested-opt "my nested option description"'
         </code-input>
       </p>
       <h3>Parse an existing script</h3>
@@ -232,6 +237,9 @@ parseArger parse -i --opt 'my-new-option "new option description"'
 
 # add an flag
 parseArger parse -i --flag 'm-newy-flag "new flag description"'
+
+# add a nested option
+parseArger parse -i  --nested 'my-nested-opt "my nested option description"'
 
 # update script version
 parseArger parse -i --set-version 1.2.3

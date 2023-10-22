@@ -99,7 +99,7 @@ generate a parseArger script:
 	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
 	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
 Usage :
-	parseArger generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
+	parseArger generate [--pos <value>] [--opt <value>] [--flag <value>] [--nested <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
 ```
 
 ## parseArger html-form
@@ -134,12 +134,13 @@ parse an existing parseArger file:
 	-p, --pos <pos>: add positional argument declaration, repeatable
 	-o, --opt <opt>: add optional arg declaration, repeatable
 	-f, --flag <flag>: add flag declaration, repeatable
+	--nested <nested>: nested option declaration, repeatable
 	-s, --set <set>: add declare var, repeatable
 	-l, --source <source>: add file to source, repeatable
 	--set-version <set-version>: set version
 	-i|--inplace|--no-inplace: replace parseArger generated content in place
 Usage :
-	parseArger parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
+	parseArger parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--nested <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]
 ```
 
 ## parseArger project
@@ -928,6 +929,120 @@ positional argument to html input:
 	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand
 Usage :
 	[parseArger dir]/bin/pos/subcmd-html <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--command <value>] [--form-class <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>] [--parent-form <value>] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-run] [--[no-]subcommand-use-leftovers]
+```
+
+### [parseArger dir]/bin/nested
+
+#### [parseArger dir]/bin/nested/completely
+
+```
+parseArger declaration string for nested options:
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+Usage :
+	/completely <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
+```
+
+#### [parseArger dir]/bin/nested/declaration
+
+```
+parseArger declaration string for options:
+	arg-name: positional argument name
+	description: positional argument description
+	--repeat-min <repeat-min>: minimum repeatition forces repeat [default: ' 1 ']
+	--repeat-max <repeat-max>: maximum repeatition forces repeat
+	--one-of <one-of>: accepted values, repeatable
+	-d, --default-value <default-value>: value, repeatable
+	-s, --short <short>: short form
+	--alias <alias>: option alias, repeatable
+	--empty-value <empty-value>: value for empty option
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+	-r|--repeat|--no-repeat: repeatable
+	--empty|--no-empty: use option as flag
+Usage :
+	/declaration <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]
+```
+
+#### [parseArger dir]/bin/nested/docopt-help
+
+```
+parseArger docOpt string for option:
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+Usage :
+	/docopt-help <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
+```
+
+#### [parseArger dir]/bin/nested/help
+
+```
+parseArger help string for options:
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+Usage :
+	/help <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
+```
+
+#### [parseArger dir]/bin/nested/html
+
+```
+option to html form:
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+Usage :
+	/html <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
+```
+
+#### [parseArger dir]/bin/nested/init
+
+```
+parseArger init string for options:
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+Usage :
+	/init <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
+```
+
+#### [parseArger dir]/bin/nested/more-completely
+
+```
+parseArger declaration string for options:
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+Usage :
+	/more-completely <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
+```
+
+#### [parseArger dir]/bin/nested/parser
+
+```
+parseArger parsing string for options:
+	arg-name: nested option namespace
+	description: positional argument description
+	--one-of <one-of>: accepted values for keys, repeatable
+	--complete <complete>: bash built-in completely function, repeatable
+	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable
+Usage :
+	/parser <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]
 ```
 
 ### [parseArger dir]/bin/_project
