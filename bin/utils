@@ -34,6 +34,10 @@ parsearger_get_flag() {
   local -n _lflag=$1;
   readarray -t _lflag <<< "$(sed -ne 's/'"${paStart}"' flag \(.*\).*/\1/p' "$2")"
 }
+parsearger_get_nested() {
+  local -n _lnested=$1;
+  readarray -t _lnested <<< "$(sed -ne 's/'"${paStart}"' nested \(.*\).*/\1/p' "$2")"
+}
 parsearger_get_one_ofs() {
   local -n _lone_ofs=$1;
   readarray -t _lone_ofs <<< "$(echo "$2" | grep -oE -- '--one-of "([^"]+)"' | cut -d'"' -f2)"

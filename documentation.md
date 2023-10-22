@@ -79,6 +79,7 @@ generate a parseArger script:
 	-p, --pos <pos>: positional argument declaration, repeatable
 	-o, --opt <opt>: optional arg declaration, repeatable
 	-f, --flag <flag>: flag declaration, repeatable
+	--nested <nested>: nested option declaration, repeatable
 	-s, --set <set>: declare var, repeatable
 	-l, --source <source>: file to source, repeatable
 	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']

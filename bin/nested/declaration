@@ -339,7 +339,7 @@ trap on_interrupt INT;
 # @parseArger-end
 
 outStr="# @parse"
-outStr+="Arger opt $_arg_arg_name \"${_arg_description}\""
+outStr+="Arger nested $_arg_arg_name \"${_arg_description}\""
 
 if [ "$_arg_short" != "" ]; then
   outStr+=" --short $_arg_short"
