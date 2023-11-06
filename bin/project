@@ -381,9 +381,9 @@ assign_positional_args()
 			if [ "$_arg_subcommand_arg" == "$_positional_name" ];then
 				if [ -d "$_SCRIPT_DIR/${1}" ];then
 					__subcommand+=("$_SCRIPT_DIR/${1}");
-				elif [[ "" == $(basename "$_SCRIPT_DIR")* ]];then
+				elif [[ "bin/_project/" == $(basename "$_SCRIPT_DIR")* ]];then
 					cmdToSub="$(basename "$_SCRIPT_DIR")";
-					cmdsubDir="";
+					cmdsubDir="bin/_project/";
 					__subcommand+=("$_SCRIPT_DIR${cmdsubDir#"${cmdToSub}"}${1}");
 				else
 					__subcommand+=("$_SCRIPT_DIR/${1}");
@@ -458,7 +458,7 @@ if [ "$_arg_target" != "" ]; then
 		__subcommand+=("--git-repo" "$_arg_installer_git_repo");
 	fi
 	"${__subcommand[@]}";
-else
+elif [ "$_helpHasBeenPrinted" == "1" ]; then
 	if [ "$_arg_directory" == "" ]; then
 		log "No directory specified" 3;
 		_arg_directory="$(pwd)/$_arg_name";

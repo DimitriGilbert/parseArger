@@ -3,6 +3,7 @@
 # @parseArger-help "initialize git, optionally add and commit" --option "help" --short-option "h"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-declarations
+# @parseArger pos name "project name" --optional
 # @parseArger opt add "what to add" --repeat
 # @parseArger opt commit "commit, default message if nothing specified"
 # @parseArger-declarations-end
@@ -31,10 +32,14 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
+_arg_name="";
+_optional_positionals+=("_arg_name");
 # OPTIONALS ARGUMENTS
 _arg_add=()
 _arg_commit=
 # FLAGS
+# NESTED
 _verbose_level="0";
 
 
@@ -46,17 +51,18 @@ print_help()
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
 		echo -e "initialize git, optionally add and commit:"
+	echo -e "	name: project name, optional"
 	echo -e "	--add <add>: what to add, repeatable"
-	echo -e "	--commit <commit>: commit, default message if nothing specified, can be empty [empty value: 'parseArger project first commit']"
+	echo -e "	--commit <commit>: commit, default message if nothing specified"
 	echo -e "Usage :
-	$0 [--add <value>] [--commit <value>]";
+	$0 [name] [--add <value>] [--commit <value>]";
 	fi
 
 }
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:"0"}";
+	local _arg_level="${2:-"0"}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -102,11 +108,9 @@ parse_commandline()
 				;;
 			
 			--commit)
-				if [ $# -lt 2 ];then
-					_arg_commit="parseArger project first commit";
-				else
-					_arg_commit="$2";
-				fi
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_commit="$2"
+				shift
 				;;
 			--commit=*)
 				_arg_commit="${_key##--commit=}"
@@ -145,7 +149,7 @@ parse_commandline()
 					fi
 					;;
 				
-			*)
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -159,8 +163,8 @@ parse_commandline()
 handle_passed_args_count()
 {
 	local _required_args_string=""
-	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
 	fi
 	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
 		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
@@ -172,7 +176,7 @@ handle_passed_args_count()
 assign_positional_args()
 {
 	local _positional_name _shift_for=$1;
-	_positional_names="";
+	_positional_names="_arg_name ";
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
@@ -188,8 +192,9 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tadd: ${_arg_add[*]}";
-	echo -e "\tcommit: ${_arg_commit}";
+	echo -e "	name: ${_arg_name}";
+	echo -e "	add: ${_arg_add[*]}";
+	echo -e "	commit: ${_arg_commit}";
 
 }
 
