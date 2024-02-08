@@ -560,7 +560,7 @@ fi
 "$SCRIPT_ROOT_DIR/help/declaration" "${helpDecArg[@]}";
 
 # version
-if [ "$_arg_set_version" != "" ]; then
+if [ "$_arg_set_version" != "" ] && [ "$_arg_version_opt" != "off" ]; then
 	versionDecArg=("$_arg_set_version");
 	if [ "$_arg_version_opt_name" != "" ]; then
 		versionDecArg+=("--option" "$_arg_version_opt_name");
@@ -598,6 +598,9 @@ if [ "${#_arg_source[@]}" -gt 0 ]; then
 fi
 
 # leftovers
+if [ "$_arg_leftovers_name" != "leftovers" ] || [ "$_arg_parse_leftovers" == "on" ]; then
+	_arg_leftovers="on";
+fi
 if [ "$_arg_leftovers" == "on" ]; then
 	lfDec="# ${paCmtTrgr}leftovers $_arg_leftovers_name";
 	if [ "$_arg_parse_leftovers" == "on" ]; then
@@ -635,7 +638,7 @@ _SCRIPT_DIR=\"\$(cd \"\$(dirname \"\${BASH_SOURCE[0]}\")\" && pwd -P)\";
 # ${paCmtTrgr}utils-end
 
 # ${paCmtTrgr}parsing
-die()
+${_arg_die_fn_name}()
 {
 	local _ret=\"\${2:-1}\"
 	test \"\${_PRINT_HELP:-no}\" = yes && print_help >&2
@@ -673,10 +676,10 @@ for nested in "${_arg_nested[@]}"; do
 done
 if [ "$_arg_leftovers" != "off" ]; then
 	echo -e "# LEFTOVERS
-_arg_$_arg_leftovers_name=()";
+_arg_${_arg_leftovers_name}=()";
 	if [ "$_arg_parse_leftovers" == "on" ]; then
 		echo -e "# LEFTOVERS
-	declare -A _arg_parsed_$_arg_leftovers_name";
+	declare -A _arg_parsed_${_arg_leftovers_name}";
 	fi
 fi
 # verbose level init
@@ -773,8 +776,15 @@ if [[ "$hasSubCmd" == "0" ]]; then
 	helpDecArg+=("--has-subcommand")
 fi
 "$SCRIPT_ROOT_DIR/help/parser" "${helpDecArg[@]}" | sed -e 's/^/\t\t\t/';
-"$SCRIPT_ROOT_DIR/version/parser" "${versionDecArg[@]}" | sed -e 's/^/\t\t\t/';
-"$SCRIPT_ROOT_DIR/verbose/parser" "${verboseDecArg[@]}" | sed -e 's/^/\t\t\t/';
+
+if [ "$_arg_set_version" != "" ] && [ "$_arg_version_opt" != "off" ]; then
+	"$SCRIPT_ROOT_DIR/version/parser" "${versionDecArg[@]}" | sed -e 's/^/\t\t\t/';
+fi
+
+if [ "$_arg_use_verbose" != "off" ]; then
+	"$SCRIPT_ROOT_DIR/verbose/parser" "${verboseDecArg[@]}" | sed -e 's/^/\t\t\t/';
+fi
+
 if [ "$_arg_parse_leftovers" == "on" ]; then
 	echo -e "\t\t\t\t# parsing leftovers
 				--*)
@@ -890,12 +900,18 @@ if [ "$_arg_leftovers" != "off" ]; then
 fi
 echo -e "
 }
+";
 
+if [ "$_arg_set_version" != "" ] && [ "$_arg_version_opt" != "off" ]; then
+	echo -e "
 print_version()
 {
 	echo \"${_arg_set_version}\";
 }
+"
+fi
 
+echo -e "
 on_interrupt() {
 	die "Process aborted!" 130;
 }

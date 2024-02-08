@@ -1,0 +1,13 @@
+#!/bin/bash
+
+function filemd5() {
+  md5sum "$1" | cut -d' ' -f1;
+}
+
+function assert_files_equals () {
+  local f1="$1";
+  local f2="$2";
+  local md1=$(filemd5 "$f1");
+  local md2=$(filemd5 "$f2");
+  assert_equals "$md1" "$md2";
+}
