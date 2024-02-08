@@ -467,7 +467,7 @@ trap on_interrupt INT;
 # @parseArger-end
 _arg_command="${_arg_command// /_}";
 
-if [ "$_arg_subcommand_directory" != "" ] || [ "$_arg_subcommand_run" != "off" ] || [ "$_arg_subcommand_use_leftovers" != "off" ] || [ "$_arg_subcommand" != "off" ]; then
+if [ "$_arg_subcommand_directory" != "" ] || [ "$_arg_subcommand_run" != "off" ] || [ "$_arg_subcommand_use_leftovers" != "off" ] || [ "$_arg_subcommand_variable" != "__subcommand" ] || [ "$_arg_subcommand" != "off" ]; then
 	if  [ "${#_arg_one_of[@]}" -gt 0 ]; then
 		_subcmd=( 
 			"--input-container-class" "${_arg_input_container_class}"

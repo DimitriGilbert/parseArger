@@ -340,6 +340,11 @@ fi
 if [ "$_arg_subcommand_use_leftovers" != "off" ]; then
 	_arg_subcommand="on";
 fi
+
+if [ "$_arg_subcommand_variable" != "__subcommand" ]; then
+	_arg_subcommand="on";
+fi
+
 if [ "$_arg_subcommand" != "off" ]; then
 	echo 0;
 	exit 0;
