@@ -346,10 +346,10 @@ if [ "${#_arg_default_value[@]}" -gt "0" ]; then
 	fi
 fi
 
-if [ "$_arg_repeat" != "off" ] || [ "$_arg_repeat_min" != "1" ] || [ "$_arg_repeat_max" != "" ]; then
+if [ "$_arg_repeat" != "off" ] || [ "$_arg_repeat_min" -gt "1" ] || [ "$_arg_repeat_max" != "" ]; then
   outStr+=" --repeat"
 fi
-if [ "$_arg_repeat_min" != "1" ]; then
+if [ "$_arg_repeat_min" -gt "1" ]; then
   outStr+=" --repeat-min  $_arg_repeat_min"
 fi
 if [ "$_arg_repeat_max" != "" ]; then

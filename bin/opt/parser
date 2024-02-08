@@ -374,6 +374,10 @@ else
 ";
 fi
 
+if [ "$_arg_repeat_min" -gt "1" ] || [ "$_arg_repeat_max" != "" ]; then
+	_arg_repeat="on";
+fi
+
 if [ "$_arg_repeat" == "on" ]; then
 	setvalstr="+=(\"\${_key##--${_arg_arg_name}=}\")"
 else

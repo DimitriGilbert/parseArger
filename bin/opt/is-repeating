@@ -329,6 +329,10 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
+if [ "$_arg_repeat_min" -gt "1" ] || [ "$_arg_repeat_max" != "" ]; then
+	_arg_repeat="on";
+fi
+
 if [ "$_arg_repeat" != "off" ]; then
   echo "0";
 	exit 0;

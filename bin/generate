@@ -751,6 +751,7 @@ if [ "$_arg_use_verbose" != "off" ]; then
 	"$SCRIPT_ROOT_DIR/verbose/logger" "${verboseDecArg[@]}";
 fi
 
+# TODO: handle repeat-min and repeat-max
 # actual parsing
 echo -e "
 parse_commandline()

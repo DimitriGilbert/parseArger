@@ -329,6 +329,10 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
+if [ "$_arg_repeat_min" -gt "1" ] || [ "$_arg_repeat_max" != "" ]; then
+	_arg_repeat="on";
+fi
+
 _arg_arg_name="${_arg_arg_name//-/_}"
 outStr="_arg_${_arg_arg_name}=";
 

@@ -381,6 +381,10 @@ trap on_interrupt INT;
 # print_debug "$@"
 # @parseArger-end
 
+if [ "$_arg_repeat_min" -gt "1" ] || [ "$_arg_repeat_max" != "" ]; then
+	_arg_repeat="on";
+fi
+
 inptCmn="pa-type=\"opt\" name=\"${_arg_arg_name}\" id=\"${_arg_arg_name}\"";
 
 if [ "${#_arg_one_of[@]}" -gt 0 ]; then

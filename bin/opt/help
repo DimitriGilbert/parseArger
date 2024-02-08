@@ -342,6 +342,10 @@ if [ "$_arg_short" != "" ]; then
   optHelp="-${_arg_short}, ${optHelp}";
 fi
 
+if [ "$_arg_repeat_min" -gt "1" ] || [ "$_arg_repeat_max" != "" ]; then
+	_arg_repeat="on";
+fi
+
 if [ "$_arg_repeat" != "off" ]; then
 	optHelp+=", repeatable";
 fi
