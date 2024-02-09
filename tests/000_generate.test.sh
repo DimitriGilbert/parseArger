@@ -16,6 +16,11 @@ function test_generate() {
   chmod +x "$tfile";
 
   assert_exit_code "0" "$("$tfile")";
+  
+  assert_exit_code "0" "$("${ex[@]}" --help 2>&1)";
+  assert_exit_code "0" "$("${ex[@]}" -h 2>&1)";
+  assert_exit_code "0" "$("${ex[@]}" --version 2>&1)";
+  assert_exit_code "0" "$("${ex[@]}" -v 2>&1)";
 
   rm "$tfile";
 }
@@ -58,6 +63,11 @@ function test_generate_help() {
   assert_exit_code "0" "$?";
   assert_contains "$hlpmsg" "$hlpout";
   
+  hlpex=("$tfile" -h);
+  hlpout="$("${hlpex[@]}")";
+  assert_exit_code "0" "$?";
+  assert_contains "$hlpmsg" "$hlpout";
+  
   rm "$tfile";
   rm $tfile1;
 }
@@ -96,6 +106,37 @@ function test_generate_help_opt_short() {
   assert_contains "$hlpmsg" "$hlpout";
   
   rm "$tfile";
+}
+
+function test_generate_set() {
+  local tfile="${tftmp_file}_generate_set";
+  local ex_=("${ex[@]}" --output "$tfile" --set "a_set_var=with_a_value" -s "another_set_var=with_another_value")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+  assert_contains "a_set_var=with_a_value" "$(cat "$tfile")";
+
+  echo -e "\necho \"\$a_set_var\";\n" >> "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+  assert_equals "with_a_value" "$("$tfile")";
+
+  rm "$tfile";
+}
+
+function test_generate_source() {
+  local tfile="${tftmp_file}_generate_source";
+  local ex_=("${ex[@]}" --output "$tfile" --source "/tmp/generate.source.test" -l "/tmp/generate.source.test")
+  echo -e "\necho \"\$a_set_var\";\n" > "/tmp/generate.source.test";
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+  assert_contains "source /tmp/generate.source.test" "$(cat "$tfile")";
+  assert_exit_code "0" "$("$tfile")";
+
+  rm "$tfile";
+  rm /tmp/generate.source.test;
 }
 
 function test_generate_version() {

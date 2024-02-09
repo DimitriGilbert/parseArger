@@ -332,9 +332,15 @@ if [ "${_arg_subcommand_directory}" != "" ];then
 	[[ $_tgtdir != */ ]] && _tgtdir+="/";
 fi
 
+# if [[ "$_tgtdir" != /* ]]; then
+# 	_tgtdir="\$_SCRIPT_DIR/${_tgtdir}";
+# fi
+
 echo -e "
 			if [ \"\$_arg_subcommand_arg\" == \"\$_positional_name\" ];then
-				if [ -d \"\$_SCRIPT_DIR/$_tgtdir\${1}\" ];then
+				if [ -f \"$_tgtdir\${1}\" ] && command -v \"$_tgtdir\${1}\";then
+					${_arg_subcommand_variable}+=(\"$_tgtdir\${1}\");
+				elif [ -f \"\$_SCRIPT_DIR/$_tgtdir\${1}\" ] && command -v \"\$_SCRIPT_DIR/$_tgtdir\${1}\";then
 					${_arg_subcommand_variable}+=(\"\$_SCRIPT_DIR/$_tgtdir\${1}\");
 				elif [[ \"$_tgtdir\" == \$(basename \"\$_SCRIPT_DIR\")* ]];then
 					cmdToSub=\"\$(basename \"\$_SCRIPT_DIR\")\";
