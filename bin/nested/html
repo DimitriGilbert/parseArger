@@ -9,6 +9,13 @@
 # @parseArger opt one-of "accepted values for keys" --repeat
 # @parseArger opt complete "bash built-in completely function" --repeat
 # @parseArger opt complete-custom "completely custom dynamic suggestion" --repeat
+# @parseArger opt input-container-class "input container class" --default-value "form-group"
+# @parseArger opt input-class "input class" --default-value "form-control"
+# @parseArger opt label-class "label class" --default-value "form-label"
+# @parseArger opt select-class "select class" --default-value "form-select"
+# @parseArger opt checkbox-container-class "checkbox and radio class" --default-value "form-check" --alias radio-container-class
+# @parseArger opt checkbox-class "checkbox and radio class" --default-value "form-check-input" --alias radio-class
+# @parseArger opt checkbox-label-class "checkbox and radio label class" --default-value "form-check-label" --alias radio-label-class
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -42,7 +49,15 @@ _arg_description="";
 _arg_one_of=()
 _arg_complete=()
 _arg_complete_custom=()
+_arg_input_container_class="form-group"
+_arg_input_class="form-control"
+_arg_label_class="form-label"
+_arg_select_class="form-select"
+_arg_checkbox_container_class="form-check"
+_arg_checkbox_class="form-check-input"
+_arg_checkbox_label_class="form-check-label"
 # FLAGS
+# NESTED
 _verbose_level="0";
 
 
@@ -59,15 +74,22 @@ print_help()
 	echo -e "	--one-of <one-of>: accepted values for keys, repeatable"
 	echo -e "	--complete <complete>: bash built-in completely function, repeatable"
 	echo -e "	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable"
+	echo -e "	--input-container-class <input-container-class>: input container class [default: ' form-group ']"
+	echo -e "	--input-class <input-class>: input class [default: ' form-control ']"
+	echo -e "	--label-class <label-class>: label class [default: ' form-label ']"
+	echo -e "	--select-class <select-class>: select class [default: ' form-select ']"
+	echo -e "	--checkbox-container-class|--radio-container-class <checkbox-container-class>: checkbox and radio class [default: ' form-check ']"
+	echo -e "	--checkbox-class|--radio-class <checkbox-class>: checkbox and radio class [default: ' form-check-input ']"
+	echo -e "	--checkbox-label-class|--radio-label-class <checkbox-label-class>: checkbox and radio label class [default: ' form-check-label ']"
 	echo -e "Usage :
-	$0 <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>]";
+	$0 <arg-name> <description> [--one-of <value>] [--complete <value>] [--complete-custom <value>] [--input-container-class <value>] [--input-class <value>] [--label-class <value>] [--select-class <value>] [--checkbox-container-class <value>] [--checkbox-class <value>] [--checkbox-label-class <value>]";
 	fi
 
 }
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:-"0"}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -128,6 +150,78 @@ parse_commandline()
 				;;
 			--complete-custom=*)
 				_arg_complete_custom+=("${_key##--complete-custom=}")
+				;;
+			
+			--input-container-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_input_container_class="$2"
+				shift
+				;;
+			--input-container-class=*)
+				_arg_input_container_class="${_key##--input-container-class=}"
+				;;
+			
+			--input-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_input_class="$2"
+				shift
+				;;
+			--input-class=*)
+				_arg_input_class="${_key##--input-class=}"
+				;;
+			
+			--label-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_label_class="$2"
+				shift
+				;;
+			--label-class=*)
+				_arg_label_class="${_key##--label-class=}"
+				;;
+			
+			--select-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_select_class="$2"
+				shift
+				;;
+			--select-class=*)
+				_arg_select_class="${_key##--select-class=}"
+				;;
+			
+			--radio-container-class|--checkbox-container-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_checkbox_container_class="$2"
+				shift
+				;;
+			--checkbox-container-class=*)
+				_arg_checkbox_container_class="${_key##--checkbox-container-class=}"
+				;;
+			--radio-container-class=*)
+				_arg_checkbox_container_class="${_key##--radio-container-class=}"
+				;;
+			
+			--radio-class|--checkbox-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_checkbox_class="$2"
+				shift
+				;;
+			--checkbox-class=*)
+				_arg_checkbox_class="${_key##--checkbox-class=}"
+				;;
+			--radio-class=*)
+				_arg_checkbox_class="${_key##--radio-class=}"
+				;;
+			
+			--radio-label-class|--checkbox-label-class)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_checkbox_label_class="$2"
+				shift
+				;;
+			--checkbox-label-class=*)
+				_arg_checkbox_label_class="${_key##--checkbox-label-class=}"
+				;;
+			--radio-label-class=*)
+				_arg_checkbox_label_class="${_key##--radio-label-class=}"
 				;;
 			
 			-h|--help)
@@ -206,18 +300,27 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\targ-name: ${_arg_arg_name}";
-	echo -e "\tdescription: ${_arg_description}";
-	echo -e "\tone-of: ${_arg_one_of[*]}";
-	echo -e "\tcomplete: ${_arg_complete[*]}";
-	echo -e "\tcomplete-custom: ${_arg_complete_custom[*]}";
+	echo -e "	arg-name: ${_arg_arg_name}";
+	echo -e "	description: ${_arg_description}";
+	echo -e "	one-of: ${_arg_one_of[*]}";
+	echo -e "	complete: ${_arg_complete[*]}";
+	echo -e "	complete-custom: ${_arg_complete_custom[*]}";
+	echo -e "	input-container-class: ${_arg_input_container_class}";
+	echo -e "	input-class: ${_arg_input_class}";
+	echo -e "	label-class: ${_arg_label_class}";
+	echo -e "	select-class: ${_arg_select_class}";
+	echo -e "	checkbox-container-class: ${_arg_checkbox_container_class}";
+	echo -e "	checkbox-class: ${_arg_checkbox_class}";
+	echo -e "	checkbox-label-class: ${_arg_checkbox_label_class}";
 
 }
+
 
 print_version()
 {
 	echo "0.1";
 }
+
 
 on_interrupt() {
 	die Process aborted! 130;

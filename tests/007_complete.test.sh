@@ -54,3 +54,25 @@ function test_complete_subcommand_directory() {
   rm -rf "$tdir";
   rm "$tmf";
 }
+
+function test_complete_with_args() {
+  local tdir="${tftmp_file}_complete_subcommand_directory.d";
+  local tmf="${tftmp_file}_complete_subcommand_directory";
+  local tfile="${tdir}/to_cpt";
+  local ex_=("${ex[@]}" --output "$tmf" --leftovers --pos 'tgt "target" --subcommand-directory "'"$tdir"'" --subcommand-run --subcommand-use-leftovers')
+  local ex_1=("${ex[@]}" --output "$tfile" --pos "${spos[*]}" --opt "${sopt[*]}" --flag "${sflg[*]}" --nested "${snst[*]}")
+  local pex_=("${exp[@]}" --subcommand-directory "$tdir")
+  mkdir -p "$tdir";
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tmf";
+  assert_exit_code "0" "$("${ex_1[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tmf" "to_cpt" "test_arg")";
+  assert_exit_code "0" "$("$tfile" "test_arg")";
+
+  assert_exit_code "0" "$("${pex_[@]}")";
+
+  rm -rf "$tdir";
+  rm "$tmf";
+}
