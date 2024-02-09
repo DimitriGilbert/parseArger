@@ -109,3 +109,93 @@ function test_document_title_tag() {
 
   rm "$tfile";
 }
+
+function test_document_pos() {
+  local tfile="${tftmp_file}_document_pos";
+  local ex_=("${ex[@]}" --output "$tfile" --pos "${spos[*]}")
+  local pex_=("${exp[@]}" -f "$tfile")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile" "my-arg")";
+
+  local pexout="$("${pex_[@]}")"
+  assert_exit_code "0" "$?";
+  assert_contains "my-arg" "$pexout";
+
+  rm "$tfile";
+}
+
+function test_document_opt() {
+  local tfile="${tftmp_file}_document_opt";
+  local ex_=("${ex[@]}" --output "$tfile" --opt "${sopt[*]}")
+  local pex_=("${exp[@]}" -f "$tfile")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+
+  local pexout="$("${pex_[@]}")"
+  assert_exit_code "0" "$?";
+  assert_contains "--my-opt" "$pexout";
+
+  rm "$tfile";
+}
+
+function test_document_flag() {
+  local tfile="${tftmp_file}_document_flag";
+  local ex_=("${ex[@]}" --output "$tfile" --flag "${sflg[*]}")
+  local pex_=("${exp[@]}" -f "$tfile")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+
+  local pexout="$("${pex_[@]}")"
+  assert_exit_code "0" "$?";
+  assert_contains "--my-flag" "$pexout";
+
+  rm "$tfile";
+}
+
+function test_document_nested() {
+  local tfile="${tftmp_file}_document_nested";
+  local ex_=("${ex[@]}" --output "$tfile" --nested "${snst[*]}")
+  local pex_=("${exp[@]}" -f "$tfile")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+
+  local pexout="$("${pex_[@]}")"
+  assert_exit_code "0" "$?";
+  assert_contains "--my-nst" "$pexout";
+
+  rm "$tfile";
+}
+
+function test_document_all_type() {
+  local tdir="${tftmp_file}_document_dir";
+  local tfile="${tdir}/document_all_type";
+  local ex_=("${ex[@]}" --output "$tfile" --pos "${spos[*]}" --opt "${sopt[*]}" --flag "${sflg[*]}" --nested "${snst[*]}")
+  local ex_1=("${ex[@]}" --output "${tfile}1" --pos "${spos[*]}" --opt "${sopt[*]}" --flag "${sflg[*]}" --nested "${snst[*]}")
+  local pex_=("${exp[@]}" -f "$tfile")
+  local pex_1=("${exp[@]}" -d "$tdir")
+  mkdir -p "$tdir";
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile" "my-arg")";
+
+  local pexout="$("${pex_[@]}")"
+  assert_exit_code "0" "$?";
+  assert_contains "--my-nst" "$pexout";
+  
+  assert_exit_code "0" "$("${ex_1[@]}")";
+  assert_is_file "${tfile}1";
+  local pexout1="$("${pex_1[@]}")"
+  assert_exit_code "0" "$?";
+  assert_not_equals "$pexout" "$pexout1";
+
+  rm -rf "$tdir";
+}

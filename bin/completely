@@ -550,15 +550,17 @@ if [ "$mcopt" != "" ]; then
 	outStr+="$mcopt\n";
 fi
 
-if [ "$_arg_yaml_file" != "" ] && [ "$_arg_run_completely" == "on" ]; then
-	if [ "${#_arg_extra_file[@]}" -gt 0 ]; then
-		for _extra_file in "${_arg_extra_file[@]}"; do
-			outStr+="$(cat "$_extra_file")\n";
-		done
-	fi
+if [ "${#_arg_extra_file[@]}" -gt 0 ]; then
+	for _extra_file in "${_arg_extra_file[@]}"; do
+		outStr+="$(cat "$_extra_file")\n";
+	done
+fi
 
+if [ "$_arg_yaml_file" != "" ];then
 	echo -e "$outStr" > "$_arg_yaml_file";
+fi
 
+if [ "$_arg_yaml_file" != "" ] && [ "$_arg_run_completely" == "on" ]; then
 	if [ "$_arg_completion_file" != "" ] && [ "$_arg_run_completely" == "on" ] && [ -f "$_arg_yaml_file" ]; then
 		if [ "${#_arg_completely_cmd[@]}" -le 0 ]; then
 			_arg_completely_cmd=("completely");
