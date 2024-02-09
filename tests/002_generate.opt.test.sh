@@ -172,6 +172,26 @@ function test_generate_opt_alias() {
   rm "$tfile";
 }
 
+function test_generate_opt_nested() {
+  local tfile="${tftmp_file}_generate_opt_nested";
+  local nopt=("${sopt[@]}")
+  local ex_=("${ex[@]}" --output "$tfile" --nested "${nopt[*]}")
+  local tex_=("$tfile")
+  local tex_1=("$tfile" "--my-opt" "val2")
+  local tex_2=("$tfile" "--my-opt-paf" "val2")
+  local tex_3=("$tfile" "--my-opt" "val" "--my-opt-paf" "val2")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+  assert_exit_code "0" "$("${tex_[@]}")";
+  assert_exit_code "0" "$("${tex_1[@]}")";
+  assert_exit_code "0" "$("${tex_2[@]}")";
+  assert_exit_code "0" "$("${tex_3[@]}")";
+
+  rm "$tfile";
+}
+
 # TODO: repair opt empty
 # function test_generate_opt_empty() {
 #   local tfile="${tftmp_file}_generate_opt_empty";

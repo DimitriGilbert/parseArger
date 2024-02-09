@@ -247,6 +247,29 @@ function test_parse_source() {
   rm "$tfile";
 }
 
+function test_parse_nested() {
+  local tfile="${tftmp_file}_parse_nested";
+  local nopt=("${sopt[@]}")
+  local ex_=("${ex[@]}" --output "$tfile")
+  local pex_=("${exp[@]}" "$tfile" -i --nested "${nopt[*]}")
+  local tex_=("$tfile")
+  local tex_1=("$tfile" "--my-opt" "val2")
+  local tex_2=("$tfile" "--my-opt-paf" "val2")
+  local tex_3=("$tfile" "--my-opt" "val" "--my-opt-paf" "val2")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("${pex_[@]}")";
+  assert_is_file "$tfile";
+  assert_exit_code "0" "$("$tfile")";
+  assert_exit_code "0" "$("${tex_[@]}")";
+  assert_exit_code "0" "$("${tex_1[@]}")";
+  assert_exit_code "0" "$("${tex_2[@]}")";
+  assert_exit_code "0" "$("${tex_3[@]}")";
+
+  rm "$tfile";
+}
+
 # function test_parse_() {
 #   local tfile="${tftmp_file}_parse_";
 #   local ex_=("${ex[@]}" --output "$tfile")
