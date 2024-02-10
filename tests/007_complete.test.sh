@@ -5,14 +5,18 @@ pabin=./parseArger
 ex=("$pabin" generate)
 exp=("$pabin" completely --no-run-completely "testScript")
 spos=("my-arg" "'An argument'")
-sopt=("my-opt" "'An opt'" -r -s o --alias opt-pt -d "aValue")
+sopt=("my-opt" "'An opt'" -r -s o --alias opt-pt -d "aValue" --complete file --complete-custom "'\$(echo \"some_value some_other you_get the_point\")'")
 sflg=("my-flag" "'A flag'" -s f --no-name nope --alias flg --no-alias noflg --on)
-snst=("my-nst" "'A nested opt'")
+snst=("my-nst" "'A nested opt'" --complete file --complete-custom "'\$(echo \"some_value some_other you_get the_point\")'")
 tftmp_file="/tmp/gentsttmp";
 
 function test_complete() {
   local tfile="${tftmp_file}_complete";
-  local ex_=("${ex[@]}" --output "$tfile")
+  local ex_=("${ex[@]}" --output "$tfile"
+    --opt "${sopt[*]}"
+    --flag "${sflg[*]}"
+    --nested "${snst[*]}"
+  )
   local pex_=("${exp[@]}" "$tfile")
   local pex_1=("${exp[@]}" "$tfile" --yaml-file "$tfile.yaml")
   
@@ -40,7 +44,7 @@ function test_complete_subcommand_directory() {
   local tfile="${tdir}/to_cpt";
   local ex_=("${ex[@]}" --output "$tmf" --pos 'tgt "target" --subcommand-directory "'"$tdir"'" ')
   local ex_1=("${ex[@]}" --output "$tfile")
-  local pex_=("${exp[@]}" --subcommand-directory "$tdir")
+  local pex_=("${exp[@]}" "$tmf" --subcommand-directory "$tdir")
   mkdir -p "$tdir";
   
   assert_exit_code "0" "$("${ex_[@]}")";
@@ -59,9 +63,13 @@ function test_complete_with_args() {
   local tdir="${tftmp_file}_complete_subcommand_directory.d";
   local tmf="${tftmp_file}_complete_subcommand_directory";
   local tfile="${tdir}/to_cpt";
-  local ex_=("${ex[@]}" --output "$tmf" --leftovers --pos 'tgt "target" --subcommand-directory "'"$tdir"'" --subcommand-run --subcommand-use-leftovers')
+  local ex_=("${ex[@]}" 
+    --output "$tmf" 
+    --leftovers 
+    --pos 'tgt "target" --subcommand-directory "'"$tdir"'" --subcommand-run --subcommand-use-leftovers'
+  )
   local ex_1=("${ex[@]}" --output "$tfile" --pos "${spos[*]}" --opt "${sopt[*]}" --flag "${sflg[*]}" --nested "${snst[*]}")
-  local pex_=("${exp[@]}" --subcommand-directory "$tdir")
+  local pex_=("${exp[@]}" "$tmf" --subcommand-directory "$tdir")
   mkdir -p "$tdir";
   
   assert_exit_code "0" "$("${ex_[@]}")";
