@@ -245,6 +245,7 @@ function test_parse_source() {
   assert_contains "source /tmp/parse.source.test" "$(cat "$tfile")";
 
   rm "$tfile";
+  rm /tmp/parse.source.test;
 }
 
 function test_parse_nested() {

@@ -638,6 +638,9 @@ _SCRIPT_DIR=\"\$(cd \"\$(dirname \"\${BASH_SOURCE[0]}\")\" && pwd -P)\";
 # ${paCmtTrgr}utils-end
 
 # ${paCmtTrgr}parsing
+
+__cli_arg_count="\$#";
+
 ${_arg_die_fn_name}()
 {
 	local _ret=\"\${2:-1}\"
@@ -688,8 +691,8 @@ if [ "$_arg_use_verbose" != "off" ]; then
 fi
 
 # help
-# TODO use hasSubCmd,
-# 	if so, call subCmd help (how ?)
+# TODO get the index of the subcommand arg to compare to total number of args
+#		2 selected because "tgt --help" is 2 args
 echo -e "
 
 print_help()
@@ -697,10 +700,10 @@ print_help()
 	_triggerSCHelp=1;";
 if [ "$hasSubCmd" == "0" ]; then
 	echo -e "
-	if [ \"\${#_positionals[@]}\" -ge 1 ]; then
-		echo \"\$0 sub command help
-	\"
+	if [ \"\$__cli_arg_count\" -ge 2 ]; then
+		# echo \"\$0 sub command help\\n	#\"
 		_triggerSCHelp=0;
+		_helpHasBeenPrinted=0;
 	else
 	";
 fi

@@ -30,6 +30,9 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count="$#";
+
 die()
 {
 	local _ret="${2:-1}"
@@ -83,10 +86,11 @@ print_help()
 {
 	_triggerSCHelp=1;
 
-	if [ "${#_positionals[@]}" -ge 1 ]; then
+	if [ "$__cli_arg_count" -ge 2 ]; then
 		echo "$0 sub command help
 	"
 		_triggerSCHelp=0;
+		_helpHasBeenPrinted=0;
 	else
 	
 
@@ -116,7 +120,6 @@ print_help()
 	fi
 
 	fi
-	
 
 }
 
@@ -458,7 +461,9 @@ if [ "$_arg_target" != "" ]; then
 		__subcommand+=("--git-repo" "$_arg_installer_git_repo");
 	fi
 	"${__subcommand[@]}";
-elif [ "$_helpHasBeenPrinted" == "1" ]; then
+elif [ "$_helpHasBeenPrinted" == "0" ]; then
+	print_help;
+else
 	if [ "$_arg_directory" == "" ]; then
 		log "No directory specified" 3;
 		_arg_directory="$(pwd)/$_arg_name";
@@ -582,6 +587,21 @@ elif [ "$_helpHasBeenPrinted" == "1" ]; then
 		fi
 	fi
 
+	if [ "$_arg_makefile" == "on" ]; then
+		log "Generating makefile" 4;
+		if [ ! -f "makefile" ]; then
+			genMkf=("$_SCRIPT_DIR/_project/mkfile" "$_arg_name");
+			"${genMkf[@]}";
+		else
+			log "makefile already exists" -1;
+		fi
+	fi
+
+	if [ "$_arg_web_server" == "on" ]; then
+		log "Generating web server" 4;
+		"$_SCRIPT_DIR/_project/webserver" "$_arg_name";
+	fi
+
 	if [ "$_arg_git" != "off" ] || [ "${#_arg_git_add[@]}" -gt 0 ] || [ "$_arg_git_commit" != "" ]; then
 		log "Initializing git" 4;
 		gitInc=("$_SCRIPT_DIR/_project/git-init");
@@ -605,20 +625,5 @@ elif [ "$_helpHasBeenPrinted" == "1" ]; then
 		log "Generating installer" 4;
 		genIns=("$_SCRIPT_DIR/_project/installer" "$_arg_name" --git-service "$_arg_installer_git_service" --git-repo "$_arg_installer_git_repo" --parsearger "$paBin");
 		"${genIns[@]}";
-	fi
-
-	if [ "$_arg_makefile" == "on" ]; then
-		log "Generating makefile" 4;
-		if [ ! -f "makefile" ]; then
-			genMkf=("$_SCRIPT_DIR/_project/mkfile" "$_arg_name");
-			"${genMkf[@]}";
-		else
-			log "makefile already exists" -1;
-		fi
-	fi
-
-	if [ "$_arg_web_server" == "on" ]; then
-		log "Generating web server" 4;
-		"$_SCRIPT_DIR/_project/webserver" "$_arg_name";
 	fi
 fi
