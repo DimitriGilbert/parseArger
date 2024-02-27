@@ -22,6 +22,9 @@
 # @parseArger opt verbose-opt-name "verbose option name" --default-value "verbose"
 # @parseArger opt verbose-level "default verbose level" --default-value "0"
 # @parseArger opt nested "nested option declaration" --repeat
+# @parseArger opt history "add n history lines at the end of the file"
+# @parseArger opt history-offset "offset --history value by value"
+# @parseArger opt history-file "specify history file" --default-value "\$HOME/.bash_history"
 # @parseArger flag leftovers "accept extra arguments"
 # @parseArger flag bang "include shebang" --on
 # @parseArger flag version-opt "generate version opt handling" --on
@@ -73,6 +76,9 @@ _arg_log_fn_name="log"
 _arg_verbose_opt_name="verbose"
 _arg_verbose_level="0"
 _arg_nested=()
+_arg_history=
+_arg_history_offset=
+_arg_history_file="$HOME/.bash_history"
 # FLAGS
 _arg_leftovers="off"
 _arg_bang="on"
@@ -107,7 +113,10 @@ print_help()
 	echo -e "	--log-fn-name <log-fn-name>: log function name [default: ' log ']"
 	echo -e "	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']"
 	echo -e "	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']"
-echo -e "	--nested <nested>: nested option declaration, repeatable"
+	echo -e "	--nested <nested>: nested option declaration, repeatable"
+	echo -e " --history <history>: add n history lines at the end of the file"
+	echo -e " --history-offset <history-offset>: offset --history value by value"
+	echo -e " --history-file <history-file>: specify history file [default: ' \$HOME/.bash_history ']"
 	echo -e "	--leftovers|--no-leftovers: accept extra arguments"
 	echo -e "	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)"
 	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
@@ -327,8 +336,7 @@ parse_commandline()
 			--verbose-level=*)
 				_arg_verbose_level="${_key##--verbose-level=}"
 				;;
-			
---nested)
+			--nested)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_nested+=("$2")
 				shift
@@ -336,7 +344,32 @@ parse_commandline()
 			--nested=*)
 				_arg_nested+=("${_key##--nested=}")
 				;;
-			
+			--history)
+							test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+							_arg_history="$2"
+							shift
+							;;
+			--history=*)
+							_arg_history="${_key##--history=}"
+							;;
+
+			--history-offset)
+							test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+							_arg_history_offset="$2"
+							shift
+							;;
+			--history-offset=*)
+							_arg_history_offset="${_key##--history-offset=}"
+							;;
+
+			--history-file)
+							test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+							_arg_history_file="$2"
+							shift
+							;;
+			--history-file=*)
+							_arg_history_file="${_key##--history-file=}"
+							;;
 			--leftovers)
 				_arg_leftovers="on"
 				;;
@@ -460,7 +493,10 @@ print_debug()
 	echo -e "	log-fn-name: ${_arg_log_fn_name}";
 	echo -e "	verbose-opt-name: ${_arg_verbose_opt_name}";
 	echo -e "	verbose-level: ${_arg_verbose_level}";
-echo -e "	nested: ${_arg_nested[*]}";
+	echo -e "	nested: ${_arg_nested[*]}";
+	echo -e " history: ${_arg_history}";
+	echo -e " history-offset: ${_arg_history_offset}";
+	echo -e " history-file: ${_arg_history_file}";
 	echo -e "	leftovers: ${_arg_leftovers}";
 	echo -e "	bang: ${_arg_bang}";
 	echo -e "	version-opt: ${_arg_version_opt}";
@@ -933,3 +969,40 @@ echo -e "
 # ${paCmtTrgr}parsing-end
 # print_debug \"\$@\"
 # ${paCmtTrgr}end";
+
+# history
+if [ "$_arg_history" != "" ]; then
+	_hsCmd=(history);
+
+	_histTtQty=$((_arg_history + 0));
+	_hCmd=();
+	if [ "$_arg_history_offset" != "" ]; then
+		_histTtQty=$((_histTtQty + _arg_history_offset));
+		_hCmd+=(head "-${_arg_history}");
+	fi
+	_tlCmd=(tail "-${_histTtQty}");
+
+	if [ "$_arg_history_file" != "" ]; then
+		_tmphistRes=$(HISTFILE="$_arg_history_file" history -r; history | "${_tlCmd[@]}");
+	else
+		_tmphistRes=$(history | "${_tlCmd[@]}");
+	fi
+
+	if [ "${#_hCmd[@]}" -gt 0 ]; then
+		_tmphistRes=$(echo "$_tmphistRes" | "${_hCmd[@]}");
+	fi
+	echo "$_tmphistRes" | while IFS= read -r history_line
+	do
+		if echo "$history_line" | grep -q "^ [0-9]\+  : [0-9]\+:[0-9]\+;"; then
+			# zsh history format
+			histRes=$(echo "$history_line" | awk -F';' '{print $2}')
+		elif echo "$history_line" | grep -q "^[0-9]\+ \* [0-9]\+ "; then
+			# bash history format with HISTTIMEFORMAT set
+			histRes=$(echo "$history_line" | cut -d ' ' -f5-)
+		else
+			# default bash history format
+			histRes=$(echo "$history_line" | cut -d ' ' -f2-)
+		fi
+		echo -e "$histRes";
+	done
+fi
