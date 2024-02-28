@@ -44,7 +44,7 @@ parsearger_get_one_ofs() {
 }
 parsearger_get_dependencies() {
   local -n _ldependencies=$1;
-  readarray -t _ldependencies <<< "$(sed -ne 's/'"${paStart}"'-dependencies \(.*\).*/\1/p' "$2")"
+  readarray -t _ldependencies <<< "$(sed -ne 's/'"${paStart}"'-dependencies \(.*\).*/\1/p' "$2" | sed 's/ /\n/g')"
 }
 parsearger_is_pa_file() {
   if [ -f "$1" ]; then

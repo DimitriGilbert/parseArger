@@ -678,7 +678,11 @@ for nested in "${_arg_nested[@]}"; do
 done
 
 if [ "${#_arg_dependencies[@]}" -gt 0 ]; then
-	echo "# ${paCmtTrgr}dependencies ${_arg_dependencies[*]}";
+	__depdeclstr="";
+	for dep in "${_arg_dependencies[@]}"; do
+		__depdeclstr+=" \"$dep\"";
+	done
+	echo "# ${paCmtTrgr}dependencies${__depdeclstr}";
 fi
 
 # generating parsing function
