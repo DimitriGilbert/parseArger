@@ -79,7 +79,6 @@ generate a parseArger script:
 	-p, --pos <pos>: positional argument declaration, repeatable
 	-o, --opt <opt>: optional arg declaration, repeatable
 	-f, --flag <flag>: flag declaration, repeatable
-	--nested <nested>: nested option declaration, repeatable
 	-s, --set <set>: declare var, repeatable
 	-l, --source <source>: file to source, repeatable
 	-m, --help-message <help-message>: help message for the command [default: ' I send an SOS to the world ']
@@ -94,12 +93,18 @@ generate a parseArger script:
 	--log-fn-name <log-fn-name>: log function name [default: ' log ']
 	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
 	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']
+	--nested <nested>: nested option declaration, repeatable
+ --history <history>: add n history lines at the end of the file
+ --history-offset <history-offset>: offset --history value by value
+ --history-file <history-file>: specify history file [default: ' $HOME/.bash_history ']
+	--dependencies <dependencies>: script dependencies, repeatable
 	--leftovers|--no-leftovers: accept extra arguments
 	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
 	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
 	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)
+	--parse-leftovers|--no-parse-leftovers: parse leftovers, force leftovers
 Usage :
-	parseArger generate [--pos <value>] [--opt <value>] [--flag <value>] [--nested <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose]
+  parseArger generate [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--nested <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]parse-leftovers] 
 ```
 
 ## parseArger html-form
@@ -138,6 +143,7 @@ parse an existing parseArger file:
 	-s, --set <set>: add declare var, repeatable
 	-l, --source <source>: add file to source, repeatable
 	--set-version <set-version>: set version
+	--dependencies <dependencies>: script dependencies, repeatable
 	-i|--inplace|--no-inplace: replace parseArger generated content in place
 Usage :
 	parseArger parse <file> [--pos <value>] [--opt <value>] [--flag <value>] [--nested <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace]

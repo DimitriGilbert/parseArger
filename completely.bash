@@ -80,6 +80,10 @@ _parseArger_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--git-repo --git-service")" -- "$cur" )
       ;;
 
+    'project webserver'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--route --url --file")" -- "$cur" )
+      ;;
+
     'project git-init'*)
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--add --commit")" -- "$cur" )
       ;;
@@ -117,7 +121,7 @@ _parseArger_completions() {
       ;;
 
     'generate'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --use-shebang --set-version --version-opt-name --version-short-option --die-fn-name --log-fn-name --verbose-opt-name --verbose-level --leftovers --no-leftovers --bang --no-bang --version-opt --no-version-opt --use-verbose --no-use-verbose")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --help-message -m --help-option --help-short-option --leftovers-name --use-shebang --set-version --version-opt-name --version-short-option --die-fn-name --log-fn-name --verbose-opt-name --verbose-level --nested --history --history-offset --history-file --dependencies --leftovers --no-leftovers --bang --no-bang --version-opt --no-version-opt --use-verbose --no-use-verbose --parse-leftovers --no-parse-leftovers")" -- "$cur" )
       ;;
 
     *'--output')
@@ -125,11 +129,11 @@ _parseArger_completions() {
       ;;
 
     'project'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "git-init installer git-init --description --project-help --directory --dir -d --project-subcommand-dir --subcommand-directory --project-subcommand --completely --document --html-form --cp --installer-git-service --git-provider --installer-git-repo --git-repo --git-add --git-commit --commit --readme --no-readme --git --no-git")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_parseArger_completions_filter "git-init installer git-init mkfile webserver --description --project-help --directory --dir -d --project-subcommand-dir --subcommand-directory --project-subcommand --completely --document --html-form --cp --installer-git-service --git-provider --installer-git-repo --git-repo --git-add --git-commit --commit --readme --no-readme --git --no-git --makefile --no-makefile --web-server --no-web-server")" -- "$cur" )
       ;;
 
     'parse'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --set -s --source -l --set-version --inplace --no-inplace -i")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A file -W "$(_parseArger_completions_filter "--pos -p --opt -o --flag -f --nested --set -s --source -l --set-version --dependencies --inplace --no-inplace -i --leftovers --no-leftovers --parse-leftovers --no-parse-leftovers")" -- "$cur" )
       ;;
 
     *)

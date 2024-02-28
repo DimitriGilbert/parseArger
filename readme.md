@@ -140,6 +140,10 @@ generic usage:
 	--log-fn-name <log-fn-name>: log function name [default: ' log ']
 	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']
 	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']
+	--history <history>: add n history lines at the end of the file
+	--history-offset <history-offset>: offset --history value by value
+	--history-file <history-file>: specify history file [default: ' $HOME/.bash_history ']
+	--dependencies <dependencies>: set a dependency, repeatable
 	--leftovers|--no-leftovers: accept extra arguments
 	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)
 	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)
@@ -286,6 +290,7 @@ parseArger parse \
 	-s, --set <set>: add declare var, repeatable
 	-l, --source <source>: add file to source, repeatable
 	--set-version <set-version>: set version
+	--dependencies <dependencies>: set a dependency, repeatable
 	-i|--inplace|--no-inplace: replace parseArger generated content in place
 ```
 
