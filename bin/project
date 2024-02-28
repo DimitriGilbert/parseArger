@@ -22,6 +22,7 @@
 # @parseArger flag git "git init" --on
 # @parseArger flag makefile "generate a makefile" --on
 # @parseArger flag web-server "add web server" --on
+# @parseArger flag bashunit "add bashunit lib to the project"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -31,7 +32,7 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 
 # @parseArger-parsing
 
-__cli_arg_count="$#";
+__cli_arg_count=$#;
 
 die()
 {
@@ -76,6 +77,8 @@ _arg_readme="on"
 _arg_git="on"
 _arg_makefile="on"
 _arg_web_server="on"
+_arg_bashunit="off"
+# NESTED
 # LEFTOVERS
 _arg_leftovers=()
 _verbose_level="0";
@@ -87,8 +90,8 @@ print_help()
 	_triggerSCHelp=1;
 
 	if [ "$__cli_arg_count" -ge 2 ]; then
-		echo "$0 sub command help
-	"
+		# echo "$0 sub command help
+	#"
 		_triggerSCHelp=0;
 		_helpHasBeenPrinted=0;
 	else
@@ -115,17 +118,19 @@ print_help()
 	echo -e "	--git|--no-git: git init, on by default (use --no-git to turn it off)"
 	echo -e "	--makefile|--no-makefile: generate a makefile, on by default (use --no-makefile to turn it off)"
 	echo -e "	--web-server|--no-web-server: add web server, on by default (use --no-web-server to turn it off)"
+	echo -e "	--bashunit|--no-bashunit: add bashunit lib to the project"
 	echo -e "Usage :
-	$0 <name> [target] [--description <value>] [--directory <value>] [--project-subcommand-dir <value>] [--project-subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--git-add <value>] [--git-commit <value>] [--[no-]readme] [--[no-]git] [--[no-]makefile] [--[no-]web-server]";
+	$0 <name> [target] [--description <value>] [--directory <value>] [--project-subcommand-dir <value>] [--project-subcommand <value>] [--completely <value>] [--document <value>] [--html-form <value>] [--cp <value>] [--installer-git-service <value>] [--installer-git-repo <value>] [--git-add <value>] [--git-commit <value>] [--[no-]readme] [--[no-]git] [--[no-]makefile] [--[no-]web-server] [--[no-]bashunit]";
 	fi
 
 	fi
+	
 
 }
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:-'0'}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -314,19 +319,17 @@ parse_commandline()
 			--no-web-server)
 				_arg_web_server="off"
 				;;
+			--bashunit)
+				_arg_bashunit="on"
+				;;
+			--no-bashunit)
+				_arg_bashunit="off"
+				;;
 			-h|--help)
 				print_help;
 				;;
 			-h*)
 				print_help;
-				;;
-			-v|--version)
-				print_version;
-				exit 0;
-				;;
-			-v*)
-				print_version;
-				exit 0;
 				;;
 			--verbose)
 					if [ $# -lt 2 ];then
@@ -345,7 +348,7 @@ parse_commandline()
 					fi
 					;;
 				
-			*)
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -382,11 +385,13 @@ assign_positional_args()
 			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
 			
 			if [ "$_arg_subcommand_arg" == "$_positional_name" ];then
-				if [ -d "$_SCRIPT_DIR/${1}" ];then
+				if [ -f "${1}" ] && command -v "${1}";then
+					__subcommand+=("${1}");
+				elif [ -f "$_SCRIPT_DIR/${1}" ] && command -v "$_SCRIPT_DIR/${1}";then
 					__subcommand+=("$_SCRIPT_DIR/${1}");
-				elif [[ "bin/_project/" == $(basename "$_SCRIPT_DIR")* ]];then
+				elif [[ "" == $(basename "$_SCRIPT_DIR")* ]];then
 					cmdToSub="$(basename "$_SCRIPT_DIR")";
-					cmdsubDir="bin/_project/";
+					cmdsubDir="";
 					__subcommand+=("$_SCRIPT_DIR${cmdsubDir#"${cmdToSub}"}${1}");
 				else
 					__subcommand+=("$_SCRIPT_DIR/${1}");
@@ -404,36 +409,34 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tname: ${_arg_name}";
-	echo -e "\ttarget: ${_arg_target}";
-	echo -e "\tdescription: ${_arg_description}";
-	echo -e "\tdirectory: ${_arg_directory}";
-	echo -e "\tproject-subcommand-dir: ${_arg_project_subcommand_dir}";
-	echo -e "\tproject-subcommand: ${_arg_project_subcommand[*]}";
-	echo -e "\tcompletely: ${_arg_completely}";
-	echo -e "\tdocument: ${_arg_document}";
-	echo -e "\thtml-form: ${_arg_html_form}";
-	echo -e "\tcp: ${_arg_cp[*]}";
-	echo -e "\tinstaller-git-service: ${_arg_installer_git_service}";
-	echo -e "\tinstaller-git-repo: ${_arg_installer_git_repo}";
-	echo -e "\tgit-add: ${_arg_git_add[*]}";
-	echo -e "\tgit-commit: ${_arg_git_commit}";
-	echo -e "\treadme: ${_arg_readme}";
-	echo -e "\tgit: ${_arg_git}";
-	echo -e "\tmakefile: ${_arg_makefile}";
-	echo -e "\tweb-server: ${_arg_web_server}";
-	echo -e "\tleftovers: ${_arg_leftovers[*]}";
+	echo -e "	name: ${_arg_name}";
+	echo -e "	target: ${_arg_target}";
+	echo -e "	description: ${_arg_description}";
+	echo -e "	directory: ${_arg_directory}";
+	echo -e "	project-subcommand-dir: ${_arg_project_subcommand_dir}";
+	echo -e "	project-subcommand: ${_arg_project_subcommand[*]}";
+	echo -e "	completely: ${_arg_completely}";
+	echo -e "	document: ${_arg_document}";
+	echo -e "	html-form: ${_arg_html_form}";
+	echo -e "	cp: ${_arg_cp[*]}";
+	echo -e "	installer-git-service: ${_arg_installer_git_service}";
+	echo -e "	installer-git-repo: ${_arg_installer_git_repo}";
+	echo -e "	git-add: ${_arg_git_add[*]}";
+	echo -e "	git-commit: ${_arg_git_commit}";
+	echo -e "	readme: ${_arg_readme}";
+	echo -e "	git: ${_arg_git}";
+	echo -e "	makefile: ${_arg_makefile}";
+	echo -e "	web-server: ${_arg_web_server}";
+	echo -e "	bashunit: ${_arg_bashunit}";
+	echo -e "	leftovers: ${_arg_leftovers[*]}";
 
 }
 
-print_version()
-{
-	echo "";
-}
 
 on_interrupt() {
 	die Process aborted! 130;
 }
+
 
 parse_commandline "$@";
 handle_passed_args_count;
@@ -602,6 +605,18 @@ else
 		"$_SCRIPT_DIR/_project/webserver" "$_arg_name";
 	fi
 
+	if [ "$_arg_installer_git_repo" != "" ]; then
+		log "Generating installer" 4;
+		genIns=("$_SCRIPT_DIR/_project/installer" "$_arg_name" --git-service "$_arg_installer_git_service" --git-repo "$_arg_installer_git_repo" --parsearger "$paBin");
+		"${genIns[@]}";
+	fi
+
+	if [ "$_arg_bashunit" != "off" ]; then
+		log "Adding bashunit" 4;
+		bashunitInstallStr=$(curl -s https://bashunit.typeddevs.com/install.sh | bash);
+		log "$bashunitInstallStr" 4;
+	fi
+
 	if [ "$_arg_git" != "off" ] || [ "${#_arg_git_add[@]}" -gt 0 ] || [ "$_arg_git_commit" != "" ]; then
 		log "Initializing git" 4;
 		gitInc=("$_SCRIPT_DIR/_project/git-init");
@@ -619,11 +634,5 @@ else
 			log "Adding remote origin" 4;
 			git remote add origin "git@${_arg_installer_git_service}:${_arg_installer_git_repo}.git"
 		fi
-	fi
-
-	if [ "$_arg_installer_git_repo" != "" ]; then
-		log "Generating installer" 4;
-		genIns=("$_SCRIPT_DIR/_project/installer" "$_arg_name" --git-service "$_arg_installer_git_service" --git-repo "$_arg_installer_git_repo" --parsearger "$paBin");
-		"${genIns[@]}";
 	fi
 fi
