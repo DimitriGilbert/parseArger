@@ -42,6 +42,10 @@ parsearger_get_one_ofs() {
   local -n _lone_ofs=$1;
   readarray -t _lone_ofs <<< "$(echo "$2" | grep -oE -- '--one-of "([^"]+)"' | cut -d'"' -f2)"
 }
+parsearger_get_dependencies() {
+  local -n _ldependencies=$1;
+  readarray -t _ldependencies <<< "$(sed -ne 's/'"${paStart}"'-dependencies \(.*\).*/\1/p' "$2")"
+}
 parsearger_is_pa_file() {
   if [ -f "$1" ]; then
     local _isPA="$(sed -ne 's/'"${paStart}"'//p' "$1")";

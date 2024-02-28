@@ -12,6 +12,7 @@
 # @parseArger opt set "add declare var" --short s --repeat
 # @parseArger opt source "add file to source" --short l --repeat
 # @parseArger opt set-version "set version"
+# @parseArger opt dependencies "specify script dependencies" --repeat
 # @parseArger flag inplace "replace parseArger generated content in place" --short i
 # @parseArger flag leftovers "add leftovers"
 # @parseArger flag parse-leftovers "parse leftovers"
@@ -51,6 +52,7 @@ _arg_nested=()
 _arg_set=()
 _arg_source=()
 _arg_set_version=
+_arg_dependencies=()
 # FLAGS
 _arg_inplace="off"
 _arg_leftovers="off"
@@ -74,6 +76,7 @@ print_help()
 	echo -e "	-s, --set <set>: add declare var, repeatable"
 	echo -e "	-l, --source <source>: add file to source, repeatable"
 	echo -e "	--set-version <set-version>: set version"
+	echo -e "	--dependencies <dependencies>: script dependencies, repeatable"
 	echo -e "	-i|--inplace|--no-inplace: replace parseArger generated content in place"
 	echo -e "	--leftovers|--no-leftovers: add leftovers"
 	echo -e "	--parse-leftovers|--no-parse-leftovers: parse leftovers"
@@ -198,6 +201,14 @@ parse_commandline()
 			--set-version=*)
 				_arg_set_version="${_key##--set-version=}"
 				;;
+			--dependencies)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_dependencies+=("$2")
+				shift
+				;;
+			--dependencies=*)
+				_arg_dependencies+=("${_key##--dependencies=}")
+				;;
 			
 			-i|--inplace)
 				_arg_inplace="on"
@@ -301,6 +312,7 @@ print_debug()
 	echo -e "\tset: ${_arg_set[*]}";
 	echo -e "\tsource: ${_arg_source[*]}";
 	echo -e "\tset-version: ${_arg_set_version}";
+	echo -e "\tdependencies: ${_arg_dependencies[*]}";
 	echo -e "\tinplace: ${_arg_inplace}";
 	echo -e "\tleftovers: ${_arg_leftovers}";
 	echo -e "\tparse-leftovers: ${_arg_parse_leftovers}";
@@ -350,12 +362,14 @@ _pos=();
 _opt=();
 _flag=();
 _nested=();
+_dependencies=();
 parsearger_get_set _set "$_arg_file";
 parsearger_get_source _source "$_arg_file";
 parsearger_get_pos _pos "$_arg_file";
 parsearger_get_opt _opt "$_arg_file";
 parsearger_get_flag _flag "$_arg_file";
 parsearger_get_nested _nested "$_arg_file";
+parsearger_get_dependencies _dependencies "$_arg_file";
 
 # echo "_help: $_help";
 # echo "_set: ${_set[@]}";
@@ -453,6 +467,17 @@ fi
 if [[ "${#_arg_nested[@]}" -gt 0 ]]; then
 	for __n_nested in "${_arg_nested[@]}"; do
 		cmdGen+=("--nested" "$__n_nested")
+	done
+fi
+
+if [ "${_dependencies[*]}" != "" ] && [ "${#_dependencies[@]}" -gt "0" ]; then
+  for __dependencies in "${_dependencies[@]}"; do
+    cmdGen+=("--dependencies" "$__dependencies");
+  done
+fi
+if [[ "${#_arg_dependencies[@]}" -gt 0 ]]; then
+	for __n_dependencies in "${_arg_dependencies[@]}"; do
+		cmdGen+=("--dependencies" "$__n_dependencies")
 	done
 fi
 
