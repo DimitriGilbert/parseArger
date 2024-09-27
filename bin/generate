@@ -700,8 +700,8 @@ __cli_arg_count="\$#";
 ${_arg_die_fn_name}()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-    	_ret=$2
+    if [[ -n \"\$2\" ]] && [[ \"\$2\" =~ ^[0-9]+$ ]]; then
+   	_ret=\"\$2\"
     fi
 	test \"\${_PRINT_HELP:-no}\" = yes && print_help >&2
 	log \"\$1\" -3 >&2
