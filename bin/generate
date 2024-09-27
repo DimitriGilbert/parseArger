@@ -180,7 +180,7 @@ parse_commandline()
 			-p*)
 				_arg_pos+=("${_key##-p}")
 				;;
-			
+
 			-o|--opt)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_opt+=("$2")
@@ -192,7 +192,7 @@ parse_commandline()
 			-o*)
 				_arg_opt+=("${_key##-o}")
 				;;
-			
+
 			-f|--flag)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_flag+=("$2")
@@ -204,7 +204,7 @@ parse_commandline()
 			-f*)
 				_arg_flag+=("${_key##-f}")
 				;;
-			
+
 			-s|--set)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_set+=("$2")
@@ -216,7 +216,7 @@ parse_commandline()
 			-s*)
 				_arg_set+=("${_key##-s}")
 				;;
-			
+
 			-l|--source)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_source+=("$2")
@@ -228,7 +228,7 @@ parse_commandline()
 			-l*)
 				_arg_source+=("${_key##-l}")
 				;;
-			
+
 			-m|--help-message)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_help_message="$2"
@@ -240,7 +240,7 @@ parse_commandline()
 			-m*)
 				_arg_help_message="${_key##-m}"
 				;;
-			
+
 			--help-option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_help_option="$2"
@@ -249,7 +249,7 @@ parse_commandline()
 			--help-option=*)
 				_arg_help_option="${_key##--help-option=}"
 				;;
-			
+
 			--help-short-option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_help_short_option="$2"
@@ -258,7 +258,7 @@ parse_commandline()
 			--help-short-option=*)
 				_arg_help_short_option="${_key##--help-short-option=}"
 				;;
-			
+
 			--leftovers-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_leftovers_name="$2"
@@ -267,7 +267,7 @@ parse_commandline()
 			--leftovers-name=*)
 				_arg_leftovers_name="${_key##--leftovers-name=}"
 				;;
-			
+
 			--use-shebang)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_use_shebang="$2"
@@ -276,7 +276,7 @@ parse_commandline()
 			--use-shebang=*)
 				_arg_use_shebang="${_key##--use-shebang=}"
 				;;
-			
+
 			--set-version)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_set_version="$2"
@@ -285,7 +285,7 @@ parse_commandline()
 			--set-version=*)
 				_arg_set_version="${_key##--set-version=}"
 				;;
-			
+
 			--version-opt-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_version_opt_name="$2"
@@ -294,7 +294,7 @@ parse_commandline()
 			--version-opt-name=*)
 				_arg_version_opt_name="${_key##--version-opt-name=}"
 				;;
-			
+
 			--version-short-option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_version_short_option="$2"
@@ -303,7 +303,7 @@ parse_commandline()
 			--version-short-option=*)
 				_arg_version_short_option="${_key##--version-short-option=}"
 				;;
-			
+
 			--die-fn-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_die_fn_name="$2"
@@ -312,7 +312,7 @@ parse_commandline()
 			--die-fn-name=*)
 				_arg_die_fn_name="${_key##--die-fn-name=}"
 				;;
-			
+
 			--log-fn-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_log_fn_name="$2"
@@ -321,7 +321,7 @@ parse_commandline()
 			--log-fn-name=*)
 				_arg_log_fn_name="${_key##--log-fn-name=}"
 				;;
-			
+
 			--verbose-opt-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_verbose_opt_name="$2"
@@ -330,7 +330,7 @@ parse_commandline()
 			--verbose-opt-name=*)
 				_arg_verbose_opt_name="${_key##--verbose-opt-name=}"
 				;;
-			
+
 			--verbose-level)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_verbose_level="$2"
@@ -443,7 +443,7 @@ parse_commandline()
 						shift;
 					fi
 					;;
-			
+
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -486,7 +486,7 @@ print_debug()
 	print_help
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
-	
+
 	echo -e "	pos: ${_arg_pos[*]}";
 	echo -e "	opt: ${_arg_opt[*]}";
 	echo -e "	flag: ${_arg_flag[*]}";
@@ -617,7 +617,7 @@ if [ "$_arg_set_version" != "" ] && [ "$_arg_version_opt" != "off" ]; then
 		versionDecArg+=("--short-option" "$_arg_version_short_option");
 	fi
 	"$SCRIPT_ROOT_DIR/version/declaration" "${versionDecArg[@]}";
-else 
+else
 	versionDecArg=("");
 fi
 
@@ -625,7 +625,7 @@ fi
 if [ "$_arg_use_verbose" != "off" ]; then
 	verboseDecArg=("--option" "$_arg_verbose_opt_name" --level "$_arg_verbose_level" --log-fn-name "$_arg_log_fn_name");
 	"$SCRIPT_ROOT_DIR/verbose/declaration" "${verboseDecArg[@]}";
-else 
+else
 	verboseDecArg=("");
 fi
 
@@ -699,7 +699,10 @@ __cli_arg_count="\$#";
 
 ${_arg_die_fn_name}()
 {
-	local _ret=\"\${2:-1}\"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+    	_ret=$2
+    fi
 	test \"\${_PRINT_HELP:-no}\" = yes && print_help >&2
 	log \"\$1\" -3 >&2
 	exit \"\${_ret}\"

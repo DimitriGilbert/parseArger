@@ -108,7 +108,7 @@ parse_commandline()
 			--option=*)
 				_arg_option="${_key##--option=}"
 				;;
-			
+
 			--level)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_level="$2"
@@ -117,7 +117,7 @@ parse_commandline()
 			--level=*)
 				_arg_level="${_key##--level=}"
 				;;
-			
+
 			--log-fn-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_log_fn_name="$2"
@@ -126,7 +126,7 @@ parse_commandline()
 			--log-fn-name=*)
 				_arg_log_fn_name="${_key##--log-fn-name=}"
 				;;
-			
+
 			--quiet-option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_quiet_option="$2"
@@ -135,7 +135,7 @@ parse_commandline()
 			--quiet-option=*)
 				_arg_quiet_option="${_key##--quiet-option=}"
 				;;
-			
+
 			-h|--help)
 				print_help;
 				exit 0;
@@ -160,7 +160,7 @@ parse_commandline()
 					shift;
 				fi
 				;;
-			
+
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -203,7 +203,7 @@ print_debug()
 	print_help
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
-	
+
 	echo -e "\toption: ${_arg_option}";
 	echo -e "\tlevel: ${_arg_level}";
 	echo -e "\tlog-fn-name: ${_arg_log_fn_name}";

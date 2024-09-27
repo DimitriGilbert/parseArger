@@ -137,7 +137,7 @@ parse_commandline()
 			--repeat-min=*)
 				_arg_repeat_min="${_key##--repeat-min=}"
 				;;
-			
+
 			--repeat-max)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_repeat_max="$2"
@@ -146,7 +146,7 @@ parse_commandline()
 			--repeat-max=*)
 				_arg_repeat_max="${_key##--repeat-max=}"
 				;;
-			
+
 			--one-of)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_one_of+=("$2")
@@ -155,7 +155,7 @@ parse_commandline()
 			--one-of=*)
 				_arg_one_of+=("${_key##--one-of=}")
 				;;
-			
+
 			--subcommand-directory)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_subcommand_directory="$2"
@@ -164,7 +164,7 @@ parse_commandline()
 			--subcommand-directory=*)
 				_arg_subcommand_directory="${_key##--subcommand-directory=}"
 				;;
-			
+
 			--subcommand-variable)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_subcommand_variable="$2"
@@ -173,7 +173,7 @@ parse_commandline()
 			--subcommand-variable=*)
 				_arg_subcommand_variable="${_key##--subcommand-variable=}"
 				;;
-			
+
 			--complete)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_complete+=("$2")
@@ -182,7 +182,7 @@ parse_commandline()
 			--complete=*)
 				_arg_complete+=("${_key##--complete=}")
 				;;
-			
+
 			--complete-custom)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_complete_custom+=("$2")
@@ -191,7 +191,7 @@ parse_commandline()
 			--complete-custom=*)
 				_arg_complete_custom+=("${_key##--complete-custom=}")
 				;;
-			
+
 			--subcommand-run)
 				_arg_subcommand_run="on"
 				;;
@@ -246,7 +246,7 @@ parse_commandline()
 					shift;
 				fi
 				;;
-			
+
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -289,7 +289,7 @@ print_debug()
 	print_help
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
-	
+
 	echo -e "\targ-name: ${_arg_arg_name}";
 	echo -e "\tdescription: ${_arg_description}";
 	echo -e "\trepeat-min: ${_arg_repeat_min}";
@@ -338,9 +338,9 @@ fi
 
 echo -e "
 			if [ \"\$_arg_subcommand_arg\" == \"\$_positional_name\" ];then
-				if [ -f \"$_tgtdir\${1}\" ] && command -v \"$_tgtdir\${1}\";then
+				if [ -f \"$_tgtdir\${1}\" ] && command -v \"$_tgtdir\${1}\" > /dev/null 2>&1;then
 					${_arg_subcommand_variable}+=(\"$_tgtdir\${1}\");
-				elif [ -f \"\$_SCRIPT_DIR/$_tgtdir\${1}\" ] && command -v \"\$_SCRIPT_DIR/$_tgtdir\${1}\";then
+				elif [ -f \"\$_SCRIPT_DIR/$_tgtdir\${1}\" ] && command -v \"\$_SCRIPT_DIR/$_tgtdir\${1}\" > /dev/null 2>&1;then
 					${_arg_subcommand_variable}+=(\"\$_SCRIPT_DIR/$_tgtdir\${1}\");
 				elif [[ \"$_tgtdir\" == \$(basename \"\$_SCRIPT_DIR\")* ]];then
 					cmdToSub=\"\$(basename \"\$_SCRIPT_DIR\")\";
