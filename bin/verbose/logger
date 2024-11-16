@@ -260,7 +260,11 @@ outStr="${_arg_log_fn_name}() {
 				_arg_COLOR=\"\\\\033[0m\";
 				;;
 		esac
-		echo -e \"\${_arg_COLOR}\${_arg_msg}\\\\033[0m\";
+		if [ \"\${_has_colors}\" == \"1\" ]; then
+			echo -e \"\${_arg_COLOR}\${_arg_msg}\\\\033[0m\";
+		else
+			echo \"\${_arg_msg}\";
+		fi
 	fi
 }";
 

@@ -660,6 +660,13 @@ fi
 hasSubCmd="1";
 
 # argument declarations
+echo -e "_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=\$(tput colors 2>/dev/null)
+	if [ -n \"\$ncolors\" ] && [ \"\$ncolors\" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi";
 echo -e "# ${paCmtTrgr}declarations";
 for pos in "${_arg_pos[@]}"; do
 	if [[ "$hasSubCmd" == "1" ]]; then
