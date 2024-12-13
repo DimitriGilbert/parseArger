@@ -1,0 +1,260 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "An hello world script" --option "help" --short-option "h"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
+# @parseArger-declarations
+# @parseArger pos who "say hi to who" --optional
+# @parseArger opt greetings "how to greet" --default-value "Hello"
+# @parseArger opt to "more people to greet" --repeat
+# @parseArger opt command "command to execute" --repeat
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+
+__cli_arg_count=$#;
+
+die()
+{
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_optional_positionals=();
+_arg_who="";
+_optional_positionals+=("_arg_who");
+# OPTIONALS ARGUMENTS
+_arg_greetings="Hello"
+_arg_to=()
+_arg_command=()
+# FLAGS
+# NESTED
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "An hello world script:"
+	echo -e "	who: say hi to who, optional"
+	echo -e "	--greetings <greetings>: how to greet [default: ' Hello ']"
+	echo -e "	--to <to>: more people to greet, repeatable"
+	echo -e "	--command <command>: command to execute, repeatable"
+	echo -e "Usage :
+	$0 [who] [--greetings <value>] [--to <value>] [--command <value>]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:-0}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			--greetings)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_greetings="$2"
+				shift
+				;;
+			--greetings=*)
+				_arg_greetings="${_key##--greetings=}"
+				;;
+			
+			--to)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_to+=("$2")
+				shift
+				;;
+			--to=*)
+				_arg_to+=("${_key##--to=}")
+				;;
+			
+			--command)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_command+=("$2")
+				shift
+				;;
+			--command=*)
+				_arg_command+=("${_key##--command=}")
+				;;
+			
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			--verbose)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+				*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_who ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "	who: ${_arg_who}";
+	echo -e "	greetings: ${_arg_greetings}";
+	echo -e "	to: ${_arg_to[*]}";
+	echo -e "	command: ${_arg_command[*]}";
+
+}
+
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+if [ -z "$_arg_who" ]; then
+	_arg_who="World"
+fi
+
+if [ -z "$_arg_commands" ]; then
+    _arg_commands=("echo")
+fi
+
+greetings_array=("$_arg_who")
+for person in "${_arg_to[@]}"; do
+    greetings_array+=("$person")
+done
+
+# Split each command in _arg_command into a new array
+for command in "${_arg_command[@]}"; do
+    IFS=' ' read -r -a _command_array <<< "$command"
+	log "Command: ${_command_array[*]}" 2
+	for person in "${greetings_array[@]}"; do
+		"${_command_array[@]}" "$_arg_greetings $person"
+	done
+done
