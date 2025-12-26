@@ -18,19 +18,19 @@ export function CodeBlock({ children, language = 'bash', copyable = true }: Code
   };
 
   return (
-    <div className="group relative my-6 border-2 border-muted bg-card">
+    <div className="relative my-6 border border-primary/20 bg-card/50 rounded-sm rounded-br-2xl overflow-hidden shadow-none">
       <div className="absolute right-0 top-0 z-10">
         {copyable && (
           <button
             onClick={handleCopy}
-            className="opacity-50 group-hover:opacity-100 transition-opacity px-3 py-1 text-xs font-mono bg-muted text-primary hover:bg-primary hover:text-background border-l-2 border-b-2 border-muted uppercase font-bold tracking-wider"
+            className="px-4 py-1.5 text-xs font-mono bg-primary/10 text-primary hover:bg-primary hover:text-background border-b border-l border-primary/20 rounded-bl-xl font-bold tracking-wider transition-colors"
           >
-            {copied ? '[_COPIED_]' : '[_COPY_]'}
+            {copied ? 'COPIED' : 'COPY'}
           </button>
         )}
       </div>
-      <pre className="overflow-x-auto p-6 scrollbar-hide">
-        <code className={`text-sm font-mono language-${language} block text-foreground bg-transparent border-0 p-0`}>
+      <pre className="overflow-x-auto p-6 scrollbar-hide text-sm">
+        <code className={`font-mono language-${language} inline-block min-w-full text-foreground/90 bg-transparent border-0 p-0 whitespace-pre`}>
           {children}
         </code>
       </pre>

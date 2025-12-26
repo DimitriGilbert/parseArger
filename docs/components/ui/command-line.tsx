@@ -11,27 +11,41 @@ interface CommandLineProps {
 }
 
 export function CommandLine({ command, output, className, animated = true }: CommandLineProps) {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className={cn(
-      "bg-card overflow-hidden border-2 border-primary/20 shadow-[4px_4px_0px_0px_var(--color-primary)]",
+      "relative my-6 border-2 border-primary/20 bg-card/50 text-foreground rounded-sm rounded-br-2xl shadow-none overflow-hidden",
       className
     )}>
-      <div className="bg-primary/10 px-4 py-1 flex items-center justify-between border-b border-primary/20">
-        <div className="text-xs text-primary font-mono font-bold tracking-wider">
-          root@parseArger:~
-        </div>
-        <div className="text-xs text-muted-foreground font-mono">
-          [BASH]
-        </div>
+      <div className="absolute right-0 top-0 z-10">
+        <button
+          onClick={handleCopy}
+          className="px-4 py-1.5 text-xs font-mono bg-primary/10 text-primary hover:bg-primary hover:text-background border-b border-l border-primary/20 rounded-bl-xl font-bold tracking-wider transition-colors cursor-pointer"
+        >
+          {copied ? 'COPIED' : 'COPY'}
+        </button>
       </div>
-      <div className="p-6 font-mono text-sm bg-card/50">
-        <div className="flex items-start gap-2">
-          <span className="text-primary font-bold">{'>'}</span>
-          <pre className="flex-1 whitespace-pre-wrap text-foreground bg-transparent border-0 p-0 shadow-none overflow-visible">{command}</pre>
+      
+      <div className="p-6 overflow-x-auto">
+        <div className="flex gap-3 min-w-full font-mono text-sm">
+          <span className="text-primary font-bold select-none shrink-0 leading-relaxed py-[1px]">{'>'}</span>
+          <pre className="flex-1 !bg-transparent !border-0 !border-none !shadow-none !ring-0 !outline-none !p-0 !m-0 font-medium whitespace-pre leading-relaxed text-foreground/90 font-mono !rounded-none">
+            {command}
+          </pre>
         </div>
+        
         {output && (
-          <div className="mt-4 text-muted-foreground whitespace-pre-wrap border-l-2 border-muted pl-4">
-            {output}
+          <div className="mt-6 pt-4 border-t border-primary/10">
+            <pre className="!bg-transparent !border-0 !border-none !shadow-none !ring-0 !outline-none !p-0 !m-0 text-muted-foreground whitespace-pre overflow-x-auto font-mono text-sm leading-relaxed !rounded-none">
+              {output}
+            </pre>
           </div>
         )}
       </div>

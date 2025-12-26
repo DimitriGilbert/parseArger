@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Fira_Code } from "next/font/google";
+import { DocsHeader } from '@/components/docs-header';
 import "./globals.css";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} ${firaCode.variable} dark`} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground dark`}>
+        <DocsHeader />
         {children}
       </body>
     </html>

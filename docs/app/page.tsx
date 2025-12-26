@@ -7,47 +7,47 @@ import { CommandLine } from '@/components/ui/command-line';
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-background text-foreground font-mono selection:bg-primary selection:text-background">
-      {/* Hero Section - Brutalist & Aggressive */}
-      <section className="min-h-screen flex flex-col justify-center px-6 py-20 border-b-4 border-primary relative overflow-hidden">
-        {/* Background Glitch Element */}
-        <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none select-none">
-          <pre className="text-xs text-primary leading-none">
-            {`SYSTEM_STATUS: CRITICAL
-PARSING_LOGIC: FAILED
-HUMAN_PATIENCE: 0%
-INITIATING_PROTOCOL: PARSE_ARGER`}
+    <main className="min-h-screen bg-background text-foreground font-mono selection:bg-primary/20 selection:text-primary">
+      {/* Hero Section - Soft Brutalist */}
+      <section className="min-h-screen flex flex-col justify-center px-6 py-20 border-b border-primary/10 relative overflow-hidden">
+        {/* Background Glitch Element - Subtle */}
+        <div className="absolute top-10 right-10 p-4 opacity-10 pointer-events-none select-none text-right">
+          <pre className="text-[10px] text-primary leading-tight">
+            {`>> INIT_SEQUENCE
+>> LOAD_MODULE: SARCASM
+>> LOAD_MODULE: BASH_PARSER
+>> STATUS: OPTIMAL`}
           </pre>
         </div>
 
         <div className="max-w-7xl mx-auto w-full z-10">
-          <div className="mb-12">
-            <h1 className="text-6xl md:text-9xl font-black mb-6 text-primary tracking-tighter uppercase leading-[0.8]">
-              ARGUMENTS<br/>ARE HARD.<br/>WE ARE LAZY.
+          <div className="mb-16">
+            <h1 className="text-5xl md:text-8xl font-bold mb-6 text-foreground tracking-tight leading-[0.9]">
+              ARGUMENTS<br/>
+              <span className="text-primary/50">ARE HARD.</span><br/>
+              <span className="text-primary">WE ARE LAZY.</span>
             </h1>
-            <div className="h-2 w-32 bg-accent mb-8" />
-            <p className="text-xl md:text-3xl text-foreground max-w-4xl font-bold border-l-4 border-primary pl-6 py-2">
+            <div className="h-1 w-24 bg-accent mb-8 rounded-full" />
+            <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl border-l-2 border-primary/30 pl-6 py-1">
               Stop writing <span className="text-destructive line-through decoration-2">garbage</span> boilerplate. 
               Generate standalone bash scripts because you have better things to do.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-end">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div className="space-y-8">
-              <div className="flex flex-wrap gap-0">
+              <div className="flex flex-wrap gap-4">
                 <a
                   href="#install"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-primary text-background font-black text-lg hover:bg-primary/80 transition-all uppercase tracking-widest border-2 border-transparent hover:border-foreground"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-primary text-background font-bold text-sm hover:bg-primary/90 transition-all tracking-wider rounded-sm rounded-br-xl shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5"
                 >
                   INITIALIZE_INSTALL
                 </a>
                 <a
-                  href="https://github.com/DimitriGilbert/parseArger"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-transparent text-primary font-bold text-lg border-2 border-primary hover:bg-primary hover:text-background transition-all uppercase tracking-widest"
+                  href="/docs"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-card text-foreground font-bold text-sm border border-border hover:border-primary hover:text-primary transition-all tracking-wider rounded-sm rounded-br-xl"
                 >
-                  SOURCE_CODE
+                  READ_THE_DOCS
                 </a>
               </div>
               
@@ -77,68 +77,70 @@ Script generated at ./deploy_virus.sh
       </section>
 
       {/* Manifesto Section */}
-      <section className="px-6 py-24 border-b-2 border-dashed border-primary/30">
+      <section className="px-6 py-32 border-b border-primary/10">
         <div className="max-w-7xl mx-auto">
-          <SectionHeader className="text-primary uppercase">SYSTEM_MANIFEST</SectionHeader>
+          <SectionHeader className="text-primary/80">SYSTEM_MANIFEST</SectionHeader>
 
           <div className="grid md:grid-cols-2 gap-16 mt-16">
-            <div className="space-y-8 text-lg font-medium">
+            <div className="space-y-10 text-lg">
               <p>
-                <span className="bg-primary text-background px-2">QUERY:</span> What is this monstrosity?
+                <span className="text-accent text-sm font-bold tracking-widest block mb-2">[QUERY]</span> 
+                What is this monstrosity?
               </p>
-              <p>
+              <p className="text-muted-foreground leading-relaxed">
                 ParseArger is a bash library that generates standalone argument parsing, in bash. It eats its own dogfood to parse its own arguments. It is self-sustaining. It is inevitable.
               </p>
-              <div className="border-2 border-primary p-6 bg-primary/5">
-                <h3 className="text-xl font-bold mb-4 text-accent uppercase">// THE_PAYLOAD</h3>
-                <ul className="space-y-4 font-mono text-sm">
-                  <li className="flex items-start gap-3">
-                    <span className="text-primary font-bold">[01]</span>
-                    <span>Standalone argument, option, and flag parsing (The bread and butter)</span>
+              
+              <div className="border border-primary/20 p-8 bg-card/30 rounded-sm rounded-br-3xl">
+                <h3 className="text-sm font-bold mb-6 text-accent tracking-widest border-b border-accent/20 pb-2 inline-block">PAYLOAD_CONTENTS</h3>
+                <ul className="space-y-4 text-sm text-foreground/80">
+                  <li className="flex items-start gap-4">
+                    <span className="text-primary font-bold">01.</span>
+                    <span>Standalone argument, option, and flag parsing</span>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-primary font-bold">[02]</span>
+                  <li className="flex items-start gap-4">
+                    <span className="text-primary font-bold">02.</span>
                     <span>Auto-generated Help Text (Because you won't write docs)</span>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-primary font-bold">[03]</span>
+                  <li className="flex items-start gap-4">
+                    <span className="text-primary font-bold">03.</span>
                     <span>Bash Completion Scripts (Tab-tab supremacy)</span>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-primary font-bold">[04]</span>
+                  <li className="flex items-start gap-4">
+                    <span className="text-primary font-bold">04.</span>
                     <span>HTML Forms? (Yes, for the GUI weaklings)</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute -inset-2 bg-accent/20 skew-y-2 pointer-events-none" />
-              <div className="bg-card border-2 border-foreground p-8 relative z-10 h-full flex flex-col justify-between">
+            <div className="relative pt-8 pl-8">
+              <div className="absolute top-0 left-0 w-full h-full border border-primary/10 rounded-sm rounded-br-3xl -z-10" />
+              <div className="bg-card border border-border p-8 rounded-sm rounded-br-3xl h-full flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="text-xs text-primary mb-4 font-mono border-b border-primary/20 pb-2">
+                  <div className="text-[10px] text-muted-foreground mb-6 font-mono uppercase tracking-widest">
                     /var/logs/motivation.log
                   </div>
-                  <div className="space-y-4 font-mono text-sm">
-                    <p className="text-muted-foreground">
+                  <div className="space-y-4 text-sm font-medium">
+                    <p className="text-muted-foreground/60">
                       [INFO] User attempted to maintain legacy bash script.
                     </p>
-                    <p className="text-destructive">
+                    <p className="text-destructive/80">
                       [CRITICAL] MENTAL_STABILITY dropped below 15%.
                     </p>
-                    <p className="text-foreground">
+                    <p className="text-foreground/80">
                       [LOG] "Why is getopts so terrible?"
                     </p>
-                    <p className="text-foreground">
+                    <p className="text-foreground/80">
                       [LOG] "I just want a --verbose flag without writing 50 lines of case statements."
                     </p>
-                    <p className="text-primary font-bold mt-4">
+                    <p className="text-primary font-bold mt-6">
                       [SOLUTION] INITIATE PARSEARGER.
                     </p>
                   </div>
                 </div>
-                <div className="mt-8 text-right">
-                  <span className="text-xs bg-accent text-background px-2 py-1 uppercase font-bold">Status: DEPLOYED</span>
+                <div className="mt-8 flex justify-end">
+                  <span className="text-[10px] border border-accent/30 text-accent px-3 py-1 rounded-sm rounded-br-lg uppercase tracking-widest">Status: DEPLOYED</span>
                 </div>
               </div>
             </div>
@@ -147,98 +149,106 @@ Script generated at ./deploy_virus.sh
       </section>
 
       {/* Install Protocol */}
-      <section id="install" className="px-6 py-24 border-b-4 border-primary bg-muted/10">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeader className="text-accent uppercase">INSTALLATION_PROTOCOL</SectionHeader>
+      <section id="install" className="px-6 py-32 border-b border-primary/10 bg-secondary/5">
+        <div className="max-w-5xl mx-auto">
+          <SectionHeader className="text-accent/80">INSTALLATION_PROTOCOL</SectionHeader>
 
-          <p className="text-xl text-center mb-12 text-muted-foreground max-w-2xl mx-auto font-mono">
-            Execute the following sequence. <span className="text-primary">DO NOT DEVIATE.</span>
+          <p className="text-lg text-center mb-16 text-muted-foreground max-w-2xl mx-auto">
+            Execute the following sequence. <span className="text-foreground font-bold border-b border-primary">DO NOT DEVIATE.</span>
           </p>
 
-          <div className="space-y-12">
-            <div className="border-l-4 border-accent pl-6">
-              <h3 className="text-lg font-bold text-foreground mb-2">STEP 01: ACQUIRE ASSET</h3>
-              <CodeBlock>{`curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -O
+          <div className="space-y-16">
+            <div className="relative">
+              <div className="absolute -left-3 top-0 bottom-0 w-1 bg-accent/20 rounded-full" />
+              <div className="pl-8">
+                <h3 className="text-sm font-bold text-accent tracking-widest mb-4">STEP 01: ACQUIRE ASSET</h3>
+                <CodeBlock>{`curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -O
 chmod +x get_parseArger
 ./get_parseArger --install`}</CodeBlock>
+              </div>
             </div>
 
             <SarcasticAside variant="mild">
               <strong>SECURITY_NOTICE:</strong> Running scripts from the internet is "dangerous". But you're here, aren't you? You live on the edge. (Read the script first if you're scared).
             </SarcasticAside>
 
-            <div className="border-l-4 border-primary pl-6">
-              <h3 className="text-lg font-bold text-foreground mb-2">STEP 02: GENERATE PROJECT</h3>
-              <p className="text-sm text-muted-foreground mb-4">Scaffold an entire project structure. Why do it manually?</p>
-              <CommandLine
-                command={`parseArger project my-awesome-tool \\
+            <div className="relative">
+              <div className="absolute -left-3 top-0 bottom-0 w-1 bg-primary/20 rounded-full" />
+              <div className="pl-8">
+                <h3 className="text-sm font-bold text-primary tracking-widest mb-4">STEP 02: GENERATE PROJECT</h3>
+                <p className="text-sm text-muted-foreground mb-6">Scaffold an entire project structure. Why do it manually?</p>
+                <CommandLine
+                  command={`parseArger project my-awesome-tool \\
   --description "Tools for world domination" \\
   --git-repo "user/domination-tools" \\
   --project-subcommand ignite \\
   --project-subcommand destroy`}
-              />
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Comparison Matrix */}
-      <section id="comparison" className="px-6 py-24 border-b-2 border-dashed border-primary/30">
+      <section id="comparison" className="px-6 py-32 border-b border-primary/10">
         <div className="max-w-7xl mx-auto">
-          <SectionHeader className="text-primary uppercase">COMPETITOR_ANALYSIS</SectionHeader>
+          <SectionHeader className="text-foreground/80">COMPETITOR_ANALYSIS</SectionHeader>
 
-          <div className="grid md:grid-cols-2 gap-8 mt-16">
-            <div className="bg-card border-2 border-muted hover:border-primary transition-colors p-8">
-              <h3 className="text-2xl font-black mb-4 flex items-center gap-3 text-foreground">
-                <span className="text-destructive">X</span>
+          <div className="grid md:grid-cols-2 gap-12 mt-16">
+            <div className="bg-card border border-border p-10 rounded-sm rounded-br-3xl hover:border-destructive/50 transition-colors group">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-3 text-foreground group-hover:text-destructive transition-colors">
+                <span className="text-destructive/50">X</span>
                 Argbash
               </h3>
-              <p className="text-muted-foreground mb-6 font-mono text-sm">
+              <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
                 The ancestor. Respected, but I didn't understand the generated code. So I built my own. This is the way of the developer.
               </p>
-              <div className="text-xs text-primary font-bold uppercase tracking-wider">
+              <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
                 STATUS: OBSOLETE_INSPIRATION
               </div>
             </div>
 
-            <div className="bg-card border-2 border-muted hover:border-primary transition-colors p-8">
-              <h3 className="text-2xl font-black mb-4 flex items-center gap-3 text-foreground">
-                <span className="text-accent">?</span>
+            <div className="bg-card border border-border p-10 rounded-sm rounded-br-3xl hover:border-accent/50 transition-colors group">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-3 text-foreground group-hover:text-accent transition-colors">
+                <span className="text-accent/50">?</span>
                 Bashly
               </h3>
-              <p className="text-muted-foreground mb-6 font-mono text-sm">
+              <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
                 Ruby dependency? In my Bash environment? It's more likely than you think. Great tool, but ParseArger stays pure. Pure Bash. Pure Chaos.
               </p>
-              <div className="text-xs text-primary font-bold uppercase tracking-wider">
+              <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
                 STATUS: HEAVYWEIGHT_CHAMPION
               </div>
             </div>
           </div>
 
-          <SarcasticAside variant="medium" className="mt-12 max-w-4xl mx-auto border-accent">
+          <SarcasticAside variant="medium" className="mt-16 max-w-4xl mx-auto border-accent/30">
             ParseArger has <span className="text-accent font-bold">ZERO</span> runtime dependencies. It generates plain bash. It runs on a potato. It runs on your server. It runs on your mom's laptop.
           </SarcasticAside>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t-4 border-primary px-6 py-16 bg-background">
+      <footer className="border-t border-primary/10 px-6 py-20 bg-background/50">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div>
-            <div className="text-3xl font-black text-primary tracking-tighter mb-2">ParseArger</div>
-            <p className="text-sm text-muted-foreground font-mono">
+            <div className="text-2xl font-bold text-foreground tracking-tight mb-2">ParseArger</div>
+            <p className="text-xs text-muted-foreground/60">
               Because life is too short for bad arguments.
             </p>
           </div>
 
-          <div className="flex gap-8 font-mono text-sm font-bold">
-            <a href="https://github.com/DimitriGilbert/parseArger" className="hover:text-primary">GITHUB</a>
-            <a href="https://github.com/DimitriGilbert/parseArger/blob/main/readme.md" className="hover:text-primary">README</a>
-            <a href="https://github.com/DimitriGilbert" className="text-accent hover:text-foreground">@DimitriGilbert</a>
+          <div className="flex gap-8 text-xs font-bold tracking-widest">
+            <a href="https://github.com/DimitriGilbert/parseArger" className="hover:text-primary transition-colors">GITHUB</a>
+            <a href="https://github.com/DimitriGilbert/parseArger/blob/main/readme.md" className="hover:text-primary transition-colors">README</a>
+            <a href="https://github.com/DimitriGilbert" className="text-muted-foreground hover:text-foreground transition-colors">@DimitriGilbert</a>
           </div>
         </div>
-        <div className="text-center mt-16 text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] opacity-50">
-          End of Line_
+        <div className="text-center mt-20">
+          <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.3em]">
+            End of Line_
+          </span>
         </div>
       </footer>
     </main>
