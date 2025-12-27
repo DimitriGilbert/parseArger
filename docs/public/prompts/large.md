@@ -1,0 +1,500 @@
+# ParseArger - Large Prompt
+
+ParseArger is a bash tool that generates standalone bash scripts with argument parsing, help generation, documentation, bash completion, HTML forms, and project scaffolding. It uses itself to generate its own parsing code.
+
+## Installation
+
+```bash
+# Download installer
+curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -O
+chmod +x get_parseArger
+
+# View installer options
+./get_parseArger --help
+
+# Install (adds to bashrc, sources parseArger.rc)
+./get_parseArger --install
+
+# Reload shell (one-time)
+source ~/.bashrc
+
+# Verify installation
+parseArger --help
+```
+
+### Manual Installation
+
+```bash
+# Clone repository
+git clone https://github.com/DimitriGilbert/parseArger
+
+# Or download zip
+wget https://github.com/DimitriGilbert/parseArger/archive/refs/heads/main.zip
+unzip main.zip
+
+# Add to shell
+source /path/to/parseArger/completely.bash
+alias parseArger=/path/to/parseArger/parseArger
+```
+
+## Core Commands
+
+### generate - Create bash scripts
+
+Generate standalone bash scripts with argument parsing.
+
+```bash
+# Output to stdout
+parseArger generate \
+  --pos 'my-arg "argument description"' \
+  --opt 'my-opt "option description"' \
+  --flag 'my-flag "flag description"'
+
+# Output to file
+parseArger generate \
+  --pos 'input "input file"' \
+  --opt 'output "output file" --short o' \
+  --flag 'verbose "verbose output"' \
+  --output /path/to/script.sh
+
+# With custom help
+parseArger generate \
+  --help-message "My tool does amazing things" \
+  --pos 'file "file to process"' \
+  --output my-tool
+```
+
+**Common generate options:**
+- `--output file`: write to file (stdout by default)
+- `--help-message "msg"`: custom help text
+- `--set-version ver`: set version
+- `--leftovers|--no-leftovers`: accept extra arguments
+- `--parse-leftovers`: parse leftovers for option syntax
+- `--set 'var="val"'`: declare variable (repeatable)
+- `--source /path/to/file`: source file (repeatable)
+- `--no-version-opt`: disable version option
+- `--no-use-verbose`: disable verbose levels
+- `--no-bang`: disable shebang
+
+### parse - Modify existing scripts
+
+Update parseArger-generated scripts while preserving custom code.
+
+```bash
+# Update in place
+parseArger parse /path/to/script.sh -i \
+  --pos 'new-arg "new argument"' \
+  --opt 'new-opt "new option"' \
+  --flag 'new-flag "new flag"'
+
+# Output to stdout (for review)
+parseArger parse /path/to/script.sh --opt 'another-opt "desc"'
+
+# Update version
+parseArger parse script.sh -i --set-version 1.2.3
+```
+
+**Important:** Custom code added below the generated section is preserved during updates.
+
+### project - Generate complete project
+
+Create a full project skeleton with main script, subcommands, documentation, completion, and more.
+
+```bash
+parseArger project my-awesome-project \
+  --description "This is a cool project" \
+  --git-repo "user/my-awesome-project" \
+  --project-subcommand build \
+  --project-subcommand deploy \
+  --project-subcommand test
+```
+
+**Creates structure:**
+```
+my-awesome-project/
+├── my-awesome-project    # Main entry point (routs to subcommands)
+├── my-awesome-project.rc # RC file for sourcing in shell
+├── completely.bash       # Bash completion script
+├── completely.yaml       # Completion definition for Completely
+├── documentation.md      # Generated documentation
+├── form.html             # HTML form interface
+├── Makefile              # Build tasks
+├── readme.md             # README
+├── bin/                  # Subcommand directory
+│   ├── build
+│   ├── deploy
+│   └── test
+└── utils/
+    ├── get_my-awesome-project  # Installer
+    ├── install                 # Install script
+    └── webserver               # Bash web server (demo only!)
+```
+
+**Project options:**
+- `--directory dir`: output directory (default: ./<project-name>)
+- `--project-subcommand-dir dir`: subcommand directory (default: bin)
+- `--git|--no-git`: initialize git (default: on)
+- `--readme|--no-readme`: create readme (default: on)
+- `--completely file`: generate completion with custom filename
+- `--document file`: generate docs with custom filename
+- `--html-form file`: generate HTML form
+- `--cp path`: copy file/directory to project (repeatable)
+- `--git-repo "user/repo"`: for installer generation
+- `--git-add path`: add to git (repeatable)
+- `--commit msg`: git commit
+
+### document - Generate documentation
+
+Generate markdown documentation from parseArger scripts.
+
+```bash
+# Single file to stdout
+parseArger document --file script.sh
+
+# Single file to output
+parseArger document --file script.sh --out docs.md
+
+# Multiple files and directories
+parseArger document \
+  --file main.sh \
+  --directory ./bin \
+  --directory ./utils \
+  --out all-docs.md
+
+# Custom formatting
+parseArger document \
+  --file script.sh \
+  --out usage.md \
+  --title "My Tool Usage" \
+  --title-tag "###" \
+  --tag "##" \
+  --next-tag-prepend "#"
+```
+
+**Document options:**
+- `--directory|--folder dir`: document all scripts in directory (repeatable)
+- `--out file`: output file
+- `--title text`: documentation title (default: "Usage")
+- `--title-tag level`: title heading level (default: "#")
+- `--tag level`: heading level for commands (default: "##")
+- `--next-tag-prepend text`: prepend to nested headings (default: "#")
+- `--sub-directory|--no-sub-directory`: recurse subdirs (default: on)
+- `--append-output|--no-append-output`: append to file (default: on)
+
+### completely - Generate bash completion
+
+Generate bash completion scripts using Completely.
+
+```bash
+# Basic completion
+parseArger completely my-tool ./my-tool
+
+# With subcommands
+parseArger completely my-tool ./my-tool --subcmd-dir ./bin
+
+# Custom completely command
+parseArger completely my-tool ./my-tool \
+  --cmpcmd "docker run --rm -it completely"
+
+# Extra completion files
+parseArger completely my-tool ./my-tool \
+  --extra-file ./custom-completion.yaml
+```
+
+**Workaround if completely fails:**
+```bash
+# Generate yaml only
+parseArger completely my-tool ./my-tool --no-run-completely > completely.yaml
+
+# Run completely preview manually
+completely preview > completely.bash
+```
+
+**Completely options:**
+- `--subcommand-directory|--subcmd-dir dir`: subcommand location
+- `--yaml-file file`: yaml filename (default: completely.yaml)
+- `--completion-file file`: completion filename (default: completely.bash)
+- `--completely-cmd|--cmpcmd cmd`: completely command
+- `--extra-file file`: additional yaml (repeatable)
+- `--run-completely|--no-run-completely`: run completely (default: on)
+- `--discover-subcommand|--no-discover-subcommand`: auto-discover (default: on)
+
+### html-form - Generate HTML form
+
+Generate HTML form for script interaction.
+
+```bash
+# Basic form to stdout
+parseArger html-form script.sh
+
+# To file
+parseArger html-form script.sh > form.html
+
+# Custom styling
+parseArger html-form script.sh \
+  --form-class "my-form" \
+  --input-class "my-input" \
+  --label-class "my-label"
+```
+
+## Argument Types
+
+### Positional Arguments (--pos)
+
+Required positional parameters.
+
+```bash
+--pos 'name "description" [options]'
+```
+
+**Options:**
+- `--repeat`: repeatable (creates array)
+- `--repeat-min N`: minimum occurrences (forces --repeat)
+- `--repeat-max N`: maximum occurrences (forces --repeat)
+- `--optional`: not required
+- `--one-of value`: restrict to accepted values (repeatable)
+- `--complete func`: bash built-in completely function
+- `--complete-custom "cmd"`: custom completion suggestion
+- `--subcommand`: is a subcommand
+- `--subcommand-run`: execute subcommand
+- `--subcommand-use-leftovers`: pass extra args to subcommand
+- `--subcommand-directory dir`: auto-discover subcommands in directory
+- `--subcommand-variable var`: custom variable (default: __subcommand)
+
+**Examples:**
+```bash
+# Simple argument
+parseArger generate --pos 'file "input file"'
+
+# Repeatable argument
+parseArger generate --pos 'files "input files" --repeat'
+
+# Optional with validation
+parseArger generate --pos 'format "output format" --optional \
+  --one-of json --one-of yaml --one-of xml'
+
+# Subcommand with execution
+parseArger generate --pos 'command "subcommand" \
+  --subcommand --subcommand-run --subcommand-directory ./bin \
+  --subcommand-use-leftovers'
+```
+
+### Options (--opt)
+
+Optional named parameters.
+
+```bash
+--opt 'name "description" [options]'
+```
+
+**Options:**
+- `--short c`: single letter alias
+- `--alias name`: additional long alias (repeatable)
+- `--default-value val`: default value
+- `--repeat`: repeatable (creates array)
+- `--repeat-min N`: minimum occurrences (forces --repeat)
+- `--repeat-max N`: maximum occurrences (forces --repeat)
+- `--one-of value`: restrict to values (repeatable)
+- `--empty`: can be used as flag (option/flag hybrid)
+- `--empty-value val`: value when used without argument
+- `--complete func`: bash completion function
+- `--complete-custom "cmd"`: custom completion
+
+**Examples:**
+```bash
+# Simple option
+parseArger generate --opt 'output "output file"'
+
+# With short option
+parseArger generate --opt 'output "output file" --short o'
+
+# With aliases
+parseArger generate --opt 'config "config file" \
+  --alias conf --alias configuration'
+
+# Repeatable
+parseArger generate --opt 'include "include path" --repeat'
+
+# With default and validation
+parseArger generate --opt 'format "output format" \
+  --default-value json --one-of json --one-of yaml'
+
+# Option/flag hybrid
+parseArger generate --opt 'verbose "verbose level" --empty \
+  --empty-value 1'
+```
+
+### Flags (--flag)
+
+Boolean switches.
+
+```bash
+--flag 'name "description" [options]'
+```
+
+**Options:**
+- `--short c`: single letter alias
+- `--alias name`: additional alias (repeatable)
+- `--no-name name`: negation flag name (default: no-<name>)
+- `--no-alias name`: negation alias (repeatable)
+- `--on`: on by default
+
+**Examples:**
+```bash
+# Simple flag
+parseArger generate --flag 'verbose "verbose output"'
+
+# With short option
+parseArger generate --flag 'verbose "verbose output" --short v'
+
+# With aliases
+parseArger generate --flag 'force "force operation" \
+  --alias f --alias overwrite'
+
+# On by default
+parseArger generate --flag 'color "colored output" --on'
+
+# Custom negation
+parseArger generate --flag 'log "enable logging" \
+  --no-name disable-log --no-alias no-log'
+```
+
+### Nested Options (--nested)
+
+Create associative arrays for namespaced options.
+
+```bash
+--nested 'namespace "description" [options]'
+```
+
+**Options:**
+- `--one-of value`: restrict keys (repeatable)
+- `--complete func`: bash completion
+- `--complete-custom "cmd"`: custom completion
+
+**Example:**
+```bash
+# Generate
+parseArger generate --nested 'config "configuration options"'
+
+# Usage
+./script --config-db sqlite --config-host localhost \
+         --config-port 5432 --config-debug true
+
+# Access in script
+echo "Database: ${_arg_config[db]}"
+echo "Host: ${_arg_config[host]}"
+echo "Port: ${_arg_config[port]}"
+
+# Iterate
+for key in "${!_arg_config[@]}"; do
+  echo "$key = ${_arg_config[$key]}"
+done
+```
+
+## Variable Access
+
+Generated variables follow pattern `$_arg_<name>` (hyphens become underscores).
+
+```bash
+# --pos 'my-arg "desc"' → $_arg_my_arg
+# --opt 'my-opt "desc"' → $_arg_my_opt
+# --flag 'my-flag "desc"' → $_arg_my_flag (contains "on" or "off")
+# --nested 'ns "desc"' → ${_arg_ns[key]} (associative array)
+
+# Access values
+echo "Argument: $_arg_my_arg"
+echo "Option: $_arg_my_opt"
+
+# Check if flag is on
+if [ "$_arg_my_flag" == "on" ]; then
+  echo "Flag is set"
+fi
+
+# Repeatable options create arrays
+echo "First: ${_arg_my_array[0]}"
+echo "Count: ${#_arg_my_array[@]}"
+
+# Iterate array
+for item in "${_arg_my_array[@]}"; do
+  echo "$item"
+done
+
+# Nested options (associative arrays)
+for key in "${!_arg_namespace[@]}"; do
+  echo "$key: ${_arg_namespace[$key]}"
+done
+```
+
+## Subcommands
+
+Create subcommand-style interfaces.
+
+```bash
+# Main script
+parseArger generate \
+  --pos 'command "subcommand to run"' \
+  --subcommand \
+  --subcommand-run \
+  --subcommand-directory ./bin \
+  --subcommand-use-leftovers \
+  --output my-tool
+
+# Create bin/subcommand1
+parseArger generate \
+  --pos 'arg "argument for subcommand"' \
+  --output bin/subcommand1
+
+# Create bin/subcommand2
+parseArger generate \
+  --opt 'option "option for subcommand"' \
+  --output bin/subcommand2
+```
+
+Usage: `./my-tool subcommand1 arg-value`
+
+## Workflow Example
+
+Complete workflow for creating a bash tool:
+
+```bash
+# 1. Generate initial script
+parseArger generate \
+  --help-message "Process files with options" \
+  --pos 'input "input file"' \
+  --opt 'output "output file" --short o --default-value out.txt' \
+  --opt 'format "output format" --one-of json --one-of yaml --one-of txt' \
+  --flag 'verbose "verbose output" --short v' \
+  --flag 'dry-run "show what would be done"' \
+  --set-version "1.0.0" \
+  --output my-tool
+
+chmod +x my-tool
+
+# 2. Test help
+./my-tool --help
+
+# 3. Add your code (edit my-tool)
+# Add custom code below the generated section
+# This code is preserved when you run parseArger parse
+
+# 4. Update when needed
+parseArger parse my-tool -i \
+  --opt 'workers "number of workers" --short w --default-value 4'
+
+# 5. Generate documentation
+parseArger document --file my-tool --out docs.md
+
+# 6. Generate completion
+parseArger completely my-tool ./my-tool
+source completely.bash
+
+# 7. Test completion
+./my-tool <tab>  # Shows options
+```
+
+## Resources
+
+- GitHub: https://github.com/DimitriGilbert/parseArger
+- Documentation: https://dimitrigilbert.github.io/parseArger/
+- Blog tutorials: https://dbuild.dev/blog/projects-parsearger-create-bash-scripts-youll-want-to-use/

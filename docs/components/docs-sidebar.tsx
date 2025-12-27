@@ -1,34 +1,46 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const sidebarItems = [
   {
-    title: 'Getting Started',
-    href: '/docs',
+    title: "Getting Started",
+    href: "/docs",
   },
   {
-    title: 'Core Concepts',
+    title: "Core Concepts",
     items: [
-      { title: 'Generate & Parse', href: '/docs/generate-parse' },
-      { title: 'Arguments & Options', href: '/docs/arguments' },
-      { title: 'Nested Options', href: '/docs/nested-options' },
+      { title: "Generate & Parse", href: "/docs/generate-parse" },
+      { title: "Arguments & Options", href: "/docs/arguments" },
+      { title: "Nested Options", href: "/docs/nested-options" },
     ],
   },
   {
-    title: 'Advanced Features',
+    title: "Advanced Features",
     items: [
-      { title: 'Completion & Docs', href: '/docs/completion-docs' },
-      { title: 'HTML Forms', href: '/docs/html-forms' },
+      { title: "Completion & Docs", href: "/docs/completion-docs" },
+      { title: "HTML Forms", href: "/docs/html-forms" },
     ],
   },
   {
-    title: 'Tutorials',
+    title: "Tutorials",
     items: [
-      { title: 'Build Log Miner', href: '/docs/tutorial' },
-      { title: 'Case Study: mdd', href: '/docs/case-study' },
+      { title: "Build Log Miner", href: "/docs/tutorial" },
+      { title: "Case Study: mdd", href: "/docs/case-study" },
+    ],
+  },
+  {
+    title: "AI Prompts",
+    items: [
+      { title: "Overview", href: "/docs/prompts" },
+      { title: "Tiny", href: "/docs/prompts/tiny" },
+      { title: "Small", href: "/docs/prompts/small" },
+      { title: "Medium", href: "/docs/prompts/medium" },
+      { title: "Large", href: "/docs/prompts/large" },
+      { title: "Extra Large", href: "/docs/prompts/extralarge" },
+      { title: "Complete", href: "/docs/prompts/complete" },
     ],
   },
 ];

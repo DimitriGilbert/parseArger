@@ -112,7 +112,7 @@ Script generated at ./deploy_virus.sh
 
             <div>
               <h3 className="text-sm font-bold text-primary tracking-widest mb-4">
-                STEP 02: ADD YOUR GENIUS
+                STEP 02: ADD YOUR GENIUS TO git-excuser.sh
               </h3>
               <CodeBlock>{`# Your code goes after the generated parser
 excuses=(
