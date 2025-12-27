@@ -15,7 +15,7 @@ Script generated at ./deploy_virus.sh
   --pos 'commit "the offending commit"' \\
   --opt 'blame "who to blame" --default-value "the intern"' \\
   --flag 'dramatic "add theatrics"' \\
-  --output ./git-excuser.sh`})]}),(0,r.jsxs)("div",{children:[(0,r.jsx)("h3",{className:"text-sm font-bold text-primary tracking-widest mb-4",children:"STEP 02: ADD YOUR GENIUS"}),(0,r.jsx)(s.CodeBlock,{children:`# Your code goes after the generated parser
+  --output ./git-excuser.sh`})]}),(0,r.jsxs)("div",{children:[(0,r.jsx)("h3",{className:"text-sm font-bold text-primary tracking-widest mb-4",children:"STEP 02: ADD YOUR GENIUS TO git-excuser.sh"}),(0,r.jsx)(s.CodeBlock,{children:`# Your code goes after the generated parser
 excuses=(
   "I inherited this mess."
   "It worked on my machine."
