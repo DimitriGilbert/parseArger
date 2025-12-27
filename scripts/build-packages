@@ -1,0 +1,670 @@
+#!/bin/bash
+set -e
+# @parseArger-begin
+# @parseArger-help "Build packages for parseArger" --option "help" --short-option "h"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
+# @parseArger-declarations
+# @parseArger pos target "what to build" --optional --one-of "deb" --one-of "rpm" --one-of "docker" --one-of "aur" --one-of "all"
+# @parseArger opt output-dir "directory to save artifacts" --short o --default-value "./dist"
+# @parseArger opt tag "git tag version for AUR source and docker image"
+# @parseArger opt registry "docker registry for pushing images (e.g., docker.io/username)" --short r
+# @parseArger flag clean "clean output directory before building"
+# @parseArger flag push-docker "push docker image to registry" --on
+# @parseArger flag push-git "push git tag to remote" --on
+# @parseArger flag dry-run "show what would be built without building"
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+
+__cli_arg_count=$#;
+
+die()
+{
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+    	_ret="$2"
+    fi
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_optional_positionals=();
+_arg_target="";
+_one_of_arg_target=("deb" "rpm" "docker" "aur" "all" );
+_optional_positionals+=("_arg_target");
+# OPTIONALS ARGUMENTS
+_arg_output_dir="./dist"
+_arg_tag=
+_arg_registry=
+# FLAGS
+_arg_clean="off"
+_arg_push_docker="on"
+_arg_push_git="on"
+_arg_dry_run="off"
+# NESTED
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "Build packages for parseArger:"
+		echo -e "\ttarget: what to build, optional [one of 'deb' 'rpm' 'docker' 'aur' 'all']"
+		echo -e "\t-o, --output-dir <output-dir>: directory to save artifacts [default: ' ./dist ']"
+		echo -e "\t--tag <tag>: git tag version for AUR source and docker image"
+		echo -e "\t-r, --registry <registry>: docker registry for pushing images (e.g., docker.io/username)"
+		echo -e "\t--clean|--no-clean: clean output directory before building"
+		echo -e "\t--push-docker|--no-push-docker: push docker image to registry, on by default (requires --tag and --registry)"
+		echo -e "\t--push-git|--no-push-git: push git tag to remote, on by default (requires --tag)"
+		echo -e "\t--dry-run|--no-dry-run: show what would be built without building"
+		echo -e "Usage :
+	$0 [target] [--output-dir <value>] [--tag <value>] [--registry <value>] [--[no-]clean] [--[no-]push-docker] [--[no-]push-git] [--[no-]dry-run]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:-0}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "${_arg_level}" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "${_key}" in
+			-o|--output-dir)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_output_dir="$2"
+				shift
+				;;
+			--output-dir=*)
+				_arg_output_dir="${_key##--output-dir=}"
+				;;
+			-o*)
+				_arg_output_dir="${_key##-o}"
+				;;
+
+			--tag)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_tag="$2"
+				shift
+				;;
+			--tag=*)
+				_arg_tag="${_key##--tag=}"
+				;;
+
+			-r|--registry)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_registry="$2"
+				shift
+				;;
+			--registry=*)
+				_arg_registry="${_key##--registry=}"
+				;;
+			-r*)
+				_arg_registry="${_key##-r}"
+				;;
+
+			--clean)
+				_arg_clean="on"
+				;;
+			--no-clean)
+				_arg_clean="off"
+				;;
+			--push-docker)
+				_arg_push_docker="on"
+				;;
+			--no-push-docker)
+				_arg_push_docker="off"
+				;;
+			--push-git)
+				_arg_push_git="on"
+				;;
+			--no-push-git)
+				_arg_push_git="off"
+				;;
+			--dry-run)
+				_arg_dry_run="on"
+				;;
+			--no-dry-run)
+				_arg_dry_run="off"
+				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			--verbose)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+
+				*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_target ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+
+	echo -e "\ttarget: ${_arg_target}";
+	echo -e "\toutput-dir: ${_arg_output_dir}";
+	echo -e "\ttag: ${_arg_tag}";
+	echo -e "\tregistry: ${_arg_registry}";
+	echo -e "\tclean: ${_arg_clean}";
+	echo -e "\tpush-docker: ${_arg_push_docker}";
+	echo -e "\tpush-git: ${_arg_push_git}";
+	echo -e "\tdry-run: ${_arg_dry_run}";
+
+}
+
+
+cleanup_build_dir() {
+    if [ -d "${BUILD_DIR}" ]; then
+        rm -rf "${BUILD_DIR}"
+    fi
+}
+
+on_interrupt() {
+    log "!! Process aborted!" -3
+    cleanup_build_dir
+    die "Aborted" 130
+}
+
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+# Configuration
+[ -z "$_arg_target" ] && _arg_target="all"
+
+# Try to get version from git tag, VERSION file, or fall back to 0.1
+if [ -n "$_arg_tag" ]; then
+    VERSION="${_arg_tag#v}"  # Remove 'v' prefix if present
+elif [ -f "${PROJECT_ROOT}/VERSION" ]; then
+    VERSION=$(cat "${PROJECT_ROOT}/VERSION" | tr -d '[:space:]')
+elif [ -d "${PROJECT_ROOT}/.git" ]; then
+    VERSION=$(cd "${PROJECT_ROOT}" && git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
+    [ -z "$VERSION" ] && VERSION="0.1"
+else
+    VERSION="0.1"
+fi
+
+log ">> Using version: ${VERSION}" 0
+ARCH="all"
+PKG_NAME="parsearger"
+MAINTAINER="Dimitri Gilbert <dimitri.gilbert@gmail.com>"
+DESC="Standalone bash argument parsing framework"
+URL="https://github.com/DimitriGilbert/parseArger"
+LICENSE="MIT"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BUILD_DIR="${PROJECT_ROOT}/build"
+DIST_DIR="${_arg_output_dir}"
+DEB_BUILD_DIR="${BUILD_DIR}/deb"
+RPM_BUILD_DIR="${BUILD_DIR}/rpm"
+
+# Track what was successfully built
+_successful_builds=0
+_skipped_builds=0
+_failed_builds=0
+
+# Use the tag if provided, otherwise use VERSION
+DOCKER_TAG="${_arg_tag:-$VERSION}"
+
+log ">> Starting package build for version ${DOCKER_TAG}..." 0
+
+if [ "$_arg_clean" == "on" ]; then
+    log ">> Cleaning output directory: ${DIST_DIR}" 0
+    rm -rf "${DIST_DIR}"
+fi
+
+rm -rf "${BUILD_DIR}"
+mkdir -p "${DIST_DIR}"
+
+# --- Prepare Common Files ---
+prepare_files() {
+    local target_dir="$1"
+    local lib_dir="${target_dir}/usr/lib/${PKG_NAME}"
+    local bin_dir="${target_dir}/usr/bin"
+    local doc_dir="${target_dir}/usr/share/doc/${PKG_NAME}"
+
+    mkdir -p "${lib_dir}" "${bin_dir}" "${doc_dir}"
+
+    # Copy core files
+    cp -r "${PROJECT_ROOT}/bin" "${lib_dir}/"
+    cp "${PROJECT_ROOT}/parseArger" "${lib_dir}/"
+
+    # Create symlink
+    ln -sf "/usr/lib/${PKG_NAME}/parseArger" "${bin_dir}/parseArger"
+
+    # Copy docs
+    cp "${PROJECT_ROOT}/LICENSE" "${doc_dir}/"
+    cp "${PROJECT_ROOT}/readme.md" "${doc_dir}/"
+}
+
+# --- DEB ---
+build_deb() {
+    if [ "$_arg_dry_run" == "on" ]; then
+        log ">> [DRY RUN] Would build .deb package" 0
+        _successful_builds=$((_successful_builds + 1))
+        return 0
+    fi
+
+    if ! command -v dpkg-deb &> /dev/null; then
+        log "!! dpkg-deb not found. Skipping .deb build." -2
+        _skipped_builds=$((_skipped_builds + 1))
+        return
+    fi
+
+    log ">> Building .deb package..." 0
+    mkdir -p "${DEB_BUILD_DIR}/DEBIAN"
+    prepare_files "${DEB_BUILD_DIR}"
+
+    cat > "${DEB_BUILD_DIR}/DEBIAN/control" <<DEB_EOF
+Package: ${PKG_NAME}
+Version: ${VERSION}
+Architecture: ${ARCH}
+Maintainer: ${MAINTAINER}
+Description: ${DESC}
+ ParseArger is a bash library that generates standalone argument parsing, in bash.
+ It eats its own dogfood to parse its own arguments.
+Homepage: ${URL}
+Section: utils
+Priority: optional
+Depends: bash (>= 4.0)
+DEB_EOF
+
+    chmod -R 0755 "${DEB_BUILD_DIR}/DEBIAN"
+
+    if dpkg-deb --build "${DEB_BUILD_DIR}" "${DIST_DIR}/${PKG_NAME}_${VERSION}_${ARCH}.deb"; then
+        log ">> Created: ${DIST_DIR}/${PKG_NAME}_${VERSION}_${ARCH}.deb" 1
+        _successful_builds=$((_successful_builds + 1))
+    else
+        log "!! Failed to build .deb package" -3
+        _failed_builds=$((_failed_builds + 1))
+        return 1
+    fi
+}
+
+# --- RPM ---
+build_rpm() {
+    if [ "$_arg_dry_run" == "on" ]; then
+        log ">> [DRY RUN] Would build .rpm package" 0
+        _successful_builds=$((_successful_builds + 1))
+        return 0
+    fi
+
+    if ! command -v rpmbuild &> /dev/null; then
+        log "!! rpmbuild not found. Skipping .rpm build." -2
+        _skipped_builds=$((_skipped_builds + 1))
+        return
+    fi
+
+    log ">> Building .rpm package..." 0
+    mkdir -p "${RPM_BUILD_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+    local tar_name="${PKG_NAME}-${VERSION}"
+    local tar_path="${RPM_BUILD_DIR}/SOURCES/${tar_name}.tar.gz"
+    local tar_build_dir="${BUILD_DIR}/rpm_tmp/${tar_name}"
+    mkdir -p "${tar_build_dir}"
+
+    # Copy files to a temporary directory with proper structure
+    cp -r "${PROJECT_ROOT}/bin" "${tar_build_dir}/" 2>/dev/null || log "!! Warning: bin directory not found" -2
+    cp "${PROJECT_ROOT}/parseArger" "${tar_build_dir}/" 2>/dev/null || log "!! Warning: parseArger not found" -2
+    cp "${PROJECT_ROOT}/LICENSE" "${tar_build_dir}/" 2>/dev/null || log "!! Warning: LICENSE not found" -2
+    cp "${PROJECT_ROOT}/readme.md" "${tar_build_dir}/" 2>/dev/null || log "!! Warning: readme.md not found" -2
+
+    # Create tarball from the temporary directory
+    tar -czf "${tar_path}" -C "${BUILD_DIR}/rpm_tmp" "${tar_name}"
+
+    cat > "${RPM_BUILD_DIR}/SPECS/${PKG_NAME}.spec" <<RPM_EOF
+Name:       ${PKG_NAME}
+Version:    ${VERSION}
+Release:    1%{?dist}
+Summary:    ${DESC}
+License:    ${LICENSE}
+URL:        ${URL}
+Source0:    %{name}-%{version}.tar.gz
+BuildArch:  noarch
+Requires:   bash >= 4.0
+
+%description
+ParseArger is a bash library that generates standalone argument parsing, in bash.
+It eats its own dogfood to parse its own arguments.
+
+%prep
+%setup -q
+
+%install
+mkdir -p %{buildroot}/usr/lib/%{name}
+mkdir -p %{buildroot}/usr/bin
+cp -r bin %{buildroot}/usr/lib/%{name}/
+cp parseArger %{buildroot}/usr/lib/%{name}/
+ln -s /usr/lib/%{name}/parseArger %{buildroot}/usr/bin/parseArger
+
+%files
+/usr/lib/%{name}
+/usr/bin/parseArger
+%doc readme.md
+%license LICENSE
+
+%changelog
+* $(date "+%a %b %d %Y") ${MAINTAINER} - ${VERSION}-1
+- Automatic build
+RPM_EOF
+
+    if rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -bb "${RPM_BUILD_DIR}/SPECS/${PKG_NAME}.spec"; then
+        find "${RPM_BUILD_DIR}/RPMS" -name "*.rpm" -exec cp {} "${DIST_DIR}/" \;
+        log ">> Created RPMs in ${DIST_DIR}/" 1
+        _successful_builds=$((_successful_builds + 1))
+    else
+        log "!! Failed to build .rpm package" -3
+        _failed_builds=$((_failed_builds + 1))
+        return 1
+    fi
+}
+
+# --- Docker ---
+build_docker() {
+    if [ "$_arg_dry_run" == "on" ]; then
+        log ">> [DRY RUN] Would build Docker image" 0
+        _successful_builds=$((_successful_builds + 1))
+        return 0
+    fi
+
+    log ">> Building Docker image..." 0
+    if ! command -v docker &> /dev/null; then
+        log "!! docker not found. Skipping Docker build." -2
+        _skipped_builds=$((_skipped_builds + 1))
+        return
+    fi
+
+    cat > "${BUILD_DIR}/Dockerfile" <<DOCKER_EOF
+FROM alpine:latest
+RUN apk add --no-cache bash
+COPY bin /usr/lib/parsearger/bin
+COPY parseArger /usr/lib/parsearger/parseArger
+RUN ln -s /usr/lib/parsearger/parseArger /usr/bin/parseArger
+WORKDIR /app
+ENTRYPOINT ["parseArger"]
+CMD ["--help"]
+DOCKER_EOF
+
+    local image_name
+    if [ -n "$_arg_registry" ]; then
+        image_name="${_arg_registry}/${PKG_NAME}:${DOCKER_TAG}"
+    else
+        image_name="${PKG_NAME}:${DOCKER_TAG}"
+    fi
+
+    if docker build -t "${image_name}" -f "${BUILD_DIR}/Dockerfile" "${PROJECT_ROOT}"; then
+        log ">> Built Docker image: ${image_name}" 1
+        _successful_builds=$((_successful_builds + 1))
+
+        # Push if requested AND tag is provided
+        if [ "$_arg_push_docker" == "on" ]; then
+            if [ -z "$_arg_tag" ]; then
+                log ">> Skipping Docker push (no --tag provided)" 0
+            elif [ -z "$_arg_registry" ]; then
+                log "!! Warning: No registry specified. Docker push will likely fail." -2
+                log "   Use --registry to specify a Docker registry (e.g., docker.io/username)" -2
+            else
+                log ">> Pushing Docker image: ${image_name}" 0
+                if docker push "${image_name}"; then
+                    log ">> Pushed Docker image: ${image_name}" 1
+                else
+                    log "!! Failed to push Docker image" -3
+                    _failed_builds=$((_failed_builds + 1))
+                    return 1
+                fi
+            fi
+        fi
+    else
+        log "!! Failed to build Docker image" -3
+        _failed_builds=$((_failed_builds + 1))
+        return 1
+    fi
+}
+
+# --- AUR ---
+build_aur() {
+    if [ "$_arg_dry_run" == "on" ]; then
+        log ">> [DRY RUN] Would generate AUR PKGBUILD" 0
+        _successful_builds=$((_successful_builds + 1))
+        return 0
+    fi
+
+    log ">> Generating AUR PKGBUILD..." 0
+    local aur_dir="${DIST_DIR}/aur"
+    mkdir -p "${aur_dir}"
+
+    local source_url="${URL}/archive/refs/tags/v\${pkgver}.tar.gz"
+    if [ -n "$_arg_tag" ]; then
+        source_url="${URL}/archive/refs/tags/${_arg_tag}.tar.gz"
+    fi
+
+    cat > "${aur_dir}/PKGBUILD" <<AUR_EOF
+# Maintainer: ${MAINTAINER}
+pkgname=${PKG_NAME}
+pkgver=${VERSION}
+pkgrel=1
+pkgdesc="${DESC}"
+arch=('any')
+url="${URL}"
+license=('${LICENSE}')
+depends=('bash')
+source=("${source_url}")
+sha256sums=('SKIP') # Update this with 'updpkgsums'
+
+package() {
+  cd "\${pkgname}-\${pkgver}"
+  install -dm755 "\${pkgdir}/usr/lib/\${pkgname}"
+  install -dm755 "\${pkgdir}/usr/bin"
+  cp -r bin "\${pkgdir}/usr/lib/\${pkgname}/"
+  install -m755 parseArger "\${pkgdir}/usr/lib/\${pkgname}/"
+  ln -s /usr/lib/\${pkgname}/parseArger "\${pkgdir}/usr/bin/parseArger"
+  install -Dm644 LICENSE "\${pkgdir}/usr/share/licenses/\${pkgname}/LICENSE"
+  install -Dm644 readme.md "\${pkgdir}/usr/share/doc/\${pkgname}/readme.md"
+}
+AUR_EOF
+
+    log ">> Created PKGBUILD in ${aur_dir}/" 1
+    _successful_builds=$((_successful_builds + 1))
+
+    # Provide guidance on sha256sums
+    log "   NOTE: Remember to update sha256sums in PKGBUILD by running:" 0
+    log "   cd ${aur_dir} && updpkgsums" 0
+    if command -v updpkgsums &> /dev/null; then
+        local tar_path="${DIST_DIR}/${PKG_NAME}-${VERSION}.tar.gz"
+        if [ -f "${tar_path}" ]; then
+            log "   Running updpkgsums automatically..." 0
+            (cd "${aur_dir}" && updpkgsums) || log "   Failed to run updpkgsums automatically" -2
+        else
+            log "   Source tarball not found, skipping automatic sha256sum update" -2
+        fi
+    fi
+
+    # Push git tag if requested and tag is specified
+    if [ -n "$_arg_tag" ] && [ "$_arg_push_git" == "on" ]; then
+        if [ ! -d "${PROJECT_ROOT}/.git" ]; then
+            log "!! Not a git repository, skipping git tag push" -2
+        else
+            # Check if tag exists locally
+            if ! (cd "${PROJECT_ROOT}" && git rev-parse "refs/tags/${_arg_tag}" &> /dev/null); then
+                log "!! Git tag ${_arg_tag} does not exist locally. Create it first." -2
+                log "   Run: git tag ${_arg_tag}" 0
+            else
+                # Check if tag already exists on remote
+                if (cd "${PROJECT_ROOT}" && git ls-remote --tags origin | grep -q "refs/tags/${_arg_tag}$"); then
+                    log ">> Git tag ${_arg_tag} already exists on remote, skipping push" 0
+                else
+                    log ">> Pushing git tag: ${_arg_tag}" 0
+                    if (cd "${PROJECT_ROOT}" && git push origin "refs/tags/${_arg_tag}"); then
+                        log ">> Pushed git tag: ${_arg_tag}" 1
+                    else
+                        log "!! Failed to push git tag" -3
+                        _failed_builds=$((_failed_builds + 1))
+                        return 1
+                    fi
+                fi
+            fi
+        fi
+    fi
+}
+
+# Main Dispatch
+case "$_arg_target" in
+    deb) build_deb ;;
+    rpm) build_rpm ;;
+    docker) build_docker ;;
+    aur) build_aur ;;
+    all)
+        build_deb
+        build_rpm
+        build_docker
+        build_aur
+        ;;
+    *) log "Unknown target: $_arg_target" -3; exit 1 ;;
+esac
+
+# Verify something was built
+if [ "${_successful_builds}" -eq 0 ]; then
+    log "!! No packages were built successfully!" -3
+    if [ "${_skipped_builds}" -gt 0 ]; then
+        log "   ${_skipped_builds} build(s) skipped due to missing tools" -2
+    fi
+    if [ "${_failed_builds}" -gt 0 ]; then
+        log "   ${_failed_builds} build(s) failed" -3
+    fi
+    exit 1
+fi
+
+log ">> Done. Built ${_successful_builds} package(s). Artifacts in ${DIST_DIR}" 1
+if [ "${_skipped_builds}" -gt 0 ]; then
+    log "   ${_skipped_builds} build(s) skipped due to missing tools" -2
+fi
+if [ "${_failed_builds}" -gt 0 ]; then
+    log "   ${_failed_builds} build(s) failed" -2
+fi
+
+# Clean up build directory on successful completion
+cleanup_build_dir

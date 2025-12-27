@@ -25,9 +25,10 @@ const sidebarItems = [
     ],
   },
   {
-    title: 'Case Study',
+    title: 'Tutorials',
     items: [
-      { title: 'Markdown Tool', href: '/docs/case-study' },
+      { title: 'Build Log Miner', href: '/docs/tutorial' },
+      { title: 'Case Study: mdd', href: '/docs/case-study' },
     ],
   },
 ];
