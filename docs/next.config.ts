@@ -2,7 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Static export for GitHub Pages
-  output: 'export',
+  output: "export",
+
+  // GitHub Pages project sites are served at /<repo-name>/
+  basePath: "/parseArger",
+  assetPrefix: "/parseArger/",
 
   // Disable image optimization for static export
   images: {
