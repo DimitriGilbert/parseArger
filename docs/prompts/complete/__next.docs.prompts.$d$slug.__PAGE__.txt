@@ -1,8 +1,8 @@
 1:"$Sreact.fragment"
-2:I[66547,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/74ac907539b39483.js"],"SectionHeader"]
-3:I[22016,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/74ac907539b39483.js"],""]
-4:I[18801,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/74ac907539b39483.js"],"PromptActions"]
-9:I[74715,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/74ac907539b39483.js"],"CodeBlock"]
+2:I[66547,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/24f26a68dc7afe0b.js"],"SectionHeader"]
+3:I[22016,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/24f26a68dc7afe0b.js"],""]
+4:I[18801,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/24f26a68dc7afe0b.js"],"PromptActions"]
+9:I[74715,["/parseArger/_next/static/chunks/f519803e87f4283e.js","/parseArger/_next/static/chunks/6325e8e3c2d1f705.js","/parseArger/_next/static/chunks/2aeac92579e59d89.js","/parseArger/_next/static/chunks/24f26a68dc7afe0b.js"],"CodeBlock"]
 b:I[97367,["/parseArger/_next/static/chunks/ff1a16fafef87110.js","/parseArger/_next/static/chunks/7340adf74ff47ec0.js"],"OutletBoundary"]
 c:"$Sreact.suspense"
 5:T63c8,# ParseArger - Complete Prompt
@@ -901,7 +901,7 @@ Add custom code **below** the generated section (marked with comments). Only the
   - [Completion and Documentation](https://dbuild.dev/blog/projects-parsearger-completion-documentation-and-stuff/)
   - [Nested Options](https://dbuild.dev/blog/projects-parsearger-nested-options/)
   - [Real-World Project](https://dbuild.dev/blog/projects-parsearger-my-markdown-tool-a-parsearger-project/)
-0:{"buildId":"H3PUYlNymCUv4Qczc42Sf","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"space-y-8","children":[["$","div",null,{"className":"flex flex-col gap-4","children":[["$","div",null,{"className":"flex flex-col md:flex-row md:items-center justify-between gap-4","children":[["$","div",null,{"children":[["$","$L2",null,{"children":"Complete Prompt"}],["$","p",null,{"className":"text-muted-foreground mt-2","children":"~25 KB - The whole enchilada"}]]}],["$","$L3",null,{"href":"/docs/prompts","className":"px-4 py-2 bg-card border border-border text-foreground text-sm font-bold rounded-sm rounded-br-lg hover:border-primary hover:text-primary transition-colors no-underline! w-fit","children":"← BACK"}]]}],["$","$L4",null,{"content":"$5","slug":"complete"}]]}],"$L6"]}],["$L7"],"$L8"]}],"loading":null,"isPartial":false}
+0:{"buildId":"ehOuh2cGt6il3AOYbpuYl","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"space-y-8","children":[["$","div",null,{"className":"flex flex-col gap-4","children":[["$","div",null,{"className":"flex flex-col md:flex-row md:items-center justify-between gap-4","children":[["$","div",null,{"children":[["$","$L2",null,{"children":"Complete Prompt"}],["$","p",null,{"className":"text-muted-foreground mt-2","children":"~25 KB - The whole enchilada"}]]}],["$","$L3",null,{"href":"/docs/prompts","className":"px-4 py-2 bg-card border border-border text-foreground text-sm font-bold rounded-sm rounded-br-lg hover:border-primary hover:text-primary transition-colors no-underline! w-fit","children":"← BACK"}]]}],["$","$L4",null,{"content":"$5","slug":"complete"}]]}],"$L6"]}],["$L7"],"$L8"]}],"loading":null,"isPartial":false}
 a:T63c8,# ParseArger - Complete Prompt
 
 ParseArger is a bash tool that generates standalone bash scripts with argument parsing, help generation, documentation, bash completion, HTML forms, and project scaffolding. ParseArger uses itself to generate its own parsing code and is based on Argbash output with additional features and improvements.
@@ -1799,6 +1799,6 @@ Add custom code **below** the generated section (marked with comments). Only the
   - [Nested Options](https://dbuild.dev/blog/projects-parsearger-nested-options/)
   - [Real-World Project](https://dbuild.dev/blog/projects-parsearger-my-markdown-tool-a-parsearger-project/)
 6:["$","div",null,{"className":"border border-border rounded-sm rounded-br-2xl overflow-hidden","children":[["$","div",null,{"className":"bg-card/50 px-4 py-2 border-b border-border text-xs text-muted-foreground font-mono","children":["prompts/","complete",".md"]}],["$","$L9",null,{"language":"markdown","copyable":true,"children":"$a"}]]}]
-7:["$","script","script-0",{"src":"/parseArger/_next/static/chunks/74ac907539b39483.js","async":true}]
+7:["$","script","script-0",{"src":"/parseArger/_next/static/chunks/24f26a68dc7afe0b.js","async":true}]
 8:["$","$Lb",null,{"children":["$","$c",null,{"name":"Next.MetadataOutlet","children":"$@d"}]}]
 d:null
