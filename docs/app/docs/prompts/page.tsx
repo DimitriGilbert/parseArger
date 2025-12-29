@@ -2,6 +2,8 @@ import { SectionHeader } from "@/components/ui/section";
 import { SarcasticAside } from "@/components/ui/sarcastic-aside";
 import Link from "next/link";
 
+const basePath = "/parseArger";
+
 const prompts = [
   {
     name: "Tiny",
@@ -93,7 +95,7 @@ export default function PromptsPage() {
                     VIEW
                   </Link>
                   <a
-                    href={`/prompts/${prompt.slug}.md`}
+                    href={`${basePath}/prompts/${prompt.slug}.md`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-card border border-border text-foreground text-sm font-bold rounded-sm rounded-br-lg hover:border-primary hover:text-primary transition-colors !no-underline"
@@ -117,11 +119,11 @@ export default function PromptsPage() {
         </p>
         <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
           <li>
-            <code>/llms.txt</code> - Standard LLMs.txt format
+            <code>/parseArger/llms.txt</code> - Standard LLMs.txt format
           </li>
           <li>
-            <code>/prompts/tiny.md</code> through{" "}
-            <code>/prompts/complete.md</code>
+            <code>/parseArger/prompts/tiny.md</code> through{" "}
+            <code>/parseArger/prompts/complete.md</code>
           </li>
         </ul>
       </div>

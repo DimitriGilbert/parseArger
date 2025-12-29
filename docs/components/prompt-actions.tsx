@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const basePath = "/parseArger";
+
 interface PromptActionsProps {
   content: string;
   slug: string;
@@ -43,7 +45,7 @@ export function PromptActions({ content, slug }: PromptActionsProps) {
         DOWNLOAD
       </button>
       <a
-        href={`/prompts/${slug}.md`}
+        href={`${basePath}/prompts/${slug}.md`}
         target="_blank"
         rel="noopener noreferrer"
         className="px-4 py-2 bg-card border border-border text-foreground text-sm font-bold rounded-sm rounded-br-lg hover:border-primary hover:text-primary transition-colors no-underline!"
