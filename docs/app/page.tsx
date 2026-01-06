@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { CodeBlock } from "@/components/ui/code-block";
 import { SarcasticAside } from "@/components/ui/sarcastic-aside";
@@ -43,18 +44,18 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div className="space-y-8">
               <div className="flex flex-wrap gap-4">
-                <a
+                <Link
                   href="#install"
                   className="inline-flex items-center justify-center px-8 py-4 bg-primary !text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-all tracking-wider rounded-sm rounded-br-xl shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 !no-underline"
                 >
                   INSTALL
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/docs"
                   className="inline-flex items-center justify-center px-8 py-4 bg-card text-foreground font-bold text-sm border border-border hover:border-primary hover:text-primary transition-all tracking-wider rounded-sm rounded-br-xl"
                 >
                   READ_THE_DOCS
-                </a>
+                </Link>
               </div>
 
               <SarcasticAside variant="spicy">
@@ -156,12 +157,12 @@ echo "💬 \\"\${excuses[$RANDOM % \${#excuses[@]}]}\\""`}</CodeBlock>
           </SarcasticAside>
 
           <div className="flex justify-center mt-10">
-            <a
+            <Link
               href="/docs/tutorial"
               className="inline-flex items-center px-8 py-4 bg-primary !text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-all tracking-wider rounded-sm rounded-br-xl !no-underline"
             >
               READ_FULL_TUTORIAL →
-            </a>
+            </Link>
           </div>
         </div>
       </section>
