@@ -1,0 +1,219 @@
+# ParseArger - Bash CLI Argument Parsing Generator
+
+ParseArger is a bash tool that generates standalone bash scripts with argument parsing, documentation, completion, and more.
+
+## Installation
+
+```bash
+curl -s https://raw.githubusercontent.com/DimitriGilbert/parseArger/main/utils/get_parseArger -O
+chmod +x get_parseArger
+./get_parseArger --install
+source "$HOME/.bashrc"
+```
+
+## Core Commands
+
+### generate - Create bash scripts with argument parsing
+
+```bash
+# Basic script with argument, option, and flag
+parseArger generate \
+  --pos 'my-arg "argument description"' \
+  --opt 'my-opt "option description"' \
+  --flag 'my-flag "flag description"' \
+  --output /path/to/script
+
+# Output to stdout by default, use --output to write to file
+```
+
+### parse - Modify existing parseArger scripts
+
+```bash
+# Update script in place
+parseArger parse /path/to/script -i \
+  --pos 'new-arg "new argument"' \
+  --opt 'new-opt "new option"'
+
+# Without -i, outputs to stdout
+```
+
+### completely - Generate bash completion
+
+```bash
+# Requires completely (ruby gem or docker)
+parseArger completely command-name /path/to/script --subcommand-directory ./bin
+
+# Workaround if completely fails
+parseArger completely cmd-name script --no-run-completely > completely.yaml
+completely preview > completely.bash
+```
+
+### document - Generate documentation
+
+```bash
+parseArger document --file /path/to/script --out documentation.md
+parseArger document --directory /path/to/bin --out all-docs.md
+```
+
+### html-form - Generate HTML form
+
+```bash
+parseArger html-form /path/to/script > form.html
+```
+
+### project - Generate complete project structure
+
+```bash
+parseArger project my-project \
+  --description "project description" \
+  --git-repo "user/repo" \
+  --project-subcommand cmd1 \
+  --project-subcommand cmd2
+```
+
+Creates:
+- Main program script
+- bin/ directory with subcommands
+- documentation.md, readme.md
+- completely.bash, completely.yaml
+- form.html
+- Makefile, installer, webserver
+
+## Argument Types
+
+### --pos (positional arguments)
+
+```bash
+parseArger generate --pos 'name "description" [options]'
+```
+
+Options:
+- `--repeat`: repeatable (creates array)
+- `--repeat-min N`: minimum occurrences
+- `--repeat-max N`: maximum occurrences
+- `--optional`: not required
+- `--one-of val`: restrict to values (repeatable)
+- `--complete func`: bash completion function
+- `--complete-custom "cmd": custom completion
+- `--subcommand`: is a subcommand
+- `--subcommand-run`: execute subcommand
+- `--subcommand-use-leftovers`: pass extra args to subcommand
+- `--subcommand-directory dir`: auto-discover subcommands
+- `--subcommand-variable var`: custom variable name (default: __subcommand)
+
+### --opt (options)
+
+```bash
+parseArger generate --opt 'name "description" [options]'
+```
+
+Options:
+- `--short c`: single letter alias
+- `--alias name`: additional alias (repeatable)
+- `--default-value val`: default value
+- `--repeat`: repeatable (creates array)
+- `--repeat-min N`: minimum occurrences
+- `--repeat-max N`: maximum occurrences
+- `--one-of val`: restrict to values (repeatable)
+- `--empty`: can be used as flag (option/flag hybrid)
+- `--empty-value val`: value when used as flag
+- `--complete func`: bash completion function
+- `--complete-custom "cmd": custom completion
+
+### --flag (boolean flags)
+
+```bash
+parseArger generate --flag 'name "description" [options]'
+```
+
+Options:
+- `--short c`: single letter alias
+- `--alias name`: additional alias (repeatable)
+- `--no-name name`: negation flag name (default: no-<name>)
+- `--no-alias name`: negation alias (repeatable)
+- `--on`: on by default
+
+### --nested (namespaced options)
+
+```bash
+parseArger generate --nested 'namespace "description"'
+```
+
+Usage: `./script --namespace-key value --namespace-other val2`
+Access: `$_arg_namespace[key]`, `$_arg_namespace[other]`
+
+Options:
+- `--one-of val`: restrict keys (repeatable)
+- `--complete func`: bash completion function
+- `--complete-custom "cmd": custom completion
+
+## Variable Access
+
+Generated variables follow pattern: `$_arg_<name>` (hyphens become underscores)
+
+```bash
+# --pos 'my-arg "desc"' → $_arg_my_arg
+# --opt 'my-opt "desc"' → $_arg_my_opt
+# --flag 'my-flag "desc"' → $_arg_my_flag (contains "on" or "off")
+# --nested 'ns "desc"' → ${_arg_ns[key]} (associative array)
+
+# Repeatable options become arrays
+$_arg_my_option[0]
+${#_arg_my_option[@]}  # count
+```
+
+## Common Options (for generate/parse)
+
+- `--help-message "msg"`: help text
+- `--help-option name`: custom help option name
+- `--leftovers|--no-leftovers`: capture extra arguments in `$_arg_leftovers`
+- `--parse-leftovers`: parse leftover args for option-like syntax
+- `--set-version ver`: script version
+- `--use-shebang "#!/bin/bash"`: custom shebang
+- `--set 'var="val"'`: declare variable (repeatable)
+- `--source /path/to/file`: source file (repeatable)
+- `--no-version-opt`: disable version option
+- `--no-use-verbose`: disable verbose levels
+- `--no-bang`: disable shebang
+
+## Subcommands
+
+```bash
+# Main script routing to subcommands
+parseArger generate \
+  --pos 'command "subcommand" --subcommand --subcommand-run --subcommand-directory ./bin'
+
+# bin/command will be executed with leftover arguments
+```
+
+## Workflow
+
+1. **Create new script**: `parseArger generate --output script ...`
+2. **Add your code**: Edit script below the generated section (preserved during updates)
+3. **Update parsing**: `parseArger parse script -i --pos 'new' --opt 'more'`
+4. **Generate docs**: `parseArger document --file script --out docs.md`
+5. **Generate completion**: `parseArger completely cmd-name script --subcmd-dir ./bin`
+
+## Documentation
+
+- README: https://github.com/DimitriGilbert/parseArger
+- Docs: https://dimitrigilbert.github.io/parseArger/
+- Blog tutorials: https://dbuild.dev/blog/projects-parsearger-create-bash-scripts-youll-want-to-use/
+
+## Key Features
+
+- Standalone bash parsing code (no runtime dependencies)
+- Built-in help (`--help`)
+- Version support (`--version`)
+- Verbose levels
+- Input validation (`--one-of`)
+- Repeatable options/arguments (arrays)
+- Short and long options
+- Aliases
+- Flags with negation (`--no-flag`)
+- Nested/namespace options
+- Subcommands
+- Markdown documentation generation
+- Bash completion (via Completely)
+- HTML form generation
+- Project scaffolding
