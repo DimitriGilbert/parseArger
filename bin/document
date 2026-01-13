@@ -2,7 +2,14 @@
 # @parseArger-begin
 # @parseArger-help "create documentation for parseArger script" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
 # @parseArger opt file "file to document" --short f --repeat --complete "file"
 # @parseArger opt directory "directory to document" --short d --repeat --alias folder --complete "directory"
@@ -21,9 +28,15 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count=$#;
+
 die()
 {
-	local _ret="${2:-1}"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
 	exit "${_ret}"
@@ -39,6 +52,7 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
 # OPTIONALS ARGUMENTS
 _arg_file=()
 _arg_directory=()
@@ -50,6 +64,7 @@ _arg_title_tag="#"
 # FLAGS
 _arg_sub_directory="on"
 _arg_append_output="on"
+# NESTED
 _verbose_level="0";
 
 
@@ -78,7 +93,7 @@ print_help()
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:0}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -103,7 +118,11 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
 	fi
 }
 
@@ -218,15 +237,23 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-				if [ $# -lt 2 ];then
-					_verbose_level="$((_verbose_level + 1))";
-				else
-					_verbose_level="$2";
-					shift;
-				fi
-				;;
-			
-			*)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -269,26 +296,29 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tfile: ${_arg_file[*]}";
-	echo -e "\tdirectory: ${_arg_directory[*]}";
-	echo -e "\tout: ${_arg_out}";
-	echo -e "\ttag: ${_arg_tag}";
-	echo -e "\tnext-tag-prepend: ${_arg_next_tag_prepend}";
-	echo -e "\ttitle: ${_arg_title}";
-	echo -e "\ttitle-tag: ${_arg_title_tag}";
-	echo -e "\tsub-directory: ${_arg_sub_directory}";
-	echo -e "\tappend-output: ${_arg_append_output}";
+	echo -e "	file: ${_arg_file[*]}";
+	echo -e "	directory: ${_arg_directory[*]}";
+	echo -e "	out: ${_arg_out}";
+	echo -e "	tag: ${_arg_tag}";
+	echo -e "	next-tag-prepend: ${_arg_next_tag_prepend}";
+	echo -e "	title: ${_arg_title}";
+	echo -e "	title-tag: ${_arg_title_tag}";
+	echo -e "	sub-directory: ${_arg_sub_directory}";
+	echo -e "	append-output: ${_arg_append_output}";
 
 }
+
 
 print_version()
 {
 	echo "0.1";
 }
 
+
 on_interrupt() {
 	die Process aborted! 130;
 }
+
 
 parse_commandline "$@";
 handle_passed_args_count;

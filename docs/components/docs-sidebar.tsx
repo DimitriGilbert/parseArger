@@ -32,6 +32,10 @@ const sidebarItems = [
     ],
   },
   {
+    title: "Ecosystem",
+    items: [{ title: "Agent Skills", href: "/docs/skills" }],
+  },
+  {
     title: "AI Prompts",
     items: [
       { title: "Overview", href: "/docs/prompts" },
@@ -41,12 +45,6 @@ const sidebarItems = [
       { title: "Large", href: "/docs/prompts/large" },
       { title: "Extra Large", href: "/docs/prompts/extralarge" },
       { title: "Complete", href: "/docs/prompts/complete" },
-    ],
-  },
-  {
-    title: "Ecosystem",
-    items: [
-      { title: "Agent Skills", href: "/docs/skills" },
     ],
   },
 ];

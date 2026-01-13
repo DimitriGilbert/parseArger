@@ -35,6 +35,10 @@ export default function ArgumentsPage() {
             <strong className="text-foreground">--complete-custom</strong>: Custom dynamic suggestions using a command or script.
             <CodeBlock>{`parseArger generate --pos 'arg "desc" --complete-custom "\$(echo \"val1 val2\")"'`}</CodeBlock>
           </li>
+          <li>
+            <strong className="text-foreground">--match</strong>: Validate input against a regular expression.
+            <CodeBlock>{`parseArger generate --pos 'id "identifier" --match "^[0-9]+$"'`}</CodeBlock>
+          </li>
         </ul>
 
         <h3 className="text-lg font-bold text-accent mt-4">Subcommands</h3>
@@ -122,6 +126,18 @@ export default function ArgumentsPage() {
           </li>
            <li>
             <strong className="text-foreground">--complete-custom</strong>: Custom completion.
+          </li>
+          <li>
+            <strong className="text-foreground">--env</strong>: Fallback to an environment variable if the option is not provided.
+            <CodeBlock>{`parseArger generate --opt 'token "API token" --env MY_TOKEN'`}</CodeBlock>
+          </li>
+          <li>
+            <strong className="text-foreground">--required</strong>: Mark the option as mandatory. The script will die if it's missing.
+            <CodeBlock>{`parseArger generate --opt 'config "config file" --required'`}</CodeBlock>
+          </li>
+          <li>
+            <strong className="text-foreground">--match</strong>: Validate input against a regular expression.
+            <CodeBlock>{`parseArger generate --opt 'port "port number" --match "^[0-9]+$"'`}</CodeBlock>
           </li>
         </ul>
       </div>

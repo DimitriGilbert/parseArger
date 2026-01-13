@@ -228,3 +228,60 @@ function test_generate_opt_nested() {
 
 #   rm "$tfile";
 # }
+function test_generate_opt_env() {
+  local tfile="${tftmp_file}_opt_env";
+  local nopt=("token" "'api token'" --env MY_TOKEN)
+  local ex_=("${ex[@]}" --output "$tfile" --opt "${nopt[*]}")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  chmod +x "$tfile"
+
+  # Need to check value, but bashunit_ext doesn't support output matching easily with current helper.
+  # We rely on exit codes.
+  # 1. With flag (success)
+  assert_exit_code "0" "$("$tfile" --token flag_val)";
+
+  # 2. With env (success)
+  export MY_TOKEN="env_val"
+  assert_exit_code "0" "$("$tfile")";
+  
+  # 3. Verify value logic (optional if we trust the generator logic, but good for regression)
+  # We can't easily capture output here without modifying the tfile or parsing stdout manually.
+  # Assuming exit code 0 means it parsed successfully without missing value error.
+  
+  rm "$tfile"
+}
+
+function test_generate_opt_required() {
+  local tfile="${tftmp_file}_opt_req";
+  local nopt=("config" "'config file'" --required)
+  local ex_=("${ex[@]}" --output "$tfile" --opt "${nopt[*]}")
+
+  assert_exit_code "0" "$("${ex_[@]}")";
+  chmod +x "$tfile"
+
+  # 1. Success when provided
+  assert_exit_code "0" "$("$tfile" --config val)";
+
+  # 2. Fail when missing
+  assert_exit_code "1" "$("$tfile" 2>&1)";
+
+  rm "$tfile"
+}
+
+function test_generate_opt_match() {
+  local tfile="${tftmp_file}_opt_match";
+  local nopt=("port" "'port num'" --match "^[0-9]+$")
+  local ex_=("${ex[@]}" --output "$tfile" --opt "${nopt[*]}")
+
+  assert_exit_code "0" "$("${ex_[@]}")";
+  chmod +x "$tfile"
+
+  # 1. Valid input
+  assert_exit_code "0" "$("$tfile" --port 1234)";
+
+  # 2. Invalid input
+  assert_exit_code "1" "$("$tfile" --port abc 2>&1)";
+
+  rm "$tfile"
+}

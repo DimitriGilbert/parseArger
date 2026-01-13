@@ -1,21 +1,29 @@
 #!/bin/bash
 # @parseArger-begin
-# @parseArger-help "parse an existing parseArger file" --option "help" --short-option "h"
-# @parseArger-version "0.1" --option "version" --short-option "v"
+# @parseArger-help "parse an existing parseArger script and add arguments, options, flag, etc..." --option "help" --short-option "h"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+# @parseArger-set export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/..;pwd -P);
+export PARSEARGER_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/..;pwd -P);
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
-# @parseArger pos file "file to parse" --complete "file"
+# @parseArger pos file "file to parse"
 # @parseArger opt pos "add positional argument declaration" --short p --repeat
 # @parseArger opt opt "add optional arg declaration" --short o --repeat
 # @parseArger opt flag "add flag declaration" --short f --repeat
-# @parseArger opt nested "add nested option declaration" --repeat
 # @parseArger opt set "add declare var" --short s --repeat
 # @parseArger opt source "add file to source" --short l --repeat
 # @parseArger opt set-version "set version"
-# @parseArger opt dependencies "specify script dependencies" --repeat
+# @parseArger opt dependencies "set a dependency" --repeat
+# @parseArger opt nested "nested option declaration" --repeat
 # @parseArger flag inplace "replace parseArger generated content in place" --short i
-# @parseArger flag leftovers "add leftovers"
-# @parseArger flag parse-leftovers "parse leftovers"
+# @parseArger flag leftovers "enable leftovers"
+# @parseArger flag parse-leftovers "enable parsing of leftovers"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -24,9 +32,15 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count=$#;
+
 die()
 {
-	local _ret="${2:-1}"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
 	exit "${_ret}"
@@ -48,15 +62,16 @@ _arg_file="";
 _arg_pos=()
 _arg_opt=()
 _arg_flag=()
-_arg_nested=()
 _arg_set=()
 _arg_source=()
 _arg_set_version=
 _arg_dependencies=()
+_arg_nested=()
 # FLAGS
 _arg_inplace="off"
 _arg_leftovers="off"
 _arg_parse_leftovers="off"
+# NESTED
 _verbose_level="0";
 
 
@@ -67,28 +82,28 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "parse an existing parseArger file:"
+		echo -e "parse an existing parseArger script and add arguments, options, flag, etc...:"
 	echo -e "	file: file to parse"
 	echo -e "	-p, --pos <pos>: add positional argument declaration, repeatable"
 	echo -e "	-o, --opt <opt>: add optional arg declaration, repeatable"
 	echo -e "	-f, --flag <flag>: add flag declaration, repeatable"
-	echo -e "	--nested <nested>: add nested option declaration, repeatable"
 	echo -e "	-s, --set <set>: add declare var, repeatable"
 	echo -e "	-l, --source <source>: add file to source, repeatable"
 	echo -e "	--set-version <set-version>: set version"
-	echo -e "	--dependencies <dependencies>: script dependencies, repeatable"
+	echo -e "	--dependencies <dependencies>: set a dependency, repeatable"
+	echo -e "	--nested <nested>: nested option declaration, repeatable"
 	echo -e "	-i|--inplace|--no-inplace: replace parseArger generated content in place"
-	echo -e "	--leftovers|--no-leftovers: add leftovers"
-	echo -e "	--parse-leftovers|--no-parse-leftovers: parse leftovers"
+	echo -e "	--leftovers|--no-leftovers: enable leftovers"
+	echo -e "	--parse-leftovers|--no-parse-leftovers: enable parsing of leftovers"
 	echo -e "Usage :
-	$0 <file> [--pos <value>] [--opt <value>] [--flag <value>] [--nested <value>] [--set <value>] [--source <value>] [--set-version <value>] [--[no-]inplace] [--[no-]leftovers] [--[no-]parse-leftovers]";
+	$0 <file> [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--set-version <value>] [--dependencies <value>] [--nested <value>] [--[no-]inplace] [--[no-]leftovers] [--[no-]parse-leftovers]";
 	fi
 
 }
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:-"0"}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -113,7 +128,11 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
 	fi
 }
 
@@ -159,15 +178,6 @@ parse_commandline()
 			-f*)
 				_arg_flag+=("${_key##-f}")
 				;;
-
-			--nested)
-				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_nested+=("$2")
-				shift
-				;;
-			--nested=*)
-				_arg_nested+=("${_key##--nested=}")
-				;;
 			
 			-s|--set)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
@@ -201,6 +211,7 @@ parse_commandline()
 			--set-version=*)
 				_arg_set_version="${_key##--set-version=}"
 				;;
+			
 			--dependencies)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_dependencies+=("$2")
@@ -208,6 +219,15 @@ parse_commandline()
 				;;
 			--dependencies=*)
 				_arg_dependencies+=("${_key##--dependencies=}")
+				;;
+			
+			--nested)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_nested+=("$2")
+				shift
+				;;
+			--nested=*)
+				_arg_nested+=("${_key##--nested=}")
 				;;
 			
 			-i|--inplace)
@@ -234,14 +254,6 @@ parse_commandline()
 				;;
 			-h*)
 				print_help;
-				exit 0;
-				;;
-			-v|--version)
-				print_version;
-				exit 0;
-				;;
-			-v*)
-				print_version;
 				exit 0;
 				;;
 			--verbose)
@@ -293,6 +305,11 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		local _match_var="_match${_positional_name}"
+		local _regex="${!_match_var}"
+		if [ -n "$_regex" ]; then
+			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
+		fi
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
@@ -304,29 +321,26 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tfile: ${_arg_file}";
-	echo -e "\tpos: ${_arg_pos[*]}";
-	echo -e "\topt: ${_arg_opt[*]}";
-	echo -e "\tflag: ${_arg_flag[*]}";
-	echo -e "\tnested: ${_arg_nested[*]}";
-	echo -e "\tset: ${_arg_set[*]}";
-	echo -e "\tsource: ${_arg_source[*]}";
-	echo -e "\tset-version: ${_arg_set_version}";
-	echo -e "\tdependencies: ${_arg_dependencies[*]}";
-	echo -e "\tinplace: ${_arg_inplace}";
-	echo -e "\tleftovers: ${_arg_leftovers}";
-	echo -e "\tparse-leftovers: ${_arg_parse_leftovers}";
+	echo -e "	file: ${_arg_file}";
+	echo -e "	pos: ${_arg_pos[*]}";
+	echo -e "	opt: ${_arg_opt[*]}";
+	echo -e "	flag: ${_arg_flag[*]}";
+	echo -e "	set: ${_arg_set[*]}";
+	echo -e "	source: ${_arg_source[*]}";
+	echo -e "	set-version: ${_arg_set_version}";
+	echo -e "	dependencies: ${_arg_dependencies[*]}";
+	echo -e "	nested: ${_arg_nested[*]}";
+	echo -e "	inplace: ${_arg_inplace}";
+	echo -e "	leftovers: ${_arg_leftovers}";
+	echo -e "	parse-leftovers: ${_arg_parse_leftovers}";
 
 }
 
-print_version()
-{
-	echo "0.1";
-}
 
 on_interrupt() {
 	die Process aborted! 130;
 }
+
 
 parse_commandline "$@";
 handle_passed_args_count;
@@ -338,7 +352,6 @@ trap on_interrupt INT;
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
-
 SCRIPT_ROOT_DIR=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P

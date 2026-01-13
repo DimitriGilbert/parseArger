@@ -35,6 +35,7 @@ Settings:
 - `--one-of "VAL"`: Restrict to specific values (repeatable).
 - `--complete "FUNC"`: Bash built-in completion (e.g., `file`, `directory`).
 - `--complete-custom "CMD"`: Custom dynamic completion command.
+- `--match "REGEX"`: Validate input against a regex pattern (e.g. `^[0-9]+$`).
 - `--subcommand`: Mark as a subcommand (see Subcommands below).
 
 **Options (`--opt`)**
@@ -47,6 +48,9 @@ Settings:
 - `--alias "NAME"`: Alternative long name.
 - `--empty`: Allow usage without value (acts like flag).
 - `--empty-value "VAL"`: Value to set if used without value (requires `--empty`).
+- `--env "VAR"`: Fallback to environment variable if option not provided.
+- `--required`: Mark option as mandatory (script fails if missing).
+- `--match "REGEX"`: Validate input against a regex pattern (e.g. `^[0-9]+$`).
 
 **Flags (`--flag`)**
 Syntax: `--flag 'NAME "DESCRIPTION" [SETTINGS]'`

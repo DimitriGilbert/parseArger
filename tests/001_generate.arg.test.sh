@@ -36,3 +36,22 @@ function test_generate_pos_oneof() {
 
   rm "$tfile";
 }
+
+function test_generate_pos_match() {
+  local tfile="${tftmp_file}_generate_pos_match";
+  local npos=("${spos[@]}" --match "^[a-z]+$")
+  local ex_=("${ex[@]}" --output "$tfile" --pos "${npos[*]}")
+  local tex_=("$tfile" "abc")
+  local tex_2=("$tfile" "123")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  
+  # Valid
+  assert_exit_code "0" "$("${tex_[@]}")";
+  
+  # Invalid
+  assert_exit_code "1" "$("${tex_2[@]}" 2>&1)";
+
+  rm "$tfile";
+}

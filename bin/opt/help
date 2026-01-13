@@ -2,7 +2,14 @@
 # @parseArger-begin
 # @parseArger-help "parseArger help string for options" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
 # @parseArger pos arg-name "positional argument name"
 # @parseArger pos description "positional argument description"
@@ -15,8 +22,11 @@
 # @parseArger opt empty-value "value for empty option"
 # @parseArger opt complete "bash built-in completely function" --repeat
 # @parseArger opt complete-custom "completely custom dynamic suggestion" --repeat
+# @parseArger opt env "environment variable name"
+# @parseArger opt match "regex match validation"
 # @parseArger flag repeat "repeatable" --short r
 # @parseArger flag empty "use option as flag"
+# @parseArger flag required "make option mandatory" --short q
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -25,9 +35,15 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count=$#;
+
 die()
 {
-	local _ret="${2:-1}"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
 	exit "${_ret}"
@@ -43,6 +59,7 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
 _arg_arg_name="";
 _arg_description="";
 # OPTIONALS ARGUMENTS
@@ -55,9 +72,13 @@ _arg_alias=()
 _arg_empty_value=
 _arg_complete=()
 _arg_complete_custom=()
+_arg_env=
+_arg_match=
 # FLAGS
 _arg_repeat="off"
 _arg_empty="off"
+_arg_required="off"
+# NESTED
 _verbose_level="0";
 
 
@@ -80,17 +101,20 @@ print_help()
 	echo -e "	--empty-value <empty-value>: value for empty option"
 	echo -e "	--complete <complete>: bash built-in completely function, repeatable"
 	echo -e "	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable"
+	echo -e "	--env <env>: environment variable name"
+	echo -e "	--match <match>: regex match validation"
 	echo -e "	-r|--repeat|--no-repeat: repeatable"
 	echo -e "	--empty|--no-empty: use option as flag"
+	echo -e "	-q|--required|--no-required: make option mandatory"
 	echo -e "Usage :
-	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--[no-]repeat] [--[no-]empty]";
+	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--default-value <value>] [--short <value>] [--alias <value>] [--empty-value <value>] [--complete <value>] [--complete-custom <value>] [--env <value>] [--match <value>] [--[no-]repeat] [--[no-]empty] [--[no-]required]";
 	fi
 
 }
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:0}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -115,7 +139,11 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
 	fi
 }
 
@@ -213,6 +241,24 @@ parse_commandline()
 				_arg_complete_custom+=("${_key##--complete-custom=}")
 				;;
 			
+			--env)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_env="$2"
+				shift
+				;;
+			--env=*)
+				_arg_env="${_key##--env=}"
+				;;
+			
+			--match)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_match="$2"
+				shift
+				;;
+			--match=*)
+				_arg_match="${_key##--match=}"
+				;;
+			
 			-r|--repeat)
 				_arg_repeat="on"
 				;;
@@ -224,6 +270,12 @@ parse_commandline()
 				;;
 			--no-empty)
 				_arg_empty="off"
+				;;
+			-q|--required)
+				_arg_required="on"
+				;;
+			--no-required)
+				_arg_required="off"
 				;;
 			-h|--help)
 				print_help;
@@ -242,15 +294,23 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-				if [ $# -lt 2 ];then
-					_verbose_level="$((_verbose_level + 1))";
-				else
-					_verbose_level="$2";
-					shift;
-				fi
-				;;
-			
-			*)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -282,6 +342,11 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		local _match_var="_match${_positional_name}"
+		local _regex="${!_match_var}"
+		if [ -n "$_regex" ]; then
+			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
+		fi
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
@@ -293,30 +358,36 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\targ-name: ${_arg_arg_name}";
-	echo -e "\tdescription: ${_arg_description}";
-	echo -e "\trepeat-min: ${_arg_repeat_min}";
-	echo -e "\trepeat-max: ${_arg_repeat_max}";
-	echo -e "\tone-of: ${_arg_one_of[*]}";
-	echo -e "\tdefault-value: ${_arg_default_value[*]}";
-	echo -e "\tshort: ${_arg_short}";
-	echo -e "\talias: ${_arg_alias[*]}";
-	echo -e "\tempty-value: ${_arg_empty_value}";
-	echo -e "\tcomplete: ${_arg_complete[*]}";
-	echo -e "\tcomplete-custom: ${_arg_complete_custom[*]}";
-	echo -e "\trepeat: ${_arg_repeat}";
-	echo -e "\tempty: ${_arg_empty}";
+	echo -e "	arg-name: ${_arg_arg_name}";
+	echo -e "	description: ${_arg_description}";
+	echo -e "	repeat-min: ${_arg_repeat_min}";
+	echo -e "	repeat-max: ${_arg_repeat_max}";
+	echo -e "	one-of: ${_arg_one_of[*]}";
+	echo -e "	default-value: ${_arg_default_value[*]}";
+	echo -e "	short: ${_arg_short}";
+	echo -e "	alias: ${_arg_alias[*]}";
+	echo -e "	empty-value: ${_arg_empty_value}";
+	echo -e "	complete: ${_arg_complete[*]}";
+	echo -e "	complete-custom: ${_arg_complete_custom[*]}";
+	echo -e "	env: ${_arg_env}";
+	echo -e "	match: ${_arg_match}";
+	echo -e "	repeat: ${_arg_repeat}";
+	echo -e "	empty: ${_arg_empty}";
+	echo -e "	required: ${_arg_required}";
 
 }
+
 
 print_version()
 {
 	echo "0.1";
 }
 
+
 on_interrupt() {
 	die Process aborted! 130;
 }
+
 
 parse_commandline "$@";
 handle_passed_args_count;
@@ -376,6 +447,10 @@ if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 		optHelp+=" '$_oof'";
 	done
 	optHelp+="]";
+fi
+
+if [ "$_arg_required" == "on" ]; then
+	optHelp+=" (REQUIRED)";
 fi
 
 echo -e "\techo -e \"\t${optHelp}\"";

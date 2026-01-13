@@ -3,6 +3,13 @@
 # @parseArger-help "generate a parseArger script" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
 # @parseArger opt pos "positional argument declaration" --short p --repeat
 # @parseArger opt opt "optional arg declaration" --short o --repeat
@@ -24,7 +31,7 @@
 # @parseArger opt nested "nested option declaration" --repeat
 # @parseArger opt history "add n history lines at the end of the file"
 # @parseArger opt history-offset "offset --history value by value"
-# @parseArger opt history-file "specify history file" --default-value "\$HOME/.bash_history"
+# @parseArger opt history-file "specify history file" --default-value "$HOME/.bash_history"
 # @parseArger opt dependencies "specify script dependencies" --repeat
 # @parseArger flag leftovers "accept extra arguments"
 # @parseArger flag bang "include shebang" --on
@@ -39,9 +46,15 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count=$#;
+
 die()
 {
-	local _ret="${2:-1}"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
 	exit "${_ret}"
@@ -87,6 +100,7 @@ _arg_bang="on"
 _arg_version_opt="on"
 _arg_use_verbose="on"
 _arg_parse_leftovers="off"
+# NESTED
 _verbose_level="0";
 
 
@@ -116,24 +130,24 @@ print_help()
 	echo -e "	--verbose-opt-name <verbose-opt-name>: verbose option name [default: ' verbose ']"
 	echo -e "	--verbose-level <verbose-level>: default verbose level [default: ' 0 ']"
 	echo -e "	--nested <nested>: nested option declaration, repeatable"
-	echo -e " --history <history>: add n history lines at the end of the file"
-	echo -e " --history-offset <history-offset>: offset --history value by value"
-	echo -e " --history-file <history-file>: specify history file [default: ' \$HOME/.bash_history ']"
-	echo -e "	--dependencies <dependencies>: script dependencies, repeatable"
+	echo -e "	--history <history>: add n history lines at the end of the file"
+	echo -e "	--history-offset <history-offset>: offset --history value by value"
+	echo -e "	--history-file <history-file>: specify history file [default: ' $HOME/.bash_history ']"
+	echo -e "	--dependencies <dependencies>: specify script dependencies, repeatable"
 	echo -e "	--leftovers|--no-leftovers: accept extra arguments"
 	echo -e "	--bang|--no-bang: include shebang, on by default (use --no-bang to turn it off)"
 	echo -e "	--version-opt|--no-version-opt: generate version opt handling, on by default (use --no-version-opt to turn it off)"
 	echo -e "	--use-verbose|--no-use-verbose: generate verbose level parser, on by default (use --no-use-verbose to turn it off)"
 	echo -e "	--parse-leftovers|--no-parse-leftovers: parse leftovers, force leftovers"
 	echo -e "Usage :
-	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--nested <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]parse-leftovers]";
+	$0 [--pos <value>] [--opt <value>] [--flag <value>] [--set <value>] [--source <value>] [--help-message <value>] [--help-option <value>] [--help-short-option <value>] [--leftovers-name <value>] [--use-shebang <value>] [--set-version <value>] [--version-opt-name <value>] [--version-short-option <value>] [--die-fn-name <value>] [--log-fn-name <value>] [--verbose-opt-name <value>] [--verbose-level <value>] [--nested <value>] [--history <value>] [--history-offset <value>] [--history-file <value>] [--dependencies <value>] [--[no-]leftovers] [--[no-]bang] [--[no-]version-opt] [--[no-]use-verbose] [--[no-]parse-leftovers]";
 	fi
 
 }
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:0}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -158,7 +172,11 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
 	fi
 }
 
@@ -180,7 +198,7 @@ parse_commandline()
 			-p*)
 				_arg_pos+=("${_key##-p}")
 				;;
-
+			
 			-o|--opt)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_opt+=("$2")
@@ -192,7 +210,7 @@ parse_commandline()
 			-o*)
 				_arg_opt+=("${_key##-o}")
 				;;
-
+			
 			-f|--flag)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_flag+=("$2")
@@ -204,7 +222,7 @@ parse_commandline()
 			-f*)
 				_arg_flag+=("${_key##-f}")
 				;;
-
+			
 			-s|--set)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_set+=("$2")
@@ -216,7 +234,7 @@ parse_commandline()
 			-s*)
 				_arg_set+=("${_key##-s}")
 				;;
-
+			
 			-l|--source)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_source+=("$2")
@@ -228,7 +246,7 @@ parse_commandline()
 			-l*)
 				_arg_source+=("${_key##-l}")
 				;;
-
+			
 			-m|--help-message)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_help_message="$2"
@@ -240,7 +258,7 @@ parse_commandline()
 			-m*)
 				_arg_help_message="${_key##-m}"
 				;;
-
+			
 			--help-option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_help_option="$2"
@@ -249,7 +267,7 @@ parse_commandline()
 			--help-option=*)
 				_arg_help_option="${_key##--help-option=}"
 				;;
-
+			
 			--help-short-option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_help_short_option="$2"
@@ -258,7 +276,7 @@ parse_commandline()
 			--help-short-option=*)
 				_arg_help_short_option="${_key##--help-short-option=}"
 				;;
-
+			
 			--leftovers-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_leftovers_name="$2"
@@ -267,7 +285,7 @@ parse_commandline()
 			--leftovers-name=*)
 				_arg_leftovers_name="${_key##--leftovers-name=}"
 				;;
-
+			
 			--use-shebang)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_use_shebang="$2"
@@ -276,7 +294,7 @@ parse_commandline()
 			--use-shebang=*)
 				_arg_use_shebang="${_key##--use-shebang=}"
 				;;
-
+			
 			--set-version)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_set_version="$2"
@@ -285,7 +303,7 @@ parse_commandline()
 			--set-version=*)
 				_arg_set_version="${_key##--set-version=}"
 				;;
-
+			
 			--version-opt-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_version_opt_name="$2"
@@ -294,7 +312,7 @@ parse_commandline()
 			--version-opt-name=*)
 				_arg_version_opt_name="${_key##--version-opt-name=}"
 				;;
-
+			
 			--version-short-option)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_version_short_option="$2"
@@ -303,7 +321,7 @@ parse_commandline()
 			--version-short-option=*)
 				_arg_version_short_option="${_key##--version-short-option=}"
 				;;
-
+			
 			--die-fn-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_die_fn_name="$2"
@@ -312,7 +330,7 @@ parse_commandline()
 			--die-fn-name=*)
 				_arg_die_fn_name="${_key##--die-fn-name=}"
 				;;
-
+			
 			--log-fn-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_log_fn_name="$2"
@@ -321,7 +339,7 @@ parse_commandline()
 			--log-fn-name=*)
 				_arg_log_fn_name="${_key##--log-fn-name=}"
 				;;
-
+			
 			--verbose-opt-name)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_verbose_opt_name="$2"
@@ -330,7 +348,7 @@ parse_commandline()
 			--verbose-opt-name=*)
 				_arg_verbose_opt_name="${_key##--verbose-opt-name=}"
 				;;
-
+			
 			--verbose-level)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_verbose_level="$2"
@@ -339,6 +357,7 @@ parse_commandline()
 			--verbose-level=*)
 				_arg_verbose_level="${_key##--verbose-level=}"
 				;;
+			
 			--nested)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_nested+=("$2")
@@ -347,6 +366,7 @@ parse_commandline()
 			--nested=*)
 				_arg_nested+=("${_key##--nested=}")
 				;;
+			
 			--history)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_history="$2"
@@ -355,7 +375,7 @@ parse_commandline()
 			--history=*)
 				_arg_history="${_key##--history=}"
 				;;
-
+			
 			--history-offset)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_history_offset="$2"
@@ -364,7 +384,7 @@ parse_commandline()
 			--history-offset=*)
 				_arg_history_offset="${_key##--history-offset=}"
 				;;
-
+			
 			--history-file)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_history_file="$2"
@@ -373,6 +393,7 @@ parse_commandline()
 			--history-file=*)
 				_arg_history_file="${_key##--history-file=}"
 				;;
+			
 			--dependencies)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
 				_arg_dependencies+=("$2")
@@ -381,6 +402,7 @@ parse_commandline()
 			--dependencies=*)
 				_arg_dependencies+=("${_key##--dependencies=}")
 				;;
+			
 			--leftovers)
 				_arg_leftovers="on"
 				;;
@@ -428,14 +450,14 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-				if [ $# -lt 2 ];then
-					_verbose_level="$((_verbose_level + 1))";
-				else
-					_verbose_level="$2";
-					shift;
-				fi
-				;;
-			--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
 					if [ $# -lt 2 ];then
 						_verbose_level="$((_verbose_level - 1))";
 					else
@@ -443,8 +465,8 @@ parse_commandline()
 						shift;
 					fi
 					;;
-
-			*)
+				
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -486,7 +508,7 @@ print_debug()
 	print_help
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
-
+	
 	echo -e "	pos: ${_arg_pos[*]}";
 	echo -e "	opt: ${_arg_opt[*]}";
 	echo -e "	flag: ${_arg_flag[*]}";
@@ -505,10 +527,10 @@ print_debug()
 	echo -e "	verbose-opt-name: ${_arg_verbose_opt_name}";
 	echo -e "	verbose-level: ${_arg_verbose_level}";
 	echo -e "	nested: ${_arg_nested[*]}";
-	echo -e " history: ${_arg_history}";
-	echo -e " history-offset: ${_arg_history_offset}";
-	echo -e " history-file: ${_arg_history_file}";
-	echo -e " dependencies: ${_arg_dependencies[*]}";
+	echo -e "	history: ${_arg_history}";
+	echo -e "	history-offset: ${_arg_history_offset}";
+	echo -e "	history-file: ${_arg_history_file}";
+	echo -e "	dependencies: ${_arg_dependencies[*]}";
 	echo -e "	leftovers: ${_arg_leftovers}";
 	echo -e "	bang: ${_arg_bang}";
 	echo -e "	version-opt: ${_arg_version_opt}";
@@ -517,14 +539,17 @@ print_debug()
 
 }
 
+
 print_version()
 {
 	echo "0.1";
 }
 
+
 on_interrupt() {
 	die Process aborted! 130;
 }
+
 
 parse_commandline "$@";
 handle_passed_args_count;
@@ -914,12 +939,22 @@ fi
 		test \$# -gt 0 || break;";
 	if [ "$_arg_leftovers" == "off" ]; then
 		echo -e "		eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1;";
+		echo -e "		local _match_var=\"_match\${_positional_name}\";
+		local _regex=\"\${!_match_var}\";
+		if [ -n \"\$_regex\" ]; then
+			[[ \"\${1}\" =~ \$_regex ]] || die \"\${_positional_name} does not match pattern: \$_regex\"
+		fi";
 		if [[ "$hasSubCmd" == "0" ]]; then
 			echo -e "		$(eval "$SCRIPT_ROOT_DIR/pos/subcmd-assign ${_arg_pos[0]}")";
 		fi
 	else
 		echo "		if ! [[ \"\$_positional_name\" =~ \"_arg_$_arg_leftovers_name\" ]];then
 			eval \"if [ \\\"\\\$_one_of\${_positional_name}\\\" != \\\"\\\" ];then [[ \\\"\\\${_one_of\${_positional_name}[*]}\\\" =~ \\\"\\\${1}\\\" ]];fi\" || die \"\${_positional_name} must be one of: \$(eval \"echo \\\"\\\${_one_of\${_positional_name}[*]}\\\"\")\" 1;"
+        echo "			local _match_var=\"_match\${_positional_name}\";
+			local _regex=\"\${!_match_var}\";
+			if [ -n \"\$_regex\" ]; then
+				[[ \"\${1}\" =~ \$_regex ]] || die \"\${_positional_name} does not match pattern: \$_regex\"
+			fi"
 		if [[ "$hasSubCmd" == "0" ]]; then
 			echo -e "			$(eval "$SCRIPT_ROOT_DIR/pos/subcmd-assign ${_arg_pos[0]}")";
 		fi
@@ -1004,7 +1039,11 @@ parse_commandline \"\$@\";
 handle_passed_args_count;
 assign_positional_args 1 \"\${_positionals[@]}\";
 trap on_interrupt INT;
-
+";
+for opt in "${_arg_opt[@]}"; do
+	eval "$SCRIPT_ROOT_DIR/opt/check-required $opt";
+done
+echo -e "
 ";
 if [[ "$hasSubCmd" == "0" ]]; then
 	echo -e "$(eval "$SCRIPT_ROOT_DIR/pos/subcmd-handle ${_arg_pos[0]}")";

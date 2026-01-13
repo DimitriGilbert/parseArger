@@ -124,6 +124,7 @@ Options:
 - `--one-of value`: restrict to accepted values (repeatable)
 - `--complete func`: bash completion function
 - `--complete-custom "cmd"`: custom completion
+- `--match "regex"`: validate input against regex pattern
 - `--subcommand`: is a subcommand
 - `--subcommand-run`: execute subcommand
 - `--subcommand-use-leftovers`: pass extra args to subcommand
@@ -148,6 +149,9 @@ Options:
 - `--empty-value val`: value when used as flag
 - `--complete func`: bash completion
 - `--complete-custom "cmd"`: custom completion
+- `--env "VAR"`: fallback to environment variable
+- `--required`: mandatory option (script fails if missing)
+- `--match "regex"`: validate input against regex pattern
 
 ### Flags (--flag)
 

@@ -3,6 +3,13 @@
 # @parseArger-help "generate a completely yaml config and completion" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
 # @parseArger pos command-name "command-name"
 # @parseArger pos file "file" --optional --complete "file"
@@ -35,9 +42,15 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count=$#;
+
 die()
 {
-	local _ret="${2:-1}"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
 	exit "${_ret}"
@@ -53,8 +66,10 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
 _arg_command_name="";
 _arg_file="";
+_optional_positionals+=("_arg_file");
 # OPTIONALS ARGUMENTS
 _arg_pos=()
 _arg_opt=()
@@ -78,6 +93,7 @@ _arg_version_opt="on"
 _arg_use_verbose="on"
 _arg_run_completely="on"
 _arg_discover_subcommand="off"
+# NESTED
 _verbose_level="0";
 
 
@@ -121,7 +137,7 @@ print_help()
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:0}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -146,7 +162,11 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
 	fi
 }
 
@@ -391,7 +411,7 @@ parse_commandline()
 					fi
 					;;
 				
-			*)
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -434,40 +454,43 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tcommand-name: ${_arg_command_name}";
-	echo -e "\tfile: ${_arg_file}";
-	echo -e "\tpos: ${_arg_pos[*]}";
-	echo -e "\topt: ${_arg_opt[*]}";
-	echo -e "\tflag: ${_arg_flag[*]}";
-	echo -e "\tset: ${_arg_set[*]}";
-	echo -e "\tsource: ${_arg_source[*]}";
-	echo -e "\thelp-message: ${_arg_help_message}";
-	echo -e "\thelp-option: ${_arg_help_option}";
-	echo -e "\thelp-short-option: ${_arg_help_short_option}";
-	echo -e "\tleftovers-name: ${_arg_leftovers_name}";
-	echo -e "\tversion-opt-name: ${_arg_version_opt_name}";
-	echo -e "\tversion-short-option: ${_arg_version_short_option}";
-	echo -e "\tverbose-opt-name: ${_arg_verbose_opt_name}";
-	echo -e "\tsubcommand-directory: ${_arg_subcommand_directory}";
-	echo -e "\tcompletely-cmd: ${_arg_completely_cmd[*]}";
-	echo -e "\textra-file: ${_arg_extra_file[*]}";
-	echo -e "\tyaml-file: ${_arg_yaml_file}";
-	echo -e "\tcompletion-file: ${_arg_completion_file}";
-	echo -e "\tversion-opt: ${_arg_version_opt}";
-	echo -e "\tuse-verbose: ${_arg_use_verbose}";
-	echo -e "\trun-completely: ${_arg_run_completely}";
-	echo -e "\tdiscover-subcommand: ${_arg_discover_subcommand}";
+	echo -e "	command-name: ${_arg_command_name}";
+	echo -e "	file: ${_arg_file}";
+	echo -e "	pos: ${_arg_pos[*]}";
+	echo -e "	opt: ${_arg_opt[*]}";
+	echo -e "	flag: ${_arg_flag[*]}";
+	echo -e "	set: ${_arg_set[*]}";
+	echo -e "	source: ${_arg_source[*]}";
+	echo -e "	help-message: ${_arg_help_message}";
+	echo -e "	help-option: ${_arg_help_option}";
+	echo -e "	help-short-option: ${_arg_help_short_option}";
+	echo -e "	leftovers-name: ${_arg_leftovers_name}";
+	echo -e "	version-opt-name: ${_arg_version_opt_name}";
+	echo -e "	version-short-option: ${_arg_version_short_option}";
+	echo -e "	verbose-opt-name: ${_arg_verbose_opt_name}";
+	echo -e "	subcommand-directory: ${_arg_subcommand_directory}";
+	echo -e "	completely-cmd: ${_arg_completely_cmd[*]}";
+	echo -e "	extra-file: ${_arg_extra_file[*]}";
+	echo -e "	yaml-file: ${_arg_yaml_file}";
+	echo -e "	completion-file: ${_arg_completion_file}";
+	echo -e "	version-opt: ${_arg_version_opt}";
+	echo -e "	use-verbose: ${_arg_use_verbose}";
+	echo -e "	run-completely: ${_arg_run_completely}";
+	echo -e "	discover-subcommand: ${_arg_discover_subcommand}";
 
 }
+
 
 print_version()
 {
 	echo "0.1";
 }
 
+
 on_interrupt() {
 	die Process aborted! 130;
 }
+
 
 parse_commandline "$@";
 handle_passed_args_count;
