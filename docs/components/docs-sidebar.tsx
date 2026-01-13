@@ -43,6 +43,12 @@ const sidebarItems = [
       { title: "Complete", href: "/docs/prompts/complete" },
     ],
   },
+  {
+    title: "Ecosystem",
+    items: [
+      { title: "Agent Skills", href: "/docs/skills" },
+    ],
+  },
 ];
 
 export function DocsSidebar() {
@@ -51,8 +57,8 @@ export function DocsSidebar() {
   return (
     <aside className="w-64 shrink-0 hidden md:block border-r border-primary/10 bg-background/50 backdrop-blur-sm h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto py-8 pr-4">
       <div className="flex flex-col gap-8">
-        {sidebarItems.map((section, i) => (
-          <div key={i} className="px-2">
+        {sidebarItems.map((section) => (
+          <div key={section.title} className="px-2">
             <h4 className="font-bold text-primary mb-3 text-sm uppercase tracking-wider border-b border-primary/10 pb-1">
               {section.title}
             </h4>
