@@ -1,0 +1,382 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "Fetch and install Agent Skills from a repository" --option "help" --short-option "h"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
+# @parseArger-declarations
+# @parseArger opt install "Install target (claude, opencode, or path)" --short i --repeat
+# @parseArger opt repo "Source repository URL" --default-value "https://github.com/DimitriGilbert/parseArger"
+# @parseArger opt branch "Source branch" --default-value "main"
+# @parseArger opt skill "Specific skill to install" --short s --repeat
+# @parseArger flag force "Overwrite existing skills" --short f
+# @parseArger flag list "List available skills in remote repo"
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+
+__cli_arg_count=$#;
+
+die()
+{
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_optional_positionals=();
+# OPTIONALS ARGUMENTS
+_arg_install=()
+_arg_repo="https://github.com/DimitriGilbert/parseArger"
+_arg_branch="main"
+_arg_skill=()
+# FLAGS
+_arg_force="off"
+_arg_list="off"
+# NESTED
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "Fetch and install Agent Skills from a repository:"
+	echo -e "	-i, --install <install>: Install target (claude, opencode, or path), repeatable"
+	echo -e "	--repo <repo>: Source repository URL [default: ' https://github.com/DimitriGilbert/parseArger ']"
+	echo -e "	--branch <branch>: Source branch [default: ' main ']"
+	echo -e "	-s, --skill <skill>: Specific skill to install, repeatable"
+	echo -e "	-f|--force|--no-force: Overwrite existing skills"
+	echo -e "	--list|--no-list: List available skills in remote repo"
+	echo -e "Usage :
+	$0 [--install <value>] [--repo <value>] [--branch <value>] [--skill <value>] [--[no-]force] [--[no-]list]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:-0}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR=" [0;31m";
+				;;
+			-2)
+				_arg_COLOR=" [0;33m";
+				;;
+			-1)
+				_arg_COLOR=" [1;33m";
+				;;
+			1)
+				_arg_COLOR=" [0;32m";
+				;;
+			2)
+				_arg_COLOR=" [1;36m";
+				;;
+			3)
+				_arg_COLOR=" [0;36m";
+				;;
+			*)
+				_arg_COLOR=" [0m";
+				;;
+		esac
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg} [0m";
+		else
+			echo "${_arg_msg}";
+		fi
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			-i|--install)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_install+=("$2")
+				shift
+				;;
+			--install=*)
+				_arg_install+=("${_key##--install=}")
+				;;
+			-i*)
+				_arg_install+=("${_key##-i}")
+				;;
+			
+			--repo)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_repo="$2"
+				shift
+				;;
+			--repo=*)
+				_arg_repo="${_key##--repo=}"
+				;;
+			
+			--branch)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_branch="$2"
+				shift
+				;;
+			--branch=*)
+				_arg_branch="${_key##--branch=}"
+				;;
+			
+			-s|--skill)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_skill+=("$2")
+				shift
+				;;
+			--skill=*)
+				_arg_skill+=("${_key##--skill=}")
+				;;
+			-s*)
+				_arg_skill+=("${_key##-s}")
+				;;
+			
+			-f|--force)
+				_arg_force="on"
+				;;
+			--no-force)
+				_arg_force="off"
+				;;
+			--list)
+				_arg_list="on"
+				;;
+			--no-list)
+				_arg_list="off"
+				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			--verbose)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+				*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "	install: ${_arg_install[*]}";
+	echo -e "	repo: ${_arg_repo}";
+	echo -e "	branch: ${_arg_branch}";
+	echo -e "	skill: ${_arg_skill[*]}";
+	echo -e "	force: ${_arg_force}";
+	echo -e "	list: ${_arg_list}";
+
+}
+
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+# Logic Implementation
+
+# 1. Determine Install Paths
+install_paths=()
+
+for target in "${_arg_install[@]}"; do
+    case "$target" in
+        "claude")
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                install_paths+=("$HOME/Library/Application Support/Claude/skills")
+            else
+                install_paths+=("$HOME/.config/claude/skills")
+            fi
+            ;;
+        "opencode")
+            install_paths+=("$HOME/.opencode/skills")
+            ;;
+        *)
+            # Treat as path
+            install_paths+=("$target")
+            ;;
+    esac
+done
+
+# If no install paths and not listing, default to current dir or error?
+# Let's verify we have something to do unless listing.
+if [ "${#install_paths[@]}" -eq 0 ] && [ "$_arg_list" == "off" ]; then
+    die "No install target specified. Use --install [claude|opencode|path] or --list." 1
+fi
+
+log "Preparing to fetch skills from $_arg_repo (branch: $_arg_branch)..."
+
+# 2. Fetch Repo
+tmp_dir=$(mktemp -d)
+trap 'rm -rf "$tmp_dir"' EXIT
+
+if [ -d "$_arg_repo" ]; then
+    log "Repo is local directory."
+    cp -r "$_arg_repo/skills" "$tmp_dir/" 2>/dev/null || die "Could not find 'skills' directory in $_arg_repo" 1
+else
+    log "Cloning remote repository..."
+    git clone --quiet --depth 1 --branch "$_arg_branch" "$_arg_repo" "$tmp_dir/repo" || die "Failed to clone repository" 1
+    if [ -d "$tmp_dir/repo/skills" ]; then
+        mv "$tmp_dir/repo/skills" "$tmp_dir/skills"
+    else
+        die "Repository does not contain a 'skills' directory." 1
+    fi
+fi
+
+# 3. List Mode
+if [ "$_arg_list" == "on" ]; then
+    echo "Available skills in $_arg_repo:"
+    if [ -d "$tmp_dir/skills" ]; then
+        for skill in "$tmp_dir/skills"/*; do
+            if [ -d "$skill" ]; then
+                echo " - $(basename "$skill")"
+            fi
+        done
+    else
+        echo "No skills found."
+    fi
+    exit 0
+fi
+
+# 4. Install Skills
+skills_to_install=()
+if [ "${#_arg_skill[@]}" -gt 0 ]; then
+    skills_to_install=("${_arg_skill[@]}")
+else
+    # Install all found skills
+    for skill_path in "$tmp_dir/skills"/*; do
+        if [ -d "$skill_path" ]; then
+            skills_to_install+=("$(basename "$skill_path")")
+        fi
+    done
+fi
+
+log "Found ${#skills_to_install[@]} skills to install."
+
+for dest_path in "${install_paths[@]}"; do
+    log "Installing to: $dest_path"
+    mkdir -p "$dest_path" || die "Failed to create directory $dest_path" 1
+
+    for skill_name in "${skills_to_install[@]}"; do
+        source_skill="$tmp_dir/skills/$skill_name"
+        dest_skill="$dest_path/$skill_name"
+
+        if [ ! -d "$source_skill" ]; then
+            log "Warning: Skill '$skill_name' not found in source. Skipping." -2
+            continue
+        fi
+
+        if [ -d "$dest_skill" ]; then
+            if [ "$_arg_force" == "on" ]; then
+                log "Overwriting existing skill: $skill_name"
+                rm -rf "$dest_skill"
+            else
+                log "Skill '$skill_name' already exists. Use --force to overwrite. Skipping." -1
+                continue
+            fi
+        fi
+
+        log "Installing $skill_name..."
+        cp -r "$source_skill" "$dest_skill" || log "Failed to copy $skill_name" -3
+    done
+done
+
+log "Done."
