@@ -235,27 +235,25 @@ outStr="";
 
 if [ "$_arg_option" != "" ]; then
 	# outStr+="--$_arg_option";
-	outStr+="--$_arg_option)
-		if [ \$# -lt 2 ];then
-			_verbose_level=\"\$((_verbose_level + 1))\";
-		else
-			_verbose_level=\"\$2\";
-			shift;
-		fi
-		;;
-	";
+	outStr+="--$_arg_option)\n";
+	outStr+="\tif [ \$# -lt 2 ];then\n";
+	outStr+="\t\t_verbose_level=\"\$((_verbose_level + 1))\";\n";
+	outStr+="\telse\n";
+	outStr+="\t\t_verbose_level=\"\$2\";\n";
+	outStr+="\t\tshift;\n";
+	outStr+="\tfi\n";
+	outStr+="\t;;\n";
 fi
 
 if [ "$_arg_quiet_option" != "" ]; then
-	outStr+="--$_arg_quiet_option)
-		if [ \$# -lt 2 ];then
-			_verbose_level=\"\$((_verbose_level - 1))\";
-		else
-			_verbose_level=\"-\$2\";
-			shift;
-		fi
-		;;
-	";
+	outStr+="--$_arg_quiet_option)\n";
+	outStr+="\tif [ \$# -lt 2 ];then\n";
+	outStr+="\t\t_verbose_level=\"\$((_verbose_level - 1))\";\n";
+	outStr+="\telse\n";
+	outStr+="\t\t_verbose_level=\"-\$2\";\n";
+	outStr+="\t\tshift;\n";
+	outStr+="\tfi\n";
+	outStr+="\t;;\n";
 fi
 
 echo -e "$outStr";

@@ -4,17 +4,17 @@
 `parseArger` is a standalone Bash argument parsing framework. It is self-hosted: the `parseArger` script itself uses the framework to parse its own arguments.
 
 ## Build & Generation
-The project uses `make` for build tasks.
+The project uses scripts in `bin/` for build tasks.
 
-- **Regenerate Parser:** `make reparse`
+- **Regenerate Parser:** `bin/generate`
   - **CRITICAL:** The argument parsing logic in `parseArger` and scripts in `bin/` is **GENERATED**.
   - **DO NOT** manually edit code between `# @parseArger-parsing` and `# @parseArger-parsing-end`.
   - To change arguments:
     1. Edit the `# @parseArger` declarations at the top of the file.
-    2. Run `make reparse`.
-- **Documentation:** `make documentation`
-- **Completion:** `make complete` (generates shell completions)
-- **Full Build:** `make build` (runs reparse, documentation, and complete)
+    2. Run `bin/generate`.
+- **Documentation:** `bin/document`
+- **Completion:** `bin/completely` (generates shell completions)
+- **Full Build:** `bin/generate && bin/document && bin/completely`
 
 ## Testing
 Tests are located in `tests/` and end with `.test.sh`. They use a vendored `bashunit` library.

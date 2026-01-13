@@ -33,7 +33,7 @@ wget https://github.com/DimitriGilbert/parseArger/archive/refs/heads/main.zip
 unzip main.zip
 
 # Add to shell
-source /path/to/parseArger/completely.bash
+source /path/to/parseArger/parseArger.rc
 alias parseArger=/path/to/parseArger/parseArger
 ```
 

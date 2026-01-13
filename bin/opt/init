@@ -291,35 +291,33 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level + 1))";
-					else
-						_verbose_level="$2";
-						shift;
-					fi
-					;;
-				--quiet)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level - 1))";
-					else
-						_verbose_level="-$2";
-						shift;
-					fi
-					;;
-				
-				# parsing leftovers
-				--*)
-					if [[ "$2" =~ ^--([^=]+)(=(.*))?$ ]] || [ "$2" = "" ]; then
-						_arg_parsed_leftovers["${1#--}"]="on"
-					elif [[ "$1" =~ ^--([^=]+)=(.*)$ ]]; then
-						_arg_parsed_leftovers["${BASH_REMATCH[1]}"]="${BASH_REMATCH[2]}";
-					else
-						_arg_parsed_leftovers["${1#--}"]="${2}";
-						shift;
-					fi
-					;;
-
-				*)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			--quiet)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level - 1))";
+				else
+					_verbose_level="-$2";
+					shift;
+				fi
+				;;
+			# parsing leftovers
+			--*)
+				if [[ "$2" =~ ^--([^=]+)(=(.*))?$ ]] || [ "$2" = "" ]; then
+					_arg_parsed_leftovers["${1#--}"]="on"
+				elif [[ "$1" =~ ^--([^=]+)=(.*)$ ]]; then
+					_arg_parsed_leftovers["${BASH_REMATCH[1]}"]="${BASH_REMATCH[2]}";
+				else
+					_arg_parsed_leftovers["${1#--}"]="${2}";
+					shift;
+				fi
+				;;
+			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))

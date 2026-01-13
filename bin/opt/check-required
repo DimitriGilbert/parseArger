@@ -3,6 +3,13 @@
 # @parseArger-help "check if option is required" --option "help" --short-option "h"
 # @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
 # @parseArger pos arg-name "positional argument name"
 # @parseArger pos description "positional argument description"

@@ -31,7 +31,7 @@ fi
 # @parseArger opt nested "nested option declaration" --repeat
 # @parseArger opt history "add n history lines at the end of the file"
 # @parseArger opt history-offset "offset --history value by value"
-# @parseArger opt history-file "specify history file" --default-value "/home/didi/.bash_history"
+# @parseArger opt history-file "specify history file" --default-value "$HOME/.bash_history"
 # @parseArger opt dependencies "specify script dependencies" --repeat
 # @parseArger opt xdg "XDG app name for config/data/cache directories"
 # @parseArger opt xdg-config-file "XDG config file name" --default-value "config"
@@ -501,23 +501,22 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level + 1))";
-					else
-						_verbose_level="$2";
-						shift;
-					fi
-					;;
-				--quiet)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level - 1))";
-					else
-						_verbose_level="-$2";
-						shift;
-					fi
-					;;
-				
-				*)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			--quiet)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level - 1))";
+				else
+					_verbose_level="-$2";
+					shift;
+				fi
+				;;
+			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
