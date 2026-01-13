@@ -97,7 +97,7 @@ _arg_verbose_level="0"
 _arg_nested=()
 _arg_history=
 _arg_history_offset=
-_arg_history_file="/home/didi/.bash_history"
+_arg_history_file="$HOME/.bash_history"
 _arg_dependencies=()
 _arg_xdg=
 _arg_xdg_config_file="config"
@@ -142,7 +142,7 @@ print_help()
 	echo -e "	--nested <nested>: nested option declaration, repeatable"
 	echo -e "	--history <history>: add n history lines at the end of the file"
 	echo -e "	--history-offset <history-offset>: offset --history value by value"
-	echo -e "	--history-file <history-file>: specify history file [default: ' /home/didi/.bash_history ']"
+	echo -e "	--history-file <history-file>: specify history file [default: ' $HOME/.bash_history ']"
 	echo -e "	--dependencies <dependencies>: specify script dependencies, repeatable"
 	echo -e "	--xdg <xdg>: XDG app name for config/data/cache directories"
 	echo -e "	--xdg-config-file <xdg-config-file>: XDG config file name [default: ' config ']"
