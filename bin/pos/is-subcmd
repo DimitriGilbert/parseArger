@@ -21,7 +21,6 @@ fi
 # @parseArger opt complete "bash built-in completely function" --repeat
 # @parseArger opt complete-custom "completely custom dynamic suggestion" --repeat
 # @parseArger opt match "regex match validation"
-# @parseArger opt match "regex match validation"
 # @parseArger flag subcommand-run "run subcommand, forces sub command"
 # @parseArger flag repeat "repeatable" --short r
 # @parseArger flag optional "optional"
@@ -71,7 +70,6 @@ _arg_subcommand_variable="__subcommand"
 _arg_complete=()
 _arg_complete_custom=()
 _arg_match=
-_arg_match=
 # FLAGS
 _arg_subcommand_run="off"
 _arg_repeat="off"
@@ -100,14 +98,13 @@ print_help()
 	echo -e "	--complete <complete>: bash built-in completely function, repeatable"
 	echo -e "	--complete-custom <complete-custom>: completely custom dynamic suggestion, repeatable"
 	echo -e "	--match <match>: regex match validation"
-	echo -e "	--match <match>: regex match validation"
 	echo -e "	--subcommand-run|--no-subcommand-run: run subcommand, forces sub command"
 	echo -e "	-r|--repeat|--no-repeat: repeatable"
 	echo -e "	--optional|--no-optional: optional"
 	echo -e "	--subcommand|--no-subcommand: is a subcommand"
 	echo -e "	--subcommand-use-leftovers|--no-subcommand-use-leftovers: add leftover arguments to subcommand, forces subcommand"
 	echo -e "Usage :
-	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--match <value>] [--match <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]";
+	$0 <arg-name> <description> [--repeat-min <value>] [--repeat-max <value>] [--one-of <value>] [--subcommand-directory <value>] [--subcommand-variable <value>] [--complete <value>] [--complete-custom <value>] [--match <value>] [--[no-]subcommand-run] [--[no-]repeat] [--[no-]optional] [--[no-]subcommand] [--[no-]subcommand-use-leftovers]";
 	fi
 
 }
@@ -215,15 +212,6 @@ parse_commandline()
 				;;
 			--complete-custom=*)
 				_arg_complete_custom+=("${_key##--complete-custom=}")
-				;;
-			
-			--match)
-				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_match="$2"
-				shift
-				;;
-			--match=*)
-				_arg_match="${_key##--match=}"
 				;;
 			
 			--match)
@@ -355,7 +343,6 @@ print_debug()
 	echo -e "	subcommand-variable: ${_arg_subcommand_variable}";
 	echo -e "	complete: ${_arg_complete[*]}";
 	echo -e "	complete-custom: ${_arg_complete_custom[*]}";
-	echo -e "	match: ${_arg_match}";
 	echo -e "	match: ${_arg_match}";
 	echo -e "	subcommand-run: ${_arg_subcommand_run}";
 	echo -e "	repeat: ${_arg_repeat}";
