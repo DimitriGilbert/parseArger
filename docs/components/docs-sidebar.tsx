@@ -20,6 +20,7 @@ const sidebarItems = [
   {
     title: "Advanced Features",
     items: [
+      { title: "XDG Config", href: "/docs/xdg-config" },
       { title: "Completion & Docs", href: "/docs/completion-docs" },
       { title: "HTML Forms", href: "/docs/html-forms" },
     ],

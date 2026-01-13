@@ -46,6 +46,12 @@ parsearger_get_dependencies() {
   local -n _ldependencies=$1;
   readarray -t _ldependencies <<< "$(sed -ne 's/'"${paStart}"'-dependencies \(.*\).*/\1/p' "$2" | sed 's/ /\n/g')"
 }
+parsearger_get_xdg() {
+  sed -ne 's/'"${paStart}"'-xdg \(.*\).*/\1/p' "$1"
+}
+parsearger_get_verbose() {
+  sed -ne 's/'"${paStart}"'-verbose \(.*\).*/\1/p' "$1"
+}
 parsearger_is_pa_file() {
   if [ -f "$1" ]; then
     local _isPA="$(sed -ne 's/'"${paStart}"'//p' "$1")";

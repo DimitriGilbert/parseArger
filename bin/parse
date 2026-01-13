@@ -305,8 +305,8 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
-		local _match_var="_match${_positional_name}"
-		local _regex="${!_match_var}"
+		local _match_var="_match${_positional_name}";
+		local _regex="${!_match_var}";
 		if [ -n "$_regex" ]; then
 			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
 		fi
@@ -346,6 +346,7 @@ parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 
@@ -485,12 +486,41 @@ fi
 
 if [ "${_dependencies[*]}" != "" ] && [ "${#_dependencies[@]}" -gt "0" ]; then
   for __dependencies in "${_dependencies[@]}"; do
-    cmdGen+=("--dependencies" "$__dependencies");
+    cmdGen+=(--dependencies "$__dependencies");
   done
 fi
 if [[ "${#_arg_dependencies[@]}" -gt 0 ]]; then
 	for __n_dependencies in "${_arg_dependencies[@]}"; do
-		cmdGen+=("--dependencies" "$__n_dependencies")
+		cmdGen+=(--dependencies "$__n_dependencies")
+	done
+fi
+
+# XDG
+_xdg="$(parsearger_get_xdg "$_arg_file")";
+if [ "$_xdg" != "" ]; then
+	# Parse the XDG line to extract arguments
+	# Format: "appname" --config --data --no-cache --config-file "custom"
+	# Use eval to properly handle quoted strings
+	eval "xdgArgs=($_xdg)";
+	# First arg is the app name
+	cmdGen+=(--xdg "${xdgArgs[0]}");
+	# Transform remaining args: --config -> --xdg-config, --no-cache -> --no-xdg-cache
+	for ((i=1; i<${#xdgArgs[@]}; i++)); do
+		_xarg="${xdgArgs[$i]}";
+		case "$_xarg" in
+			--config) cmdGen+=(--xdg-config) ;;
+			--no-config) cmdGen+=(--no-xdg-config) ;;
+			--data) cmdGen+=(--xdg-data) ;;
+			--no-data) cmdGen+=(--no-xdg-data) ;;
+			--cache) cmdGen+=(--xdg-cache) ;;
+			--no-cache) cmdGen+=(--no-xdg-cache) ;;
+			--config-file) 
+				cmdGen+=(--xdg-config-file);
+				i=$((i+1));
+				cmdGen+=("${xdgArgs[$i]}");
+				;;
+			*) cmdGen+=("$_xarg") ;;
+		esac
 	done
 fi
 

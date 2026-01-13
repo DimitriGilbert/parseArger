@@ -1,17 +1,15 @@
 #!/bin/bash
+
 # @parseArger-begin
-# @parseArger-help "Install parseArger" --option "help" --short-option "h"
+# @parseArger-help "generate XDG base directory declaration" --option "help" --short-option "h"
+# @parseArger-version "0.1" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
-_has_colors=0
-if [ -t 1 ]; then # Check if stdout is a terminal
-	ncolors=$(tput colors 2>/dev/null)
-	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
-		_has_colors=1
-	fi
-fi
 # @parseArger-declarations
-# @parseArger opt shell-rc-file "where to put the source directive" --default-value "$HOME/.bashrc" --repeat --alias install-file
-# @parseArger flag comment "add parsearger comment" --on
+# @parseArger pos app-name "application name for XDG directories"
+# @parseArger flag config "enable XDG_CONFIG_HOME support" --on
+# @parseArger flag data "enable XDG_DATA_HOME support" --on
+# @parseArger flag cache "enable XDG_CACHE_HOME support"
+# @parseArger opt config-file "config file name" --default-value "config"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -45,10 +43,13 @@ begins_with_short_option()
 # POSITIONALS ARGUMENTS
 _positionals=();
 _optional_positionals=();
+_arg_app_name=
 # OPTIONALS ARGUMENTS
-_arg_shell_rc_file=("$HOME/.bashrc" )
+_arg_config_file="config"
 # FLAGS
-_arg_comment="on"
+_arg_config="on"
+_arg_data="on"
+_arg_cache="off"
 # NESTED
 _verbose_level="0";
 
@@ -60,11 +61,14 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "Install parseArger:"
-	echo -e "	--shell-rc-file|--install-file <shell-rc-file>: where to put the source directive, repeatable [default: '( $HOME/.bashrc )']"
-	echo -e "	--comment|--no-comment: add parsearger comment, on by default (use --no-comment to turn it off)"
+		echo -e "generate XDG base directory declaration:"
+	echo -e "	<app-name>: application name for XDG directories"
+	echo -e "	--config-file <config-file>: config file name [default: ' config ']"
+	echo -e "	--config|--no-config: enable XDG_CONFIG_HOME support, on by default (use --no-config to turn it off)"
+	echo -e "	--data|--no-data: enable XDG_DATA_HOME support, on by default (use --no-data to turn it off)"
+	echo -e "	--cache|--no-cache: enable XDG_CACHE_HOME support"
 	echo -e "Usage :
-	$0 [--shell-rc-file <value>] [--[no-]comment]";
+	$0 <app-name> [--config-file <value>] [--[no-]config] [--[no-]data] [--[no-]cache]";
 	fi
 
 }
@@ -96,11 +100,7 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		if [ "${_has_colors}" == "1" ]; then
-			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
-		else
-			echo "${_arg_msg}";
-		fi
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
 	fi
 }
 
@@ -111,23 +111,32 @@ parse_commandline()
 	do
 		_key="$1"
 		case "$_key" in
-			--install-file|--shell-rc-file)
+			--config-file)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_shell_rc_file+=("$2")
+				_arg_config_file="$2"
 				shift
 				;;
-			--shell-rc-file=*)
-				_arg_shell_rc_file+=("${_key##--shell-rc-file=}")
-				;;
-			--install-file=*)
-				_arg_shell_rc_file+=("${_key##--install-file=}")
+			--config-file=*)
+				_arg_config_file="${_key##--config-file=}"
 				;;
 			
-			--comment)
-				_arg_comment="on"
+			--config)
+				_arg_config="on"
 				;;
-			--no-comment)
-				_arg_comment="off"
+			--no-config)
+				_arg_config="off"
+				;;
+			--data)
+				_arg_data="on"
+				;;
+			--no-data)
+				_arg_data="off"
+				;;
+			--cache)
+				_arg_cache="on"
+				;;
+			--no-cache)
+				_arg_cache="off"
 				;;
 			-h|--help)
 				print_help;
@@ -135,6 +144,14 @@ parse_commandline()
 				;;
 			-h*)
 				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
 				exit 0;
 				;;
 			--verbose)
@@ -167,12 +184,12 @@ parse_commandline()
 
 handle_passed_args_count()
 {
-	local _required_args_string=""
-	if [ "${_positionals_count}" -gt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 0 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	local _required_args_string="app-name"
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
 	fi
-	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
 	${_positionals[*]}" 1;
 	fi
 }
@@ -181,16 +198,11 @@ handle_passed_args_count()
 assign_positional_args()
 {
 	local _positional_name _shift_for=$1;
-	_positional_names="";
+	_positional_names="_arg_app_name ";
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
-		local _match_var="_match${_positional_name}";
-		local _regex="${!_match_var}";
-		if [ -n "$_regex" ]; then
-			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
-		fi
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
@@ -202,9 +214,18 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "	shell-rc-file: ${_arg_shell_rc_file[*]}";
-	echo -e "	comment: ${_arg_comment}";
+	echo -e "\tapp-name: ${_arg_app_name}";
+	echo -e "\tconfig-file: ${_arg_config_file}";
+	echo -e "\tconfig: ${_arg_config}";
+	echo -e "\tdata: ${_arg_data}";
+	echo -e "\tcache: ${_arg_cache}";
 
+}
+
+
+print_version()
+{
+	echo "0.1";
 }
 
 
@@ -220,27 +241,34 @@ trap on_interrupt INT;
 
 
 
-
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
-_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-output="\nexport PARSEARGER_DIR=\"$_dir\"
-source ${_dir}/parseArger.rc";
 
-if [ "$_arg_comment" != "off" ]; then
-	output="\n# parseArger${output}";
+# Build the declaration comment
+outStr="# @parse";
+outStr+="Arger-xdg \"${_arg_app_name}\"";
+
+if [ "$_arg_config" == "on" ]; then
+	outStr+=" --config";
+else
+	outStr+=" --no-config";
 fi
 
-for _file in "${_arg_shell_rc_file[@]}"; do
-	if [ -f "$_file" ]; then
-		if ! grep -q "parseArger" "$_file"; then
-			echo -e "$output" >> "$_file";
-			log "parseArger installed in $_file" 1;
-		else
-			log "parseArger already installed in $_file" 1;
-		fi
-	else
-		log "File $_file not found" -1;
-	fi
-done
+if [ "$_arg_data" == "on" ]; then
+	outStr+=" --data";
+else
+	outStr+=" --no-data";
+fi
+
+if [ "$_arg_cache" == "on" ]; then
+	outStr+=" --cache";
+else
+	outStr+=" --no-cache";
+fi
+
+if [ "$_arg_config_file" != "config" ]; then
+	outStr+=" --config-file \"${_arg_config_file}\"";
+fi
+
+echo "$outStr";

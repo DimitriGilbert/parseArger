@@ -1,7 +1,14 @@
 #!/bin/bash
 # @parseArger-begin
 # @parseArger-help "get parseArger" --option "help" --short-option "h"
-# @parseArger-verbose --option "verbose" --level "0"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
 # @parseArger opt branch "version to install" --short b --alias tag --alias install-version
 # @parseArger opt install-directory "where to install" --complete "directory"
@@ -18,9 +25,15 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count=$#;
+
 die()
 {
-	local _ret="${2:-1}"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
 	exit "${_ret}"
@@ -36,6 +49,7 @@ begins_with_short_option()
 
 # POSITIONALS ARGUMENTS
 _positionals=();
+_optional_positionals=();
 # OPTIONALS ARGUMENTS
 _arg_branch=
 _arg_install_directory=
@@ -45,6 +59,7 @@ _arg_install="off"
 _arg_remove_installer="off"
 _arg_ssh="off"
 _arg_zip="off"
+# NESTED
 _verbose_level="0";
 
 
@@ -72,7 +87,7 @@ print_help()
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:0}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -97,7 +112,11 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
 	fi
 }
 
@@ -176,24 +195,24 @@ parse_commandline()
 				print_help;
 				exit 0;
 				;;
-			-v|--version)
-				print_version;
-				exit 0;
-				;;
-			-v*)
-				print_version;
-				exit 0;
-				;;
 			--verbose)
-				if [ $# -lt 2 ];then
-					_verbose_level="$((_verbose_level + 1))";
-				else
-					_verbose_level="$2";
-					shift;
-				fi
-				;;
-			
-			*)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -225,6 +244,11 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		local _match_var="_match${_positional_name}";
+		local _regex="${!_match_var}";
+		if [ -n "$_regex" ]; then
+			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
+		fi
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
@@ -236,29 +260,27 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tbranch: ${_arg_branch}";
-	echo -e "\tinstall-directory: ${_arg_install_directory}";
-	echo -e "\tinstall-file: ${_arg_install_file[*]}";
-	echo -e "\tinstall: ${_arg_install}";
-	echo -e "\tremove-installer: ${_arg_remove_installer}";
-	echo -e "\tssh: ${_arg_ssh}";
-	echo -e "\tzip: ${_arg_zip}";
+	echo -e "	branch: ${_arg_branch}";
+	echo -e "	install-directory: ${_arg_install_directory}";
+	echo -e "	install-file: ${_arg_install_file[*]}";
+	echo -e "	install: ${_arg_install}";
+	echo -e "	remove-installer: ${_arg_remove_installer}";
+	echo -e "	ssh: ${_arg_ssh}";
+	echo -e "	zip: ${_arg_zip}";
 
 }
 
-print_version()
-{
-	echo "";
-}
 
 on_interrupt() {
 	die Process aborted! 130;
 }
 
+
 parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 

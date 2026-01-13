@@ -2,6 +2,13 @@
 # @parseArger-begin
 # @parseArger-help "parsearger web server" --option "help" --short-option "h"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
 # @parseArger-declarations
 # @parseArger opt port "tcp port" --default-value "42069"
 # @parseArger opt response-file "which file to use for the response FIFO, mktemp if empty"
@@ -17,9 +24,15 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
 # @parseArger-utils-end
 
 # @parseArger-parsing
+
+__cli_arg_count=$#;
+
 die()
 {
-	local _ret="${2:-1}"
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
 	exit "${_ret}"
@@ -44,6 +57,7 @@ _arg_form_file="form.html"
 _arg_form_url="form"
 _arg_submit_url="form"
 # FLAGS
+# NESTED
 _verbose_level="0";
 
 
@@ -69,7 +83,7 @@ print_help()
 
 log() {
 	local _arg_msg="${1}";
-	local _arg_level="${2:-'0'}";
+	local _arg_level="${2:-0}";
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
@@ -94,7 +108,11 @@ log() {
 				_arg_COLOR="\033[0m";
 				;;
 		esac
-		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+		else
+			echo "${_arg_msg}";
+		fi
 	fi
 }
 
@@ -167,14 +185,6 @@ parse_commandline()
 				print_help;
 				exit 0;
 				;;
-			-v|--version)
-				print_version;
-				exit 0;
-				;;
-			-v*)
-				print_version;
-				exit 0;
-				;;
 			--verbose)
 					if [ $# -lt 2 ];then
 						_verbose_level="$((_verbose_level + 1))";
@@ -192,7 +202,7 @@ parse_commandline()
 					fi
 					;;
 				
-			*)
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -224,6 +234,11 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		local _match_var="_match${_positional_name}";
+		local _regex="${!_match_var}";
+		if [ -n "$_regex" ]; then
+			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
+		fi
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
 	done
@@ -235,30 +250,26 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
-	echo -e "\tport: ${_arg_port}";
-	echo -e "\tresponse-file: ${_arg_response_file}";
-	echo -e "\tindex-file: ${_arg_index_file}";
-	echo -e "\tform-file: ${_arg_form_file}";
-	echo -e "\tform-url: ${_arg_form_url}";
-	echo -e "\tsubmit-url: ${_arg_submit_url}";
+	echo -e "	port: ${_arg_port}";
+	echo -e "	response-file: ${_arg_response_file}";
+	echo -e "	index-file: ${_arg_index_file}";
+	echo -e "	form-file: ${_arg_form_file}";
+	echo -e "	form-url: ${_arg_form_url}";
+	echo -e "	submit-url: ${_arg_submit_url}";
 
 }
 
-print_version()
-{
-	echo "";
-}
 
 on_interrupt() {
-log "Removing response file: $_arg_response_file" 1;
-	rm -f "$_arg_response_file";
 	die Process aborted! 130;
 }
+
 
 parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 
