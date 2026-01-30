@@ -165,6 +165,8 @@ interface PositionalArg {
   description: string;
   optional?: boolean;
   repeat?: boolean;
+  repeatMin?: number; // Minimum repetitions (forces repeat)
+  repeatMax?: number; // Maximum repetitions (forces repeat)
   oneOf?: string[];
   subcommand?: boolean;
   subcommandDirectory?: string;
@@ -176,8 +178,11 @@ interface OptionalArg {
   short?: string;
   defaultValue?: string;
   repeat?: boolean;
+  repeatMin?: number; // Minimum repetitions
+  repeatMax?: number; // Maximum repetitions
   oneOf?: string[];
   alias?: string[];
+  emptyValue?: string; // Value when option is used without argument
   empty?: boolean;
 }
 
@@ -188,6 +193,7 @@ interface FlagArg {
   on?: boolean;
   noName?: string;
   alias?: string[];
+  noAlias?: string[]; // Negation aliases
 }
 
 interface ParseArgerResult {
