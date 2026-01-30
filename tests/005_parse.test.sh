@@ -271,6 +271,105 @@ function test_parse_nested() {
   rm "$tfile";
 }
 
+function test_parse_duplicate_opt_error() {
+  local tfile="${tftmp_file}_parse_dup_opt";
+  local ex_=("${ex[@]}" --output "$tfile" --opt "existing-opt 'Original description'")
+  local pex_=("${exp[@]}" "$tfile" --opt "existing-opt 'New description'")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  
+  # Should error when trying to add duplicate option without --replace
+  local output="$("${pex_[@]}" 2>&1)"
+  assert_contains "already exists" "$output";
+  assert_contains "existing-opt" "$output";
+  assert_contains "--replace" "$output";
+
+  rm "$tfile";
+}
+
+function test_parse_duplicate_opt_replace() {
+  local tfile="${tftmp_file}_parse_dup_opt_replace";
+  local ex_=("${ex[@]}" --output "$tfile" --opt "existing-opt 'Original description'")
+  local pex_=("${exp[@]}" "$tfile" -i --opt "existing-opt 'UPDATED description'" --replace)
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  assert_contains "Original description" "$(cat "$tfile")";
+  
+  # Should succeed with --replace
+  assert_exit_code "0" "$("${pex_[@]}")";
+  assert_is_file "$tfile";
+  assert_contains "UPDATED description" "$(cat "$tfile")";
+  # Should NOT have duplicate
+  local count=$(grep -c "@parseArger opt existing-opt" "$tfile" || echo "0")
+  assert_equals "1" "$count";
+
+  rm "$tfile";
+}
+
+function test_parse_duplicate_flag_error() {
+  local tfile="${tftmp_file}_parse_dup_flag";
+  local ex_=("${ex[@]}" --output "$tfile" --flag "existing-flag 'Original'")
+  local pex_=("${exp[@]}" "$tfile" --flag "existing-flag 'New'")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  
+  local output="$("${pex_[@]}" 2>&1)"
+  assert_contains "already exists" "$output";
+  assert_contains "existing-flag" "$output";
+
+  rm "$tfile";
+}
+
+function test_parse_duplicate_flag_replace() {
+  local tfile="${tftmp_file}_parse_dup_flag_replace";
+  local ex_=("${ex[@]}" --output "$tfile" --flag "existing-flag 'Original'")
+  local pex_=("${exp[@]}" "$tfile" -i --flag "existing-flag 'REPLACED'" -r)
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  
+  assert_exit_code "0" "$("${pex_[@]}")";
+  assert_contains "REPLACED" "$(cat "$tfile")";
+  local count=$(grep -c "@parseArger flag existing-flag" "$tfile" || echo "0")
+  assert_equals "1" "$count";
+
+  rm "$tfile";
+}
+
+function test_parse_duplicate_pos_error() {
+  local tfile="${tftmp_file}_parse_dup_pos";
+  local ex_=("${ex[@]}" --output "$tfile" --pos "existing-pos 'Original'")
+  local pex_=("${exp[@]}" "$tfile" --pos "existing-pos 'New'")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  
+  local output="$("${pex_[@]}" 2>&1)"
+  assert_contains "already exists" "$output";
+  assert_contains "existing-pos" "$output";
+
+  rm "$tfile";
+}
+
+function test_parse_new_opt_no_error() {
+  local tfile="${tftmp_file}_parse_new_opt";
+  local ex_=("${ex[@]}" --output "$tfile" --opt "first-opt 'First'")
+  local pex_=("${exp[@]}" "$tfile" -i --opt "second-opt 'Second'")
+  
+  assert_exit_code "0" "$("${ex_[@]}")";
+  assert_is_file "$tfile";
+  
+  # Adding a NEW option should work without --replace
+  assert_exit_code "0" "$("${pex_[@]}")";
+  assert_contains "first-opt" "$(cat "$tfile")";
+  assert_contains "second-opt" "$(cat "$tfile")";
+
+  rm "$tfile";
+}
+
 # function test_parse_() {
 #   local tfile="${tftmp_file}_parse_";
 #   local ex_=("${ex[@]}" --output "$tfile")
@@ -291,3 +390,4 @@ function test_parse_nested() {
 
 #   rm "$tfile";
 # }
+

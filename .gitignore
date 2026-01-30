@@ -6,3 +6,4 @@ coverage
 .cmdrc
 .zsh_history
 packages/parsearger-js/dist
+.env

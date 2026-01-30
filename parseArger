@@ -14,7 +14,7 @@ if [ -t 1 ]; then # Check if stdout is a terminal
 	fi
 fi
 # @parseArger-declarations
-# @parseArger pos target "what to do" --subcommand-directory "bin" --subcommand-use-leftovers --subcommand --one-of "bulk-parse" --one-of "completely" --one-of "document" --one-of "generate" --one-of "html-form" --one-of "parse" --one-of "project" --one-of "parse_temp"
+# @parseArger pos target "what to do" --subcommand-directory "bin" --subcommand-use-leftovers --subcommand --one-of "bulk-parse" --one-of "completely" --one-of "create" --one-of "document" --one-of "generate" --one-of "html-form" --one-of "parse" --one-of "project" --one-of "parse_temp"
 # @parseArger opt output "create file with command output at value" --complete "file"
 # @parseArger flag prepend "add output on top of file"
 # @parseArger-declarations-end
@@ -51,7 +51,7 @@ begins_with_short_option()
 _positionals=();
 _optional_positionals=();
 _arg_target="";
-_one_of_arg_target=("bulk-parse" "completely" "document" "generate" "html-form" "parse" "project" "parse_temp" );
+_one_of_arg_target=("bulk-parse" "completely" "create" "document" "generate" "html-form" "parse" "project" "parse_temp" );
 _arg_subcommand_arg="_arg_target";
 __subcommand=();
 # OPTIONALS ARGUMENTS
@@ -80,11 +80,12 @@ print_help()
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
 		echo -e "standalone bash argument parsing framework:"
-	echo -e "	target: what to do [one of 'bulk-parse' 'completely' 'document' 'generate' 'html-form' 'parse' 'project' 'parse_temp']"
+	echo -e "	target: what to do [one of 'bulk-parse' 'completely' 'document' 'generate' 'html-form' 'parse' 'project' 'parse_temp' 'bulk-parse' 'create']"
+	echo -e "	target: what to do [one of 'bulk-parse' 'completely' 'create' 'document' 'generate' 'html-form' 'parse' 'project' 'parse_temp' 'bulk-parse']"
 	echo -e "	--output <output>: create file with command output at value"
 	echo -e "	--prepend|--no-prepend: add output on top of file"
 	echo -e "Usage :
-	$0 <target> [--output <value>] [--[no-]prepend]";
+	$0 <target> <target> [--output <value>] [--[no-]prepend]";
 	fi
 
 	fi
@@ -179,7 +180,8 @@ parse_commandline()
 					shift;
 				fi
 				;;
-			*)
+			
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -192,9 +194,9 @@ parse_commandline()
 
 handle_passed_args_count()
 {
-	local _required_args_string="target"
-	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	local _required_args_string="target target"
+	if [ "${_positionals_count}" -lt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 2 (namely: $_required_args_string), but got only ${_positionals_count}.
 	${_positionals[*]}" 1;
 	fi
 }

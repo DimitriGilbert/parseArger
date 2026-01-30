@@ -1,0 +1,416 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "create a new bash script with parseArger argument parsing using AI" --option "help" --short-option "h"
+# @parseArger-version "1.0" --option "version" --short-option "v"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+_has_colors=0
+if [ -t 1 ]; then # Check if stdout is a terminal
+	ncolors=$(tput colors 2>/dev/null)
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		_has_colors=1
+	fi
+fi
+# @parseArger-declarations
+# @parseArger pos prompt "description of the script to create"
+# @parseArger opt output "output file (AI suggests if not provided)"
+# @parseArger opt provider "AI provider override"
+# @parseArger opt model "AI model override"
+# @parseArger opt api-key "API key override"
+# @parseArger opt temperature "temperature for AI generation (default 0.3)" --default-value "0.3"
+# @parseArger flag stream "stream AI output" --on
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+
+__cli_arg_count=$#;
+
+die()
+{
+	local _ret=1
+    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+   	_ret="$2"
+    fi
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_optional_positionals=();
+_arg_prompt="";
+# OPTIONALS ARGUMENTS
+_arg_output=
+_arg_provider=
+_arg_model=
+_arg_api_key=
+_arg_temperature="0.3"
+# FLAGS
+_arg_stream="on"
+# NESTED
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "create a new bash script with parseArger argument parsing using AI:"
+	echo -e "	prompt: description of the script to create"
+	echo -e "	--output <output>: output file (AI suggests if not provided)"
+	echo -e "	--provider <provider>: AI provider override"
+	echo -e "	--model <model>: AI model override"
+	echo -e "	--api-key <api-key>: API key override"
+	echo -e "	--temperature <temperature>: temperature for AI generation (default 0.3) [default: ' 0.3 ']"
+	echo -e "	--stream|--no-stream: stream AI output, on by default (use --no-stream to turn it off)"
+	echo -e "Usage :
+	$0 <prompt> [--output <value>] [--provider <value>] [--model <value>] [--api-key <value>] [--temperature <value>] [--[no-]stream]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:-0}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="[0;31m";
+				;;
+			-2)
+				_arg_COLOR="[0;33m";
+				;;
+			-1)
+				_arg_COLOR="[1;33m";
+				;;
+			1)
+				_arg_COLOR="[0;32m";
+				;;
+			2)
+				_arg_COLOR="[1;36m";
+				;;
+			3)
+				_arg_COLOR="[0;36m";
+				;;
+			*)
+				_arg_COLOR="[0m";
+				;;
+		esac
+		if [ "${_has_colors}" == "1" ]; then
+			echo -e "${_arg_COLOR}${_arg_msg}[0m";
+		else
+			echo "${_arg_msg}";
+		fi
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			--output)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_output="$2"
+				shift
+				;;
+			--output=*)
+				_arg_output="${_key##--output=}"
+				;;
+			
+			--provider)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_provider="$2"
+				shift
+				;;
+			--provider=*)
+				_arg_provider="${_key##--provider=}"
+				;;
+			
+			--model)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_model="$2"
+				shift
+				;;
+			--model=*)
+				_arg_model="${_key##--model=}"
+				;;
+			
+			--api-key)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_api_key="$2"
+				shift
+				;;
+			--api-key=*)
+				_arg_api_key="${_key##--api-key=}"
+				;;
+			
+			--temperature)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_temperature="$2"
+				shift
+				;;
+			--temperature=*)
+				_arg_temperature="${_key##--temperature=}"
+				;;
+			
+			--stream)
+				_arg_stream="on"
+				;;
+			--no-stream)
+				_arg_stream="off"
+				;;
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			--verbose)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			--quiet)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level - 1))";
+				else
+					_verbose_level="-$2";
+					shift;
+				fi
+				;;
+			
+				*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string="prompt"
+	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
+	fi
+	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="_arg_prompt ";
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		local _match_var="_match${_positional_name}";
+		local _regex="${!_match_var}";
+		if [ -n "$_regex" ]; then
+			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
+		fi
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "	prompt: ${_arg_prompt}";
+	echo -e "	output: ${_arg_output}";
+	echo -e "	provider: ${_arg_provider}";
+	echo -e "	model: ${_arg_model}";
+	echo -e "	api-key: ${_arg_api_key}";
+	echo -e "	temperature: ${_arg_temperature}";
+	echo -e "	stream: ${_arg_stream}";
+
+}
+
+
+print_version()
+{
+	echo "1.0";
+}
+
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+# Find AI-Gents installation
+AI_GENTS_DIR=""
+if [ -f "$HOME/workspace/Code/ai-gents/ai" ]; then
+	AI_GENTS_DIR="$HOME/workspace/Code/ai-gents"
+elif [ -f "$HOME/.local/share/ai-gents/ai" ]; then
+	AI_GENTS_DIR="$HOME/.local/share/ai-gents"
+elif [ -f "/usr/local/bin/ai" ]; then
+	AI_GENTS_DIR="/usr/local/share/ai-gents"
+else
+	die "AI-Gents not found. Please install it first." 1
+fi
+
+# Set agent path
+AGENT_DIR="$_SCRIPT_DIR/../agents/ai-gents"
+
+# Build AI command base
+build_ai_cmd() {
+	local _agent="$1"
+	shift
+	local _prompt="$*"
+	
+	local _cmd=("$AI_GENTS_DIR/ai" "agent" "ask" "$_agent")
+	
+	if [ -n "$_arg_provider" ]; then
+		_cmd+=(--provider "$_arg_provider")
+	fi
+	
+	if [ -n "$_arg_model" ]; then
+		_cmd+=(--model "$_arg_model")
+	fi
+	
+	if [ -n "$_arg_api_key" ]; then
+		_cmd+=(--api-key "$_arg_api_key")
+	fi
+	
+	if [ -n "$_arg_temperature" ]; then
+		_cmd+=(--temperature "$_arg_temperature")
+	fi
+	
+	if [ "$_arg_stream" == "on" ]; then
+		_cmd+=(--stream)
+	fi
+	
+	_cmd+=("$_prompt")
+	echo "${_cmd[*]}"
+}
+
+# Step 1: Get filename if not provided
+if [ -z "$_arg_output" ]; then
+	log "Step 1/3: Getting filename suggestion from AI..." 1
+	
+	ai_cmd=$(build_ai_cmd "$AGENT_DIR/creator.yml" "$_arg_prompt" "suggest_filename")
+	filename=$(eval "$ai_cmd" 2>/dev/null | head -1 | tr -d '\n')
+	
+	if [ -z "$filename" ]; then
+		die "AI could not suggest a filename. Please provide one with --output" 1
+	fi
+	
+	log "Suggested filename: $filename" 1
+	_arg_output="$filename"
+fi
+
+# Check if file already exists
+if [ -f "$_arg_output" ]; then
+	die "File already exists: $_arg_output" 1
+fi
+
+# Step 2: Generate parseArger declarations
+log "Step 2/3: Generating parseArger declarations..." 1
+
+ai_cmd=$(build_ai_cmd "$AGENT_DIR/creator.yml" "$_arg_prompt")
+declarations=$(eval "$ai_cmd" 2>/dev/null)
+
+if [ -z "$declarations" ]; then
+	die "AI failed to generate declarations" 1
+fi
+
+log "Declarations generated successfully" 1
+
+# Step 3: Generate complete script with implementation
+log "Step 3/3: Generating complete bash script..." 1
+
+# Prepare the prompt for scriptor
+scriptor_prompt="Create a bash script with these parseArger declarations:
+
+$declarations
+
+The script should: $_arg_prompt
+
+Generate the complete script including:
+1. The declarations provided above
+2. Implementation logic using the $_arg_* variables
+3. Proper error handling with die() function"
+
+ai_cmd=$(build_ai_cmd "$AGENT_DIR/scriptor.yml" "$scriptor_prompt")
+script_content=$(eval "$ai_cmd" 2>/dev/null)
+
+if [ -z "$script_content" ]; then
+	die "AI failed to generate script" 1
+fi
+
+# Save the script
+echo "$script_content" > "$_arg_output"
+
+# Regenerate parsing code using parseArger
+log "Regenerating parseArger parsing code..." 1
+
+PARSEARGER_CMD="parseArger"
+if ! command -v parseArger > /dev/null 2>&1; then
+	PARSEARGER_CMD="$_SCRIPT_DIR/../parseArger"
+fi
+
+if [ -f "$PARSEARGER_CMD" ] || command -v parseArger > /dev/null 2>&1; then
+	"$PARSEARGER_CMD" parse "$_arg_output" --inplace 2>/dev/null || {
+		log "Warning: parseArger regeneration may have issues" -1
+	}
+fi
+
+log "Script created successfully: $_arg_output" 1
+chmod +x "$_arg_output"
