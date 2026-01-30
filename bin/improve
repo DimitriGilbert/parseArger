@@ -1,6 +1,6 @@
 #!/bin/bash
 # @parseArger-begin
-# @parseArger-help "create a new bash script with parseArger argument parsing using AI" --option "help" --short-option "h"
+# @parseArger-help "improve an existing parseArger script using AI" --option "help" --short-option "h"
 # @parseArger-version "1.0" --option "version" --short-option "v"
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 _has_colors=0
@@ -11,14 +11,15 @@ if [ -t 1 ]; then # Check if stdout is a terminal
 	fi
 fi
 # @parseArger-declarations
-# @parseArger pos prompt "description of the script to create"
-# @parseArger opt output "output file (AI suggests if not provided)"
+# @parseArger pos script "script file to improve"
+# @parseArger pos prompt "what to improve or add"
+# @parseArger opt ai-bin "ai-gents bin path" --default-value "ai"
 # @parseArger opt provider "AI provider override"
 # @parseArger opt model "AI model override"
 # @parseArger opt api-key "API key override"
-# @parseArger opt temperature "temperature for AI generation (default 0.3)" --default-value "0.3"
-# @parseArger opt ai-bin "ai-gents bin path" --default-value "ai"
+# @parseArger opt temperature "temperature" --default-value "0.3"
 # @parseArger flag stream "stream AI output" --on
+# @parseArger flag dry-run "show what would be done"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -52,16 +53,17 @@ begins_with_short_option()
 # POSITIONALS ARGUMENTS
 _positionals=();
 _optional_positionals=();
+_arg_script="";
 _arg_prompt="";
 # OPTIONALS ARGUMENTS
-_arg_output=
+_arg_ai_bin="ai"
 _arg_provider=
 _arg_model=
 _arg_api_key=
 _arg_temperature="0.3"
-_arg_ai_bin="ai"
 # FLAGS
 _arg_stream="on"
+_arg_dry_run="off"
 # NESTED
 _verbose_level="0";
 
@@ -73,17 +75,18 @@ print_help()
 
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
-		echo -e "create a new bash script with parseArger argument parsing using AI:"
-	echo -e "	prompt: description of the script to create"
-	echo -e "	--output <output>: output file (AI suggests if not provided)"
+		echo -e "improve an existing parseArger script using AI:"
+	echo -e "	script: script file to improve"
+	echo -e "	prompt: what to improve or add"
+	echo -e "	--ai-bin <ai-bin>: ai-gents bin path [default: ' ai ']"
 	echo -e "	--provider <provider>: AI provider override"
 	echo -e "	--model <model>: AI model override"
 	echo -e "	--api-key <api-key>: API key override"
-	echo -e "	--temperature <temperature>: temperature for AI generation (default 0.3) [default: ' 0.3 ']"
-	echo -e "	--ai-bin <ai-bin>: ai-gents bin path [default: ' ai ']"
+	echo -e "	--temperature <temperature>: temperature [default: ' 0.3 ']"
 	echo -e "	--stream|--no-stream: stream AI output, on by default (use --no-stream to turn it off)"
+	echo -e "	--dry-run|--no-dry-run: show what would be done"
 	echo -e "Usage :
-	$0 <prompt> [--output <value>] [--provider <value>] [--model <value>] [--api-key <value>] [--temperature <value>] [--ai-bin <value>] [--[no-]stream]";
+	$0 <script> <prompt> [--ai-bin <value>] [--provider <value>] [--model <value>] [--api-key <value>] [--temperature <value>] [--[no-]stream] [--[no-]dry-run]";
 	fi
 
 }
@@ -94,29 +97,29 @@ log() {
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
-				_arg_COLOR="\033[0;31m";
+				_arg_COLOR="[0;31m";
 				;;
 			-2)
-				_arg_COLOR="\033[0;33m";
+				_arg_COLOR="[0;33m";
 				;;
 			-1)
-				_arg_COLOR="\033[1;33m";
+				_arg_COLOR="[1;33m";
 				;;
 			1)
-				_arg_COLOR="\033[0;32m";
+				_arg_COLOR="[0;32m";
 				;;
 			2)
-				_arg_COLOR="\033[1;36m";
+				_arg_COLOR="[1;36m";
 				;;
 			3)
-				_arg_COLOR="\033[0;36m";
+				_arg_COLOR="[0;36m";
 				;;
 			*)
-				_arg_COLOR="\033[0m";
+				_arg_COLOR="[0m";
 				;;
 		esac
 		if [ "${_has_colors}" == "1" ]; then
-			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+			echo -e "${_arg_COLOR}${_arg_msg}[0m";
 		else
 			echo "${_arg_msg}";
 		fi
@@ -130,13 +133,13 @@ parse_commandline()
 	do
 		_key="$1"
 		case "$_key" in
-			--output)
+			--ai-bin)
 				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_output="$2"
+				_arg_ai_bin="$2"
 				shift
 				;;
-			--output=*)
-				_arg_output="${_key##--output=}"
+			--ai-bin=*)
+				_arg_ai_bin="${_key##--ai-bin=}"
 				;;
 			
 			--provider)
@@ -175,20 +178,17 @@ parse_commandline()
 				_arg_temperature="${_key##--temperature=}"
 				;;
 			
-			--ai-bin)
-				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
-				_arg_ai_bin="$2"
-				shift
-				;;
-			--ai-bin=*)
-				_arg_ai_bin="${_key##--ai-bin=}"
-				;;
-			
 			--stream)
 				_arg_stream="on"
 				;;
 			--no-stream)
 				_arg_stream="off"
+				;;
+			--dry-run)
+				_arg_dry_run="on"
+				;;
+			--no-dry-run)
+				_arg_dry_run="off"
 				;;
 			-h|--help)
 				print_help;
@@ -236,12 +236,13 @@ parse_commandline()
 
 handle_passed_args_count()
 {
-	local _required_args_string="prompt"
-	if [ "${_positionals_count}" -gt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 1 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
+	local _required_args_string="script prompt"
+	if [ "${_positionals_count}" -gt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 2 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
+	${_positionals[*]}" 1
 	fi
-	if [ "${_positionals_count}" -lt 1 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 1 (namely: $_required_args_string), but got only ${_positionals_count}.
+	if [ "${_positionals_count}" -lt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 2 (namely: $_required_args_string), but got only ${_positionals_count}.
 	${_positionals[*]}" 1;
 	fi
 }
@@ -250,7 +251,7 @@ handle_passed_args_count()
 assign_positional_args()
 {
 	local _positional_name _shift_for=$1;
-	_positional_names="_arg_prompt ";
+	_positional_names="_arg_script _arg_prompt ";
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
@@ -271,14 +272,15 @@ print_debug()
 	# shellcheck disable=SC2145
 	echo "DEBUG: $0 $@";
 	
+	echo -e "	script: ${_arg_script}";
 	echo -e "	prompt: ${_arg_prompt}";
-	echo -e "	output: ${_arg_output}";
+	echo -e "	ai-bin: ${_arg_ai_bin}";
 	echo -e "	provider: ${_arg_provider}";
 	echo -e "	model: ${_arg_model}";
 	echo -e "	api-key: ${_arg_api_key}";
 	echo -e "	temperature: ${_arg_temperature}";
-	echo -e "	ai-bin: ${_arg_ai_bin}";
 	echo -e "	stream: ${_arg_stream}";
+	echo -e "	dry-run: ${_arg_dry_run}";
 
 }
 
@@ -309,101 +311,114 @@ trap on_interrupt INT;
 # Source shared AI utilities
 source "$_SCRIPT_DIR/ai-utils"
 
-# Set agent path
+# Validate script exists
+if [ ! -f "$_arg_script" ]; then
+	die "Script not found: $_arg_script" 1
+fi
+
+# Check it's a parseArger script
+if ! grep -q "# @parseArger-end" "$_arg_script"; then
+	die "Not a parseArger script: $_arg_script" 1
+fi
+
+# Agent directory
 AGENT_DIR="$_SCRIPT_DIR/../agents/ai-gents"
 
-# Step 1: Get filename if not provided
-if [ -z "$_arg_output" ]; then
-	log "Step 1/3: Getting filename suggestion from AI..." 1
+# === MAIN LOGIC ===
+
+log "Analyzing prompt..." 1
+
+# Step 1: Classify the request (prompt only, no file content)
+ai_cmd=$(build_ai_cmd "$AGENT_DIR/classifier.yml" "$_arg_prompt")
+mode=$(eval "$ai_cmd" 2>/dev/null | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+
+if [[ "$mode" != "parse" && "$mode" != "script" ]]; then
+	log "Classifier returned: $mode, defaulting to 'script'" 1
+	mode="script"
+fi
+
+log "Mode: $mode" 1
+
+PARSEARGER_CMD=$(get_parsearger_cmd)
+_script_path=$(realpath "$_arg_script")
+
+if [[ "$mode" == "parse" ]]; then
+	# Step 2a: Generate parseArger parse command
+	log "Generating parseArger parse command..." 1
 	
-	ai_cmd=$(build_ai_cmd "$AGENT_DIR/creator.yml" "$_arg_prompt suggest_filename")
-	filename=$(eval "$ai_cmd" 2>/dev/null | head -1 | tr -d '\n')
+	parser_prompt="Generate a parseArger parse command for: $_arg_prompt
+Script path: $_script_path
+
+Put the final parseArger parse command in a code block."
 	
-	if [ -z "$filename" ]; then
-		die "AI could not suggest a filename. Please provide one with --output" 1
+	ai_cmd=$(build_ai_cmd "$AGENT_DIR/parser.yml" "$parser_prompt")
+	raw_cmd=$(eval "$ai_cmd" 2>/dev/null)
+	
+	if [ -z "$raw_cmd" ]; then
+		die "AI failed to generate command" 1
 	fi
 	
-	log "Suggested filename: $filename" 1
-	_arg_output="$filename"
+	# Extract from code block if wrapped
+	raw_cmd=$(extract_from_codeblock "$raw_cmd")
+	
+	# Validate the command
+	validated_cmd=$(validate_parsearger_cmd "$raw_cmd" "parse" "$_script_path")
+	if [ $? -ne 0 ]; then
+		die "Invalid command generated: $validated_cmd" 1
+	fi
+	
+	log "Generated command: $validated_cmd" 3
+	
+	if [ "$_arg_dry_run" == "on" ]; then
+		echo "Would run: $validated_cmd"
+	else
+		# Replace script path with actual path and ensure --inplace
+		args_part=$(echo "$validated_cmd" | sed 's/parseArger parse [^ ]*//')
+		final_cmd="$PARSEARGER_CMD parse \"$_script_path\" --inplace $args_part"
+		
+		log "Running: $final_cmd" 2
+		eval "$final_cmd" || die "parseArger parse failed" 1
+		
+		log "parseArger declarations updated" 1
+	fi
 fi
 
-# Check if file already exists
-if [ -f "$_arg_output" ]; then
-	die "File already exists: $_arg_output" 1
-fi
+# Step 3: Regenerate user code section (for both modes)
+log "Updating script implementation..." 1
 
-# Step 2: Generate parseArger generate command
-log "Step 2/3: Generating parseArger command..." 1
-
-generator_prompt="Generate a parseArger generate command for: $_arg_prompt
-Output file: $_arg_output
-
-Put the final parseArger generate command in a code block."
-
-ai_cmd=$(build_ai_cmd "$AGENT_DIR/creator.yml" "$generator_prompt")
-raw_cmd=$(eval "$ai_cmd" 2>/dev/null)
-
-if [ -z "$raw_cmd" ]; then
-	die "AI failed to generate command" 1
-fi
-
-# Extract from code block if wrapped
-raw_cmd=$(extract_from_codeblock "$raw_cmd")
-
-# Validate the command
-validated_cmd=$(validate_parsearger_cmd "$raw_cmd" "generate")
-if [ $? -ne 0 ]; then
-	die "Invalid command generated: $validated_cmd" 1
-fi
-
-log "Generated command: $validated_cmd" 3
-
-# Get parseArger path and run the command
-PARSEARGER_CMD=$(get_parsearger_cmd)
-
-# Replace parseArger with actual path and ensure --output is set
-final_cmd="${validated_cmd/parseArger generate/$PARSEARGER_CMD generate}"
-if [[ ! "$final_cmd" =~ --output ]]; then
-	final_cmd="$final_cmd --output \"$_arg_output\""
-fi
-
-log "Running: $final_cmd" 2
-eval "$final_cmd" || die "parseArger generate failed" 1
-
-# Step 3: Generate implementation with AI
-log "Step 3/3: Generating script implementation..." 1
-
-scriptor_prompt="Generate the implementation code for the bash script.
-The script should: $_arg_prompt
+scriptor_prompt="Update the bash script implementation based on: $_arg_prompt
 
 Only output the implementation code that goes AFTER the # @parseArger-end marker.
-Use the \$_arg_* variables defined by parseArger.
-Do not include the parseArger declarations section."
+Do not include the parseArger declarations section.
+Use the \$_arg_* variables defined by parseArger."
 
-ai_cmd_with_attach="$_arg_ai_bin agent ask $AGENT_DIR/scriptor.yml \"$scriptor_prompt\" --attach \"$_arg_output\""
-
-if [ -n "$_arg_provider" ]; then
-	ai_cmd_with_attach+=" --provider \"$_arg_provider\""
-fi
-if [ -n "$_arg_model" ]; then
-	ai_cmd_with_attach+=" --model \"$_arg_model\""
-fi
-if [ "$_arg_stream" == "on" ]; then
-	ai_cmd_with_attach+=" --stream"
-fi
-
-impl_content=$(eval "$ai_cmd_with_attach" 2>/dev/null)
-
-if [ -z "$impl_content" ]; then
-	log "Warning: AI failed to generate implementation, script has declarations only" -1
+if [ "$_arg_dry_run" == "on" ]; then
+	echo "Would regenerate implementation section with AI"
 else
-	# Extract from code block if wrapped
-	impl_content=$(extract_from_codeblock "$impl_content")
+	# Use --attach to provide context
+	ai_cmd_with_attach="$_arg_ai_bin agent ask $AGENT_DIR/scriptor.yml \"$scriptor_prompt\" --attach \"$_script_path\""
 	
-	# Replace user code section
-	replace_user_code_section "$_arg_output" "$impl_content"
+	if [ -n "$_arg_provider" ]; then
+		ai_cmd_with_attach+=" --provider \"$_arg_provider\""
+	fi
+	if [ -n "$_arg_model" ]; then
+		ai_cmd_with_attach+=" --model \"$_arg_model\""
+	fi
+	if [ "$_arg_stream" == "on" ]; then
+		ai_cmd_with_attach+=" --stream"
+	fi
+	
+	new_content=$(eval "$ai_cmd_with_attach" 2>/dev/null)
+	
+	if [ -z "$new_content" ]; then
+		die "AI failed to generate implementation" 1
+	fi
+	
+	# Extract from code block if wrapped
+	new_content=$(extract_from_codeblock "$new_content")
+	
+	replace_user_code_section "$_script_path" "$new_content"
+	
+	log "Script updated successfully: $_arg_script" 1
 fi
-
-log "Script created successfully: $_arg_output" 1
-chmod +x "$_arg_output"
 

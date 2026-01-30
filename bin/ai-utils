@@ -1,0 +1,127 @@
+#!/bin/bash
+# Common AI utilities for parseArger AI commands (create, improve)
+# Source this file in your scripts
+
+# Build AI command with common options
+# Usage: ai_cmd=$(build_ai_cmd "$agent" "$prompt")
+build_ai_cmd() {
+	local _agent="$1"
+	shift
+	local _prompt="$*"
+	
+	local _cmd=("$_arg_ai_bin" "agent" "ask" "$_agent")
+	
+	if [ -n "$_arg_provider" ]; then
+		_cmd+=(--provider "$_arg_provider")
+	fi
+	if [ -n "$_arg_model" ]; then
+		_cmd+=(--model "$_arg_model")
+	fi
+	if [ -n "$_arg_api_key" ]; then
+		_cmd+=(--api-key "$_arg_api_key")
+	fi
+	if [ -n "$_arg_temperature" ]; then
+		_cmd+=(--temperature "$_arg_temperature")
+	fi
+	if [ "$_arg_stream" == "on" ]; then
+		_cmd+=(--stream)
+	fi
+	
+	_cmd+=("$_prompt")
+	echo "${_cmd[*]}"
+}
+
+# Extract LAST code block from AI response
+# Allows AI to "think" before outputting the final command in a code block
+# Usage: cmd=$(extract_from_codeblock "$raw_output")
+extract_from_codeblock() {
+	local _raw="$1"
+	local _extracted
+	
+	# Extract ALL code blocks, take the LAST one
+	# This allows AI to have thinking/explanation before the final command
+	_extracted=$(echo "$_raw" | awk '
+		/^```/ { 
+			if (in_block) { 
+				in_block=0; 
+				block_content=current_block; 
+			} else { 
+				in_block=1; 
+				current_block=""; 
+			} 
+			next 
+		}
+		in_block { current_block = current_block $0 "\n" }
+		END { printf "%s", block_content }
+	')
+	
+	if [ -n "$_extracted" ]; then
+		# Trim trailing newline
+		echo "$_extracted" | sed 's/\n$//'
+	else
+		# No code block found, return as-is (first non-empty line)
+		echo "$_raw" | grep -v '^$' | head -1
+	fi
+}
+
+# Validate parseArger command format
+# Usage: validated=$(validate_parsearger_cmd "$cmd" "generate|parse" "$script_path")
+validate_parsearger_cmd() {
+	local _cmd="$1"
+	local _subcommand="$2"  # "generate" or "parse"
+	local _script="$3"      # optional: script path for parse commands
+	
+	# Extract first non-empty line if multiline
+	_cmd=$(echo "$_cmd" | grep -v '^$' | head -1)
+	
+	# Must start with parseArger <subcommand>
+	if [[ ! "$_cmd" =~ ^parseArger\ ${_subcommand} ]]; then
+		echo "ERROR: Command must start with 'parseArger $_subcommand'" >&2
+		return 1
+	fi
+	
+	# No dangerous chars (command substitution, pipes, semicolons, ampersands, backticks)
+	if [[ "$_cmd" =~ [\$\`\|\;\&] ]]; then
+		echo "ERROR: Command contains dangerous characters" >&2
+		return 1
+	fi
+	
+	# For parse commands, check script path is referenced
+	if [[ "$_subcommand" == "parse" && -n "$_script" ]]; then
+		if [[ ! "$_cmd" =~ $(basename "$_script") ]]; then
+			echo "WARNING: Command may not target the correct script" >&2
+		fi
+	fi
+	
+	echo "$_cmd"
+}
+
+# Get parseArger command path
+get_parsearger_cmd() {
+	if command -v parseArger > /dev/null 2>&1; then
+		echo "parseArger"
+	else
+		echo "${_SCRIPT_DIR}/../parseArger"
+	fi
+}
+
+# Extract content after @parseArger-end marker
+get_user_code_section() {
+	local _file="$1"
+	sed -n '/# @parseArger-end/,$p' "$_file" | tail -n +2
+}
+
+# Replace content after @parseArger-end marker
+replace_user_code_section() {
+	local _file="$1"
+	local _new_content="$2"
+	
+	# Get everything up to and including @parseArger-end
+	local _header
+	_header=$(sed -n '1,/# @parseArger-end/p' "$_file")
+	
+	# Combine header with new content
+	echo "$_header" > "$_file"
+	echo "" >> "$_file"
+	echo "$_new_content" >> "$_file"
+}
