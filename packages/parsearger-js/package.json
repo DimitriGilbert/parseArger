@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Run parseArger commands in JavaScript/browser environments using just-bash",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "./dist/bundle/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
@@ -26,7 +26,8 @@
     "build:lib": "esbuild dist/index.js --bundle --platform=node --format=esm --outfile=dist/bundle/index.js --external:just-bash",
     "build:browser": "esbuild dist/browser.js --bundle --platform=browser --format=esm --outfile=dist/bundle/browser.js --external:just-bash",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
   },
   "keywords": [
     "bash",
