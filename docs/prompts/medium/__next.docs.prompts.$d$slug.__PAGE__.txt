@@ -1,8 +1,8 @@
 1:"$Sreact.fragment"
-2:I[91536,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/c57e700339b63c2e.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],"SectionHeader"]
-3:I[54903,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/c57e700339b63c2e.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],""]
-4:I[3906,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/c57e700339b63c2e.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],"PromptActions"]
-9:I[9727,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/c57e700339b63c2e.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],"CodeBlock"]
+2:I[91536,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/271bf8e10e4e6cdc.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],"SectionHeader"]
+3:I[54903,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/271bf8e10e4e6cdc.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],""]
+4:I[3906,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/271bf8e10e4e6cdc.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],"PromptActions"]
+9:I[9727,["/parseArger/_next/static/chunks/638030bfacc11d20.js","/parseArger/_next/static/chunks/271bf8e10e4e6cdc.js","/parseArger/_next/static/chunks/d110d92e0d9e494d.js","/parseArger/_next/static/chunks/9143352e9ca1de64.js"],"CodeBlock"]
 b:I[34707,["/parseArger/_next/static/chunks/241a49d889d072a6.js","/parseArger/_next/static/chunks/d35fbbdc8a72518f.js"],"OutletBoundary"]
 c:"$Sreact.suspense"
 5:T1b8a,# ParseArger - Medium Prompt
@@ -268,7 +268,7 @@ parseArger generate \
 
 - GitHub: https://github.com/DimitriGilbert/parseArger
 - Documentation: https://dimitrigilbert.github.io/parseArger/
-0:{"buildId":"egLx7u4hUOaHTtKbjTAq-","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"space-y-8","children":[["$","div",null,{"className":"flex flex-col gap-4","children":[["$","div",null,{"className":"flex flex-col md:flex-row md:items-center justify-between gap-4","children":[["$","div",null,{"children":[["$","$L2",null,{"children":"Medium Prompt"}],["$","p",null,{"className":"text-muted-foreground mt-2","children":"~6.8 KB - Detailed argument options and workflows"}]]}],["$","$L3",null,{"href":"/docs/prompts","className":"px-4 py-2 bg-card border border-border text-foreground text-sm font-bold rounded-sm rounded-br-lg hover:border-primary hover:text-primary transition-colors no-underline! w-fit","children":"← BACK"}]]}],["$","$L4",null,{"content":"$5","slug":"medium"}]]}],"$L6"]}],["$L7"],"$L8"]}],"loading":null,"isPartial":false}
+0:{"buildId":"qAaqZyGtn8SNzprIuP9JV","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"space-y-8","children":[["$","div",null,{"className":"flex flex-col gap-4","children":[["$","div",null,{"className":"flex flex-col md:flex-row md:items-center justify-between gap-4","children":[["$","div",null,{"children":[["$","$L2",null,{"children":"Medium Prompt"}],["$","p",null,{"className":"text-muted-foreground mt-2","children":"~6.8 KB - Detailed argument options and workflows"}]]}],["$","$L3",null,{"href":"/docs/prompts","className":"px-4 py-2 bg-card border border-border text-foreground text-sm font-bold rounded-sm rounded-br-lg hover:border-primary hover:text-primary transition-colors no-underline! w-fit","children":"← BACK"}]]}],["$","$L4",null,{"content":"$5","slug":"medium"}]]}],"$L6"]}],["$L7"],"$L8"]}],"loading":null,"isPartial":false}
 a:T1b8a,# ParseArger - Medium Prompt
 
 ParseArger is a bash tool that generates standalone bash scripts with argument parsing, help generation, documentation, bash completion, HTML forms, and project scaffolding.
