@@ -395,21 +395,9 @@ Use the \$_arg_* variables defined by parseArger."
 if [ "$_arg_dry_run" == "on" ]; then
 	echo "Would regenerate implementation section with AI"
 else
-	# Use --attach to provide context
-	ai_cmd_with_attach="$_arg_ai_bin agent ask $AGENT_DIR/scriptor.yml \"$scriptor_prompt\" --attach \"$_script_path\""
-	
-	if [ -n "$_arg_provider" ]; then
-		ai_cmd_with_attach+=" --provider \"$_arg_provider\""
-	fi
-	if [ -n "$_arg_model" ]; then
-		ai_cmd_with_attach+=" --model \"$_arg_model\""
-	fi
-	if [ -n "$_arg_api_key" ]; then
-		ai_cmd_with_attach+=" --api-key \"$_arg_api_key\""
-	fi
-	if [ "$_arg_stream" == "on" ]; then
-		ai_cmd_with_attach+=" --stream"
-	fi
+	# Build base command using shared function (handles all options including --temperature)
+	base_cmd=$(build_ai_cmd "$AGENT_DIR/scriptor.yml" "$scriptor_prompt")
+	ai_cmd_with_attach="$base_cmd --attach \"$_script_path\""
 	
 	new_content=$(eval "$ai_cmd_with_attach" 2>/dev/null)
 	

@@ -76,8 +76,8 @@ validate_parsearger_cmd() {
 	# Extract first non-empty line if multiline
 	_cmd=$(echo "$_cmd" | grep -v '^$' | head -1)
 	
-	# Must start with parseArger <subcommand>
-	if [[ ! "$_cmd" =~ ^parseArger\ ${_subcommand} ]]; then
+	# Must start with parseArger <subcommand> followed by space or end
+	if [[ ! "$_cmd" =~ ^parseArger\ ${_subcommand}($|[[:space:]]) ]]; then
 		echo "ERROR: Command must start with 'parseArger $_subcommand'" >&2
 		return 1
 	fi

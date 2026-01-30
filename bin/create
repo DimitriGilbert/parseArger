@@ -380,20 +380,9 @@ Only output the implementation code that goes AFTER the # @parseArger-end marker
 Use the \$_arg_* variables defined by parseArger.
 Do not include the parseArger declarations section."
 
-ai_cmd_with_attach="$_arg_ai_bin agent ask $AGENT_DIR/scriptor.yml \"$scriptor_prompt\" --attach \"$_arg_output\""
-
-if [ -n "$_arg_provider" ]; then
-	ai_cmd_with_attach+=" --provider \"$_arg_provider\""
-fi
-if [ -n "$_arg_model" ]; then
-	ai_cmd_with_attach+=" --model \"$_arg_model\""
-fi
-if [ -n "$_arg_api_key" ]; then
-	ai_cmd_with_attach+=" --api-key \"$_arg_api_key\""
-fi
-if [ "$_arg_stream" == "on" ]; then
-	ai_cmd_with_attach+=" --stream"
-fi
+# Build base command using shared function (handles all options including --temperature)
+base_cmd=$(build_ai_cmd "$AGENT_DIR/scriptor.yml" "$scriptor_prompt")
+ai_cmd_with_attach="$base_cmd --attach \"$_arg_output\""
 
 impl_content=$(eval "$ai_cmd_with_attach" 2>/dev/null)
 

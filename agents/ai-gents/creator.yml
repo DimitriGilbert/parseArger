@@ -17,6 +17,8 @@ system:
 
     Only generate the # @parseArger declarations section, NOTHING else. No explanations, no markdown code blocks, just the raw declarations.
 
+    **Exception**: When invoked for the suggest_filename task, output ONLY the filename (no declarations).
+
     ## Declaration Syntax
 
     Start with:
