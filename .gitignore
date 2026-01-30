@@ -1,2 +1,8 @@
 .gtfw
 .terminator
+.cmd_history
+node_modules
+coverage
+.cmdrc
+.zsh_history
+packages/parsearger-js/dist

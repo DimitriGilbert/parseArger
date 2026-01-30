@@ -1,0 +1,59 @@
+{
+  "name": "parsearger-js",
+  "version": "0.1.0",
+  "description": "Run parseArger commands in JavaScript/browser environments using just-bash",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "browser": "./dist/bundle/browser.js",
+      "import": "./dist/bundle/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/bundle/browser.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "embed-scripts": "bun run scripts/embed-scripts.ts",
+    "build": "bun run embed-scripts && tsc && bun run build:lib && bun run build:browser",
+    "build:lib": "esbuild dist/index.js --bundle --platform=node --format=esm --outfile=dist/bundle/index.js --external:just-bash",
+    "build:browser": "esbuild dist/browser.js --bundle --platform=browser --format=esm --outfile=dist/bundle/browser.js --external:just-bash",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "bash",
+    "argument-parser",
+    "cli",
+    "parseArger",
+    "browser",
+    "just-bash"
+  ],
+  "author": "DimitriGilbert",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DimitriGilbert/parseArger.git",
+    "directory": "packages/parsearger-js"
+  },
+  "homepage": "https://github.com/DimitriGilbert/parseArger#readme",
+  "bugs": {
+    "url": "https://github.com/DimitriGilbert/parseArger/issues"
+  },
+  "peerDependencies": {
+    "just-bash": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.0",
+    "esbuild": "^0.25.0",
+    "just-bash": "^2.7.0",
+    "typescript": "^5.7.0"
+  }
+}
