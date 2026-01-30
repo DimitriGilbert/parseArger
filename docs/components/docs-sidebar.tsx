@@ -18,6 +18,10 @@ const sidebarItems = [
     ],
   },
   {
+    title: "AI Power",
+    items: [{ title: "Improve & Create", href: "/docs/ai-improve" }],
+  },
+  {
     title: "Advanced Features",
     items: [
       { title: "XDG Config", href: "/docs/xdg-config" },
@@ -71,7 +75,7 @@ export function DocsSidebar() {
                       "text-sm px-3 py-2 rounded-sm rounded-br-lg transition-all border border-transparent",
                       pathname === item.href
                         ? "bg-primary/10 text-primary border-primary/20 font-medium translate-x-1"
-                        : "text-muted-foreground hover:text-foreground hover:bg-card hover:border-border"
+                        : "text-muted-foreground hover:text-foreground hover:bg-card hover:border-border",
                     )}
                   >
                     {item.title}
@@ -85,7 +89,7 @@ export function DocsSidebar() {
                   "text-sm px-3 py-2 rounded-sm rounded-br-lg transition-all border border-transparent block",
                   pathname === section.href
                     ? "bg-primary/10 text-primary border-primary/20 font-medium translate-x-1"
-                    : "text-muted-foreground hover:text-foreground hover:bg-card hover:border-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-card hover:border-border",
                 )}
               >
                 Overview
