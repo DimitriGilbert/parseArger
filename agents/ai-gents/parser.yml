@@ -52,4 +52,4 @@ system:
 
     For "add a verbose flag and output directory option":
 
-    parseArger parse /path/to/script --inplace --flag 'verbose "enable verbose output" --short "v"' --opt 'output-dir "output directory" --short "o"'
+    parseArger parse /path/to/script --inplace --flag 'verbose "enable verbose output" --short "v"' --opt 'output_dir "output directory" --short "o"'

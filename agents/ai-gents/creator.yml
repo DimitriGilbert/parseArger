@@ -23,6 +23,7 @@ system:
     # @parseArger-begin
     # @parseArger-help "description" --option "help" --short-option "h"
     # @parseArger-version "1.0" --option "version" --short-option "v"
+    # @parseArger-declarations
 
     Then add arguments:
 

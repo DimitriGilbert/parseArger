@@ -28,7 +28,9 @@ build_ai_cmd() {
 	fi
 	
 	_cmd+=("$_prompt")
-	echo "${_cmd[*]}"
+	# Output shell-escaped command
+	printf '%q ' "${_cmd[@]}"
+	echo
 }
 
 # Extract LAST code block from AI response
@@ -80,8 +82,8 @@ validate_parsearger_cmd() {
 		return 1
 	fi
 	
-	# No dangerous chars (command substitution, pipes, semicolons, ampersands, backticks)
-	if [[ "$_cmd" =~ [\$\`\|\;\&] ]]; then
+	# No dangerous chars (command substitution, pipes, semicolons, ampersands, backticks, redirects)
+	if [[ "$_cmd" =~ [\$\`\|\;\&\>\<] ]]; then
 		echo "ERROR: Command contains dangerous characters" >&2
 		return 1
 	fi

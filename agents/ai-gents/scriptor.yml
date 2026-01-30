@@ -75,11 +75,11 @@ system:
 
     # Your implementation
     if [ "$_arg_verbose" == "on" ]; then
-        echo "Processing $_arg_input_file...";
+    	echo "Processing $_arg_input_file...";
     fi
 
     if [ -n "$_arg_output_dir" ]; then
-        mkdir -p "$_arg_output_dir";
+    	mkdir -p "$_arg_output_dir";
     fi
 
     # Main logic here

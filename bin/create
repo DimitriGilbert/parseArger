@@ -388,6 +388,9 @@ fi
 if [ -n "$_arg_model" ]; then
 	ai_cmd_with_attach+=" --model \"$_arg_model\""
 fi
+if [ -n "$_arg_api_key" ]; then
+	ai_cmd_with_attach+=" --api-key \"$_arg_api_key\""
+fi
 if [ "$_arg_stream" == "on" ]; then
 	ai_cmd_with_attach+=" --stream"
 fi
