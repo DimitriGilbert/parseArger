@@ -40,8 +40,8 @@ __cli_arg_count=$#;
 die()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-   	_ret="$2"
+    if [[ -n "${2:-}" ]] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+   	_ret="${2:-}"
     fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
@@ -270,22 +270,22 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level + 1))";
-					else
-						_verbose_level="$2";
-						shift;
-					fi
-					;;
-				--quiet)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level - 1))";
-					else
-						_verbose_level="-$2";
-						shift;
-					fi
-					;;
-				
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			--quiet)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level - 1))";
+				else
+					_verbose_level="-$2";
+					shift;
+				fi
+				;;
+			
 				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
@@ -318,8 +318,8 @@ assign_positional_args()
 	for _positional_name in ${_positional_names};do
 		test $# -gt 0 || break;
 		eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
-		local _match_var="_match${_positional_name}"
-		local _regex="${!_match_var}"
+		local _match_var="_match${_positional_name}";
+		local _regex="${!_match_var}";
 		if [ -n "$_regex" ]; then
 			[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
 		fi
@@ -371,6 +371,7 @@ trap on_interrupt INT;
 
 
 
+
 # @parseArger-parsing-end
 # print_debug "$@"
 # @parseArger-end
@@ -385,10 +386,6 @@ source "${SCRIPT_ROOT_DIR}/utils";
 
 outStr="# @parse";
 outStr+="Arger pos $_arg_arg_name \"${_arg_description}\""
-
-if [ "$_arg_default_value" != "" ]; then
-  outStr+=" --default-value \"$_arg_default_value\""
-fi
 
 if [ "$_arg_repeat_min" -gt "1" ] || [ "$_arg_repeat_max" != "" ]; then
   _arg_repeat="on"
@@ -456,6 +453,10 @@ if [ "${#_arg_one_of[@]}" -gt 0 ]; then
 	for _oof in "${_arg_one_of[@]}"; do
 		outStr+=" --one-of \"$_oof\"";
 	done
+fi
+
+if [ "$_arg_match" != "" ]; then
+	outStr+=" --match \"$_arg_match\""
 fi
 
 echo -e "$outStr";

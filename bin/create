@@ -33,8 +33,8 @@ __cli_arg_count=$#;
 die()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-   	_ret="$2"
+    if [[ -n "${2:-}" ]] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+   	_ret="${2:-}"
     fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
@@ -398,4 +398,3 @@ fi
 
 log "Script created successfully: $_arg_output" 1
 chmod +x "$_arg_output"
-

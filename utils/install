@@ -10,7 +10,7 @@ if [ -t 1 ]; then # Check if stdout is a terminal
 	fi
 fi
 # @parseArger-declarations
-# @parseArger opt shell-rc-file "where to put the source directive" --default-value "$HOME/.bashrc" --repeat --alias install-file
+# @parseArger opt shell-rc-file "where to put the source directive" --default-value "/home/didi/.bashrc" --repeat --alias install-file
 # @parseArger flag comment "add parsearger comment" --on
 # @parseArger-declarations-end
 
@@ -26,8 +26,8 @@ __cli_arg_count=$#;
 die()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-   	_ret="$2"
+    if [[ -n "${2:-}" ]] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+   	_ret="${2:-}"
     fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
@@ -46,7 +46,7 @@ begins_with_short_option()
 _positionals=();
 _optional_positionals=();
 # OPTIONALS ARGUMENTS
-_arg_shell_rc_file=("$HOME/.bashrc" )
+_arg_shell_rc_file=("/home/didi/.bashrc" )
 # FLAGS
 _arg_comment="on"
 # NESTED
@@ -61,7 +61,7 @@ print_help()
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
 		echo -e "Install parseArger:"
-	echo -e "	--shell-rc-file|--install-file <shell-rc-file>: where to put the source directive, repeatable [default: '( $HOME/.bashrc )']"
+	echo -e "	--shell-rc-file|--install-file <shell-rc-file>: where to put the source directive, repeatable [default: '( /home/didi/.bashrc )']"
 	echo -e "	--comment|--no-comment: add parsearger comment, on by default (use --no-comment to turn it off)"
 	echo -e "Usage :
 	$0 [--shell-rc-file <value>] [--[no-]comment]";
@@ -138,22 +138,22 @@ parse_commandline()
 				exit 0;
 				;;
 			--verbose)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level + 1))";
-					else
-						_verbose_level="$2";
-						shift;
-					fi
-					;;
-				--quiet)
-					if [ $# -lt 2 ];then
-						_verbose_level="$((_verbose_level - 1))";
-					else
-						_verbose_level="-$2";
-						shift;
-					fi
-					;;
-				
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level + 1))";
+				else
+					_verbose_level="$2";
+					shift;
+				fi
+				;;
+			--quiet)
+				if [ $# -lt 2 ];then
+					_verbose_level="$((_verbose_level - 1))";
+				else
+					_verbose_level="-$2";
+					shift;
+				fi
+				;;
+			
 				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")

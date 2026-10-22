@@ -34,8 +34,8 @@ __cli_arg_count=$#;
 die()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-   	_ret="$2"
+    if [[ -n "${2:-}" ]] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+   	_ret="${2:-}"
     fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
@@ -97,29 +97,29 @@ log() {
 	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
 		case "$_arg_level" in
 			-3)
-				_arg_COLOR="[0;31m";
+				_arg_COLOR="\033[0;31m";
 				;;
 			-2)
-				_arg_COLOR="[0;33m";
+				_arg_COLOR="\033[0;33m";
 				;;
 			-1)
-				_arg_COLOR="[1;33m";
+				_arg_COLOR="\033[1;33m";
 				;;
 			1)
-				_arg_COLOR="[0;32m";
+				_arg_COLOR="\033[0;32m";
 				;;
 			2)
-				_arg_COLOR="[1;36m";
+				_arg_COLOR="\033[1;36m";
 				;;
 			3)
-				_arg_COLOR="[0;36m";
+				_arg_COLOR="\033[0;36m";
 				;;
 			*)
-				_arg_COLOR="[0m";
+				_arg_COLOR="\033[0m";
 				;;
 		esac
 		if [ "${_has_colors}" == "1" ]; then
-			echo -e "${_arg_COLOR}${_arg_msg}[0m";
+			echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
 		else
 			echo "${_arg_msg}";
 		fi
@@ -238,8 +238,7 @@ handle_passed_args_count()
 {
 	local _required_args_string="script prompt"
 	if [ "${_positionals_count}" -gt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
-		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 2 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').
-	${_positionals[*]}" 1
+		_PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect at most 2 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}').\n\t${_positionals[*]}" 1
 	fi
 	if [ "${_positionals_count}" -lt 2 ] && [ "$_helpHasBeenPrinted" == "1" ];then
 		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 2 (namely: $_required_args_string), but got only ${_positionals_count}.
@@ -412,4 +411,3 @@ else
 	
 	log "Script updated successfully: $_arg_script" 1
 fi
-
