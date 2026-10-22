@@ -39,8 +39,8 @@ __cli_arg_count=$#;
 die()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-   	_ret="$2"
+    if [[ -n "${2:-}" ]] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+   	_ret="${2:-}"
     fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
@@ -590,15 +590,31 @@ fi
 tmpGen="$(mktemp)";
 "$SCRIPT_ROOT_DIR/generate" "${cmdGen[@]}" > "$tmpGen";
 
-tmpMrk="tmpMrk"
-tmpMrk="___${tmpMrk}___parsearger"
-# https://unix.stackexchange.com/a/485670 <3
-parsedGen="$(sed -e "/${paStart}-end/a ${tmpMrk}" -e "/${paStart}-begin/,/${paStart}-end/d" "$_arg_file" | sed -e "/${tmpMrk}/r ${tmpGen}" -e "/${tmpMrk}/d")";
+# replace only the first begin..end pair: file bodies legitimately mention the
+# markers (grep patterns, AI prompts) and the generated block itself contains
+# them, so splicing at every match appends a new block on each reparse
+parsedGen="$(awk -v genFile="$tmpGen" -v begin="${paStart}-begin" -v end="${paStart}-end" '
+	!_done && index($0, begin) == 1 {
+		while ((getline _genLine < genFile) > 0) print _genLine;
+		close(genFile);
+		_done = 1; _skip = 1;
+		next;
+	}
+	_skip && index($0, end) == 1 { _skip = 0; next; }
+	_skip { next; }
+	{ print }
+' "$_arg_file")";
 
 rm "$tmpGen";
 
 if [ "$_arg_inplace" == "on" ]; then
-  echo "$parsedGen" > "$_arg_file";
-else 
+  # replace the inode instead of truncating: a running copy of the script
+  # (bulk-parse reparsing itself, make reparse on parseArger) keeps reading
+  # the old inode, in-place redirection shifts bytes under it
+  _tmpOut="$(mktemp "$(dirname "$_arg_file")/.parsearger.XXXXXX")";
+  echo "$parsedGen" > "$_tmpOut";
+  if [ -x "$_arg_file" ]; then chmod +x "$_tmpOut"; fi
+  mv "$_tmpOut" "$_arg_file";
+else
   echo "$parsedGen";
 fi

@@ -31,7 +31,7 @@ fi
 # @parseArger opt nested "nested option declaration" --repeat
 # @parseArger opt history "add n history lines at the end of the file"
 # @parseArger opt history-offset "offset --history value by value"
-# @parseArger opt history-file "specify history file" --default-value "$HOME/.bash_history"
+# @parseArger opt history-file "specify history file" --default-value "/home/didi/.bash_history"
 # @parseArger opt dependencies "specify script dependencies" --repeat
 # @parseArger opt xdg "XDG app name for config/data/cache directories"
 # @parseArger opt xdg-config-file "XDG config file name" --default-value "config"
@@ -57,8 +57,8 @@ __cli_arg_count=$#;
 die()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-   	_ret="$2"
+    if [[ -n "${2:-}" ]] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+   	_ret="${2:-}"
     fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
@@ -97,7 +97,7 @@ _arg_verbose_level="0"
 _arg_nested=()
 _arg_history=
 _arg_history_offset=
-_arg_history_file="$HOME/.bash_history"
+_arg_history_file="/home/didi/.bash_history"
 _arg_dependencies=()
 _arg_xdg=
 _arg_xdg_config_file="config"
@@ -142,7 +142,7 @@ print_help()
 	echo -e "	--nested <nested>: nested option declaration, repeatable"
 	echo -e "	--history <history>: add n history lines at the end of the file"
 	echo -e "	--history-offset <history-offset>: offset --history value by value"
-	echo -e "	--history-file <history-file>: specify history file [default: ' $HOME/.bash_history ']"
+	echo -e "	--history-file <history-file>: specify history file [default: ' /home/didi/.bash_history ']"
 	echo -e "	--dependencies <dependencies>: specify script dependencies, repeatable"
 	echo -e "	--xdg <xdg>: XDG app name for config/data/cache directories"
 	echo -e "	--xdg-config-file <xdg-config-file>: XDG config file name [default: ' config ']"
@@ -516,7 +516,8 @@ parse_commandline()
 					shift;
 				fi
 				;;
-			*)
+			
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -817,8 +818,8 @@ __cli_arg_count="\$#";
 ${_arg_die_fn_name}()
 {
 	local _ret=1
-    if [[ -n \"\$2\" ]] && [[ \"\$2\" =~ ^[0-9]+$ ]]; then
-   	_ret=\"\$2\"
+    if [[ -n \"\${2:-}\" ]] && [[ \"\${2:-}\" =~ ^[0-9]+$ ]]; then
+   	_ret=\"\${2:-}\"
     fi
 	test \"\${_PRINT_HELP:-no}\" = yes && print_help >&2
 	log \"\$1\" -3 >&2

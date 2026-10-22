@@ -42,8 +42,8 @@ __cli_arg_count=$#;
 die()
 {
 	local _ret=1
-    if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
-   	_ret="$2"
+    if [[ -n "${2:-}" ]] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+   	_ret="${2:-}"
     fi
 	test "${_PRINT_HELP:-no}" = yes && print_help >&2
 	log "$1" -3 >&2
@@ -290,6 +290,14 @@ parse_commandline()
 				print_help;
 				exit 0;
 				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
 			--verbose)
 				if [ $# -lt 2 ];then
 					_verbose_level="$((_verbose_level + 1))";
@@ -306,18 +314,20 @@ parse_commandline()
 					shift;
 				fi
 				;;
-			# parsing leftovers
-			--*)
-				if [[ "$2" =~ ^--([^=]+)(=(.*))?$ ]] || [ "$2" = "" ]; then
-					_arg_parsed_leftovers["${1#--}"]="on"
-				elif [[ "$1" =~ ^--([^=]+)=(.*)$ ]]; then
-					_arg_parsed_leftovers["${BASH_REMATCH[1]}"]="${BASH_REMATCH[2]}";
-				else
-					_arg_parsed_leftovers["${1#--}"]="${2}";
-					shift;
-				fi
-				;;
-			*)
+			
+				# parsing leftovers
+				--*)
+					if [[ "$2" =~ ^--([^=]+)(=(.*))?$ ]] || [ "$2" = "" ]; then
+						_arg_parsed_leftovers["${1#--}"]="on"
+					elif [[ "$1" =~ ^--([^=]+)=(.*)$ ]]; then
+						_arg_parsed_leftovers["${BASH_REMATCH[1]}"]="${BASH_REMATCH[2]}";
+					else
+						_arg_parsed_leftovers["${1#--}"]="${2}";
+						shift;
+					fi
+					;;
+
+				*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -352,7 +362,11 @@ assign_positional_args()
 		test $# -gt 0 || break;
 		if ! [[ "$_positional_name" =~ "_arg_leftovers" ]];then
 			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
-			eval "local _regex=\$(eval \"echo \\\"\\\$_match\${_positional_name}\\\"\");if [ \"\$_regex\" != \"\" ];then [[ \"\${1}\" =~ \$_regex ]] || die \\\"\\\${_positional_name} does not match pattern: \$_regex\\\";fi";
+			local _match_var="_match${_positional_name}";
+			local _regex="${!_match_var}";
+			if [ -n "$_regex" ]; then
+				[[ "${1}" =~ $_regex ]] || die "${_positional_name} does not match pattern: $_regex"
+			fi
 		fi
 		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
 		shift;
@@ -386,6 +400,12 @@ print_debug()
 }
 
 
+print_version()
+{
+	echo "0.1";
+}
+
+
 on_interrupt() {
 	die Process aborted! 130;
 }
@@ -395,6 +415,7 @@ parse_commandline "$@";
 handle_passed_args_count;
 assign_positional_args 1 "${_positionals[@]}";
 trap on_interrupt INT;
+
 
 
 

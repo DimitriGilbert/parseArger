@@ -7,7 +7,7 @@ export PA_FORM="form.html"
 
 pa-document:
 	@echo "Generating documentation";
-	parseArger document $(PA_FILE) --directory $(PA_DIR) --out $(DOC_FILE) --title $(DOC_TITLE)
+	parseArger document --file $(PA_FILE) --directory $(PA_DIR) --out $(DOC_FILE) --title $(DOC_TITLE) --no-append-output
 pa-parse:
 	@echo "Reparsing codebase";
 	parseArger bulk-parse --file $(PA_FILE) --directory $(PA_DIR)
